@@ -1,0 +1,52 @@
+Meeting BSc Wildfire control 7-2-2019
+Attending: Travis, Ivo, Dirk-Jelle, Ritten
+Not attending: Roel Rotteveel
+Meeting started at: 
+
+Minutes:
+Travis created a git-hub repository.
+Travis proposes to write the cell classes.
+Ivo proposes to write the UI.
+
+We need:
+	Cells
+		Cells updating system (active cells set)
+	Wind (future)
+	Map Generation
+	GUI
+	Agents
+	Define score (future)
+	
+Ritten proposes to take Agents with actions including:
+	Bulldozer agent
+		Moving in cardinal directions
+		Cutting in cardinal directions
+	Burnability
+
+Travis takes cells with Dirk-Jelle:
+	Fire value
+	Fuel value
+	Ignition value
+	Traversability
+	Type
+	Fire propagation 
+	
+
+Ivo take GUI with:
+	Add function get_cell(x,y) for GUI and agents
+	Cells (updated only)
+	Start/stop/pause
+	Cell tooltips
+	Set parameters
+	Reset/Regenerate
+	
+Generation should be done by Roel(to be discussed):
+	Area of bush with cirles of forest, expandable with multiple tiles
+	One or multiple fire starts
+	(If this is too much for now, create a random-pattern with appropriate ratios)
+
+Coding should be done according to MVC pattern.
+
+Max fire speed = 10mph
+	
+	
