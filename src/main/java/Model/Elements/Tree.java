@@ -1,4 +1,4 @@
-package Elements;
+package Model.Elements;
 
 import java.awt.Color;
 
@@ -65,7 +65,7 @@ public class Tree extends Element
 
 	public int getY() { return y; }
 
-	public Color getColor() { return color; }
+	public Color getColor() { if(isBurning){ return Color.RED;}else{ return color; }}
 
 	public int getBurnDuration() { return burnDuration; }
 

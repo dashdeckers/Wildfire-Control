@@ -1,4 +1,4 @@
-package Elements;
+package Model.Elements;
 
 import java.awt.Color;
 

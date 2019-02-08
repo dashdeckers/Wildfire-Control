@@ -1,11 +1,16 @@
-import Elements.Tree;
+import Model.Elements.Tree;
+import Model.Simulation;
+import View.MainFrame;
+
+import javax.swing.*;
 
 public class Main
 {
 	public static void main(String[] args)
 	{
-		System.out.println("Hello World!");
-		Tree t = new Tree(10, 10);
-		t.setBurning();
+        Simulation model = new Simulation();
+	    JFrame mainFrame = new MainFrame(model);
+
+
 	}
 }
