@@ -3,6 +3,7 @@ package Model;
 import Model.Elements.Element;
 import Model.Elements.Tree;
 
+import javax.swing.undo.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -14,25 +15,48 @@ public class Simulation extends Observable {
     List<List<Element>> cells;
     Map<String, Float> parameters;
     private Random rand;
+    UndoManager undoManager;
 
     public Simulation(){
         parameters = new HashMap<String, Float>();
-        create_parameters();
+        undoManager = new UndoManager();
         rand = new Random();
+
+        create_parameters();
+
         tree_grid( parameters.get("Width").intValue(), parameters.get("Height").intValue());
     }
 
     public void start(){
         System.out.println("Starting");
-
     }
-
     public void stop(){
         System.out.println("Stopping");
     }
-    public void reset(){
-        System.out.println("Resetting");
+    public void reset(){}
+    public void regenerate(){
         tree_grid(parameters.get("Width").intValue(), parameters.get("Height").intValue());
+    }
+    public void stepBack(){
+        if(undoManager.canUndo()){
+            undoManager.undo();
+        }
+    }
+    public void stepForward(){
+        if(undoManager.canRedo()){
+            undoManager.redo();
+        }else{
+            UndoableEdit undoableEdit = new AbstractUndoableEdit() {
+
+                public void redo() throws CannotRedoException {
+                    super.redo();
+                }
+
+                public void undo() throws CannotUndoException {
+                    super.undo();
+                }
+            };
+        }
     }
 
     public List<List<Element>> getAllCells() {
