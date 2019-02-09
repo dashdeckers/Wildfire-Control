@@ -96,12 +96,10 @@ public class Simulation extends Observable {
         parameters.put("Wind strength", 1f);
         parameters.put("Yadayada", 0f);
     }
-
     public void changeParameter(String s, float v){
         System.out.println("Setting " + s + " to " + v);
         parameters.put(s, v);
     }
-
     public Map<String, Float> getParameters(){
         return parameters;
     }

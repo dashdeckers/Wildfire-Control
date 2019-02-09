@@ -20,6 +20,10 @@ class ControlAction extends AbstractAction{
     }
 
 
+    /**
+     * name should match the names of the buttons as defined in ControlPanel.addControlButtons()
+     * @param e
+     */
     public void actionPerformed(ActionEvent e) {
         switch(name){
             case "Reset":
