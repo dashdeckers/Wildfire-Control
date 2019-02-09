@@ -6,35 +6,44 @@ import Model.Simulation;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
-public class SimulationPanel extends JPanel {
-    public Simulation model;
-    public SimulationPanel(Simulation model){
+public class SimulationPanel extends JPanel implements Observer {
+    private Simulation model;
+    private Graphics g;
+    private List<List<Element>> cells;
+    public SimulationPanel(Simulation model, int size){
         this.model = model;
+        cells = model.getAllCells();
+        this.setPreferredSize(new Dimension(size,size));
+        model.addObserver(this);
     }
 
+    @Override
     public void paintComponent(Graphics g){
-        List<List<Element>> elements = model.getAllCells();
-
+        super.paintComponent(g);
+        this.g = g; //Need to extract g for pain_changed_cells
+        System.out.println("Painting all cells");
         //Jump-in boundaries
-        int start_x = 10;
-        int start_y = 10;
-        int end_x = this.getSize().width - 10;
-        int end_y = this.getSize().height - 10;
+        //removeAll();
+        int start_x = 2;
+        int start_y = 2;
+        int end_x = this.getSize().width - 2;
+        int end_y = this.getSize().height - 2;
 
-        int x_jump = (end_x - start_x)/elements.size();
-        int y_jump = (end_y - start_y)/elements.get(0).size();
-        int x_width = x_jump - 2;
-        int y_width = y_jump - 2;
+        float x_jump = (float) (end_x - start_x)/ (float) cells.size();
+        float y_jump = (float) (end_y - start_y)/ (float) cells.get(0).size();
+        float x_width = x_jump - 1;
+        float y_width = y_jump - 1;
 
-        int x = start_x;
-        int y = start_y;
+        float x = start_x;
+        float y = start_y;
 
-        for(int i = 0; i < elements.size(); i++){
-            for(int j =0; j < elements.get(0).size(); j++){
-                System.out.println("Drawing rectangle at:" + elements.get(i).get(j).getColor().toString());
-                g.setColor(elements.get(i).get(j).getColor());
-                g.fillRect(x,y, x_width, y_width);
+        for(int i = 0; i < cells.get(0).size(); i++){
+            for(int j =0; j < cells.size(); j++){
+                g.setColor(cells.get(j).get(i).getColor());
+                g.fillRect((int)x,(int)y, (int) x_width, (int) y_width);
                 x+= x_jump;
             }
             y+= y_jump;
@@ -43,4 +52,13 @@ public class SimulationPanel extends JPanel {
 
     }
 
+
+    public void update(Observable observable, Object o) {
+        if(o instanceof List   //Check if List
+                && ((List<Object>) o).get(0) instanceof List //THEN check if List of Lists (i.e. 2d Array)
+                && ((List<List<Object>>) o).get(0).get(0) instanceof Element ) { //THEN check if 2d array of Elements (i.e. cells)
+            cells = (List<List<Element>>) o;
+            repaint();
+        }
+    }
 }

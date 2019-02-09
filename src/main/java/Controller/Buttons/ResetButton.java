@@ -8,7 +8,7 @@ import java.awt.event.ActionEvent;
 public class ResetButton extends JButton {
     public ResetButton(Simulation model){
         super("Reset");
-        this.addActionListener(new StopAction(model));
+        this.addActionListener(new ResetAction(model));
     }
 }
 
@@ -20,7 +20,7 @@ class ResetAction extends AbstractAction{
 
 
     public void actionPerformed(ActionEvent e) {
-        model.stop();
+        model.reset();
     }
 
 }

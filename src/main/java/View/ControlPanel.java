@@ -3,10 +3,14 @@ package View;
 import Controller.Buttons.ResetButton;
 import Controller.Buttons.StartButton;
 import Controller.Buttons.StopButton;
+import Controller.TextFields.parameterAction;
 import Model.Simulation;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ControlPanel extends JPanel {
     Simulation model;
@@ -27,6 +31,7 @@ public class ControlPanel extends JPanel {
     }
 
     public void addControlButtons(GridBagConstraints c){
+        c.gridwidth = 2;
         JButton startButton = new StartButton(model);
         this.add(startButton, c);
         c.gridy++;
@@ -36,10 +41,30 @@ public class ControlPanel extends JPanel {
         JButton resetButton = new ResetButton(model);
         this.add(resetButton, c);
         c.gridy++;
+        c.gridwidth = 1;
 
     }
 
+    /**
+     * This creates parameter textfields according to the parameter map in Simulation. If you want to add parameters, do that there, and this should generate the new parameter
+     * @param c
+     */
     public void addParameterFields(GridBagConstraints c){
 
+        Map<String, Float> parameter_list = model.getParameters();
+        for (String p: parameter_list.keySet()) {
+
+
+            JLabel l = new JLabel(p);
+            this.add(l, c);
+            c.gridx = 1;
+            //Could make this nicer by putting the TextField in a panel
+            JFormattedTextField t = new JFormattedTextField();
+            t.setColumns(3);
+            t.getDocument().addDocumentListener(new parameterAction(model, t, p));
+            this.add(t, c);
+            c.gridx = 0;
+            c.gridy++;
+        }
     }
 }
