@@ -11,7 +11,8 @@ public class MainFrame extends JFrame {
         GridBagLayout gbl = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
         this.setLayout(gbl);
-        this.setPreferredSize(new Dimension(1000,1000));
+        int simulation_size = 1000;
+        this.setPreferredSize(new Dimension(simulation_size + 300,simulation_size));
         c.weightx = 0.5;
         c.weighty = 0.5;
         c.fill = GridBagConstraints.BOTH;
@@ -19,7 +20,7 @@ public class MainFrame extends JFrame {
         c.gridy = 0;
 
 
-        this.add(new SimulationPanel(model), c);
+        this.add(new SimulationPanel(model, simulation_size), c);
 
         c.gridx = 1;
         this.add(new ControlPanel(model), c);
