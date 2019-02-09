@@ -32,7 +32,7 @@ public class SimulationPanel extends JPanel {
 
         for(int i = 0; i < elements.size(); i++){
             for(int j =0; j < elements.get(0).size(); j++){
-                System.out.println("Drawing rectangle at:" + elements.get(i).get(j).getColor().toString());
+                //System.out.println("Drawing rectangle at:" + elements.get(i).get(j).getColor().toString());
                 g.setColor(elements.get(i).get(j).getColor());
                 g.fillRect(x,y, x_width, y_width);
                 x+= x_jump;
