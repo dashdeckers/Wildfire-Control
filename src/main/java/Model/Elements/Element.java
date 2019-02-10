@@ -3,6 +3,7 @@ package Model.Elements;
 import java.awt.Color;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 /*
 	The abstract element class contains most of what is needed for each element,
@@ -16,14 +17,14 @@ public abstract class Element
 	int y = 0;
 	int r = 0;
 	Color color = Color.WHITE;
+	Map<String, Float> parameters;
 	boolean burnable = false;
 	boolean isBurning = false;
 	boolean isBurnt = false;
 
-	int burnTimer = 0;
+	int fireActivity = 0;
 	int burnIntensity = 0;
 	int ignitionThreshold = 10;
-	int fireActivity = 0;
 	int fuel = 0;
 
 	public abstract void initializeParameters();
@@ -34,6 +35,10 @@ public abstract class Element
 	 */
 	public String update(List<List<Element>> cells)
 	{
+		if (!burnable)
+		{
+			return "Not Burnable";
+		}
 		boolean wasBurning = isBurning;
 		timeStep();
 		if (!isBurning)
@@ -96,7 +101,7 @@ public abstract class Element
 	}
 
 	/*
-		Returns a set of cells that fall within the range of this cell
+		Returns a set of cells that fall within the range of this cell.
 	 */
 	public HashSet<Element> getNeighbours(List<List<Element>> cells)
 	{
@@ -105,10 +110,13 @@ public abstract class Element
 		{
 			for (int yi = y-r; yi < y+r; yi++)
 			{
-				Element cell = cells.get(xi).get(yi);
-				if (cell.isWithinCircleOf(this))
+				if (inBounds(xi, yi))
 				{
-					neighbours.add(cell);
+					Element cell = cells.get(xi).get(yi);
+					if (cell.isWithinCircleOf(this))
+					{
+						neighbours.add(cell);
+					}
 				}
 			}
 		}
@@ -122,6 +130,23 @@ public abstract class Element
 	private boolean isWithinCircleOf(Element cell)
 	{
 		return Math.pow(x - cell.x, 2) + Math.pow(y - cell.y, 2) <= Math.pow(r, 2);
+	}
+
+	/*
+		Checks if the coordinates are within the boundaries of the map.
+	 */
+	private boolean inBounds(int x, int y)
+	{
+		int maxX = parameters.get("Height").intValue();
+		int maxY = parameters.get("Width").intValue();
+		if (x >= 0 && x < maxX)
+		{
+			if (y >= 0 && y < maxY)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void setBurning() { isBurning = true; }

@@ -129,11 +129,11 @@ public class Simulation extends Observable
             for(int j=0; j<y; j++){
                 if(i== fire_x && j == fire_y){
                     System.out.println("Fire at " + i + "," + j);
-                    Element t = new Tree(i,j);
+                    Element t = new Tree(i,j, parameters);
                     t.setBurning();
                     row.add(t);
                 }else {
-                    row.add(new Tree(i, j));
+                    row.add(new Tree(i, j, parameters));
                 }
             }
             cells.add(row);
