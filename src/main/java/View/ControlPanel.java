@@ -12,6 +12,7 @@ import java.util.Map;
 
 public class ControlPanel extends JPanel {
     private Simulation model;
+
     public ControlPanel(Simulation model){
         this.model = model;
         GridBagLayout gbl = new GridBagLayout();
@@ -28,6 +29,12 @@ public class ControlPanel extends JPanel {
         addParameterFields(c);
     }
 
+    /**
+     * Creates the buttons for controlling. The first part creates full width buttons, the last part half-width buttons
+     * All buttons call ControlAction in ControlButton.java. If you add a string to button_names here a button will be drawn.
+     * If you add a case with matching string to the switch in ControlAction.actionPerformed() you can add functionality.
+     * @param c
+     */
     public void addControlButtons(GridBagConstraints c){
         String[] button_names = {"Start", "Stop", "Regenerate", "Reset"};
         c.gridwidth = 2;
@@ -49,21 +56,22 @@ public class ControlPanel extends JPanel {
     }
 
     /**
-     * This creates parameter text fields according to the parameter map in Simulation. If you want to add parameters, do that there, and this should generate the new parameter
+     * This creates parameter text fields according to the parameter map in Simulation.
+     * All parameters are fetched from the model. If you want to add parameters to that in Simulation.createParameters()
      * @param c
      */
     public void addParameterFields(GridBagConstraints c){
 
         Map<String, Float> parameter_list = model.getParameters();
         for (String p: parameter_list.keySet()) {
+            //Create a text label
             JLabel l = new JLabel(p);
             this.add(l, c);
             c.gridx = 1;
             //Could make this nicer by putting the TextField in a panel
             JFormattedTextField t = new JFormattedTextField();
-            t.setText(parameter_list.get(p).toString());
-            t.setColumns(3);
-            t.getDocument().addDocumentListener(new parameterAction(model, t, p));
+            t.setText(parameter_list.get(p).toString()); //import the default value to the text field
+            t.getDocument().addDocumentListener(new parameterAction(model, t, p)); //add functionality
             this.add(t, c);
             c.gridx = 0;
             c.gridy++;

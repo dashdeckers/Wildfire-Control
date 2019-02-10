@@ -12,8 +12,8 @@ import java.util.Observer;
 public class SimulationPanel extends JPanel implements Observer {
     private Simulation model;
     private Graphics g;
-    private List<List<Element>> cells;
-    private boolean draw_all;
+    private List<List<Element>> cells; //Holds the cells
+    private boolean draw_all; // intended to be able to draw only changed cells, but not implemented yet. Keep at 1
 
     public SimulationPanel(Simulation model, int size){
         draw_all = true;

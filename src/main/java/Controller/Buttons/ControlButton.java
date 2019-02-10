@@ -36,6 +36,7 @@ class ControlAction extends AbstractAction{
                 model.regenerate();
                 break;
             case "Start":
+                //Use a thread here so that we still have control while the model is running
                 new Thread(new Runnable() {
                     public void run() {
                         model.start();
