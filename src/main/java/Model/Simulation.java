@@ -4,14 +4,7 @@ import Model.Elements.Element;
 import Model.Elements.Tree;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Observable;
-import java.util.Random;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 
 public class Simulation extends Observable implements Serializable{
 
@@ -29,7 +22,7 @@ public class Simulation extends Observable implements Serializable{
 	public Simulation()
 	{
 	    //Initialize these things
-        parameters = new HashMap<>();
+        parameters = new LinkedHashMap<>();
         staged_parameters = new HashMap<>();
         rand = new Random();
         states = new ArrayList<>();
@@ -40,11 +33,12 @@ public class Simulation extends Observable implements Serializable{
         //This creates an area of trees of x by y, since we don't have the actual map generation yet
         tree_grid(parameters.get("Width").intValue(), parameters.get("Height").intValue());
 
+        cells.get(0).get(0).setBurning();
         //This gathers the first set of cells to be active
 		findActiveCells();
 
-		//This adds the initial state to the states list
-		states.add(this);
+        //This adds the initial state to the states list
+		states.add((Simulation) deepCopy(this));
 	}
 
 	/*
@@ -74,15 +68,15 @@ public class Simulation extends Observable implements Serializable{
     public void start() {
 	    running = true;
         while(running){
-            try {
-                Thread.sleep(Math.abs((long) parameters.get("Step time").floatValue()));
-            } catch (java.lang.InterruptedException e){
-                System.out.println(e.getMessage());
-            }
             if(parameters.get("Step time") >=0){
                 stepForward();
             }else{
                 stepBack();
+            }
+            try {
+                Thread.sleep(Math.abs((long) parameters.get("Step time").floatValue()));
+            } catch (java.lang.InterruptedException e){
+                System.out.println(e.getMessage());
             }
 
         }
@@ -100,9 +94,9 @@ public class Simulation extends Observable implements Serializable{
      */
     public void reset(){
 	    if(states.size() > 0){
-	        Simulation rewind = states.get(0);
-	        states.clear();
-	        this.cells =rewind.cells;
+	        stop();
+	        Simulation rewind = (Simulation) deepCopy(states.get(0));
+	        this.cells = rewind.cells;
 	        this.activeCells = rewind.activeCells;
             setChanged();
             notifyObservers(cells);
@@ -114,6 +108,7 @@ public class Simulation extends Observable implements Serializable{
      * Currently this is the tree_grid since we don't have a map generation.
      */
     public void regenerate() {
+        stop();
         for (String s : staged_parameters.keySet()) {
             parameters.put(s, staged_parameters.get(s));
         }
@@ -121,7 +116,7 @@ public class Simulation extends Observable implements Serializable{
         activeCells.clear();
         tree_grid(parameters.get("Width").intValue(), parameters.get("Height").intValue());
         findActiveCells();
-        states.add(this);
+        states.add((Simulation) deepCopy(this));
     }
 
     /**
@@ -190,6 +185,10 @@ public class Simulation extends Observable implements Serializable{
 		}
 		activeCells.addAll(toAdd);
 		activeCells.removeAll(toRemove);
+		//If the fire has stopped, stop the simulation
+		if(activeCells.size() == 0){
+		    running = false;
+		}
 	}
 
 	/*
@@ -246,15 +245,17 @@ public class Simulation extends Observable implements Serializable{
      * Due to HashMap restrictions it only works with Strings and Floats, so you should initialize a value with 3f.
      * If you want to access the value of a parameter do parameters.get("Parameter name").floatValue()
      */
-    public void create_parameters(){
-        //Reverse order of the way they are drawn
-        parameters.put("Undo/redo", 0f); //Set whether it is possible to undo/redo by values 0/1
-                                            //Setting undo/redo to 1 will use a lot of memory
+    public void create_parameters() {
+        parameters.put("Width", 20f); //Set the width of the simulation in cells
+        parameters.put("Height", 20f); //Set the height of the simulation in cells
         parameters.put("Step time", 100f); //The time the simulation waits before performing the next step in ms
         parameters.put("Step size", 1f); //When doing manual steps this says how many steps to perform per button press
-        parameters.put("Width", 200f); //Set the width of the simulation in cells
-        parameters.put("Height", 200f); //Set the height of the simulation in cells
+        parameters.put("Undo/redo", 0f); //Set whether it is possible to undo/redo by values 0/1
+        //Setting undo/redo to 1 will use a lot of memory
+
     }
+
+
 
     /**
      * Update a parameter with a String s and a float v.

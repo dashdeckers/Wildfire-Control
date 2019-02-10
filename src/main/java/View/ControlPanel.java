@@ -25,6 +25,7 @@ public class ControlPanel extends JPanel {
         //Order determines the order they are placed in!
         addControlButtons(c);
         addParameterFields(c);
+        addTypeParameters(c);
     }
 
     /**
@@ -74,5 +75,12 @@ public class ControlPanel extends JPanel {
             c.gridx = 0;
             c.gridy++;
         }
+    }
+
+    public void addTypeParameters(GridBagConstraints c){
+        String[] element_types = {"Tree"};
+        String[] parameter_types = {"Burn Intesity", "Burn Threshold", "Fuel"};
+
+
     }
 }
