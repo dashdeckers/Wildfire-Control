@@ -17,7 +17,6 @@ public class Simulation extends Observable implements Serializable{
 	private Map<String, Float> staged_parameters; //This hold parameters which need to be imported at regeneration (width&height)
 	private boolean running;    //Boolean on whether the simulation it performing steps
 
-
 	private Random rand; //initializes RNG
 
 	public Simulation()
@@ -38,13 +37,13 @@ public class Simulation extends Observable implements Serializable{
         //This gathers the first set of cells to be active
 		findActiveCells();
 
+        //This adds the initial state to the states list
 		states.add((Simulation) deepCopy(this));
-
-
-
-
 	}
 
+	/*
+		Debugging function to print the currently active cells
+	 */
 	private void printActiveCells()
 	{
 		System.out.println("Number of active Cells: " + activeCells.size());
