@@ -13,8 +13,8 @@ import java.util.Random;
 import java.util.Map;
 import java.util.HashMap;
 
-public class Simulation extends Observable implements Serializable
-{
+public class Simulation extends Observable implements Serializable{
+
 	private List<List<Element>> cells;  //This will hold a 2D array of all cells in the simulation
 	private Set<Element> activeCells;   //This holds all cells in the simulation which are on fire or near fire
                                             //as these are the only ones who need to be updated
@@ -23,6 +23,7 @@ public class Simulation extends Observable implements Serializable
 	private Map<String, Float> parameters;  //This holds the parameters drawn on the GUI (create_Parameters() for info)
 	private Map<String, Float> staged_parameters; //This hold parameters which need to be imported at regeneration (width&height)
 	private boolean running;    //Boolean on whether the simulation it performing steps
+
 
 	private Random rand; //initializes RNG
 
@@ -44,7 +45,26 @@ public class Simulation extends Observable implements Serializable
 		findActiveCells();
 
 		states.add(this);
-    }
+		printActiveCells();
+
+		this.updateEnvironment();
+		printActiveCells();
+
+		cells.get(0).get(0).setBurning();
+		printActiveCells();
+	}
+
+	private void printActiveCells()
+	{
+		System.out.println("Number of active Cells: " + activeCells.size());
+		String output = "";
+		for (Element cell : activeCells)
+		{
+			output += "(" + cell.getX() + " " + cell.getY() + ") ";
+		}
+		System.out.println(output);
+	}
+
 
     /**
      * Start is linked to the start button. It moves one step forward every Step_time in ms.
@@ -179,7 +199,6 @@ public class Simulation extends Observable implements Serializable
 	 */
     private void findActiveCells()
 	{
-		this.activeCells = new HashSet<>();
 		for (int x = 0; x < parameters.get("Height").intValue(); x++)
 		{
 			for (int y = 0; y < parameters.get("Width").intValue(); y++)
