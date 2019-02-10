@@ -250,8 +250,8 @@ public class Simulation extends Observable implements Serializable{
                                             //Setting undo/redo to 1 will use a lot of memory
         parameters.put("Step time", 100f); //The time the simulation waits before performing the next step in ms
         parameters.put("Step size", 1f); //When doing manual steps this says how many steps to perform per button press
-        parameters.put("Width", 20f); //Set the width of the simulation in cells
-        parameters.put("Height", 20f); //Set the height of the simulation in cells
+        parameters.put("Width", 200f); //Set the width of the simulation in cells
+        parameters.put("Height", 200f); //Set the height of the simulation in cells
     }
 
     /**

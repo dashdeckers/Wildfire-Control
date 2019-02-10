@@ -21,5 +21,6 @@ public class Tree extends Element
 		this.burnIntensity = 5;
 		this.ignitionThreshold = 1;
 		this.fuel = 50;
+		this.moveSpeed = 1;
 	}
 }
