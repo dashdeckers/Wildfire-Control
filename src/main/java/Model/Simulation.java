@@ -240,13 +240,13 @@ public class Simulation extends Observable implements Serializable{
      * Due to HashMap restrictions it only works with Strings and Floats, so you should initialize a value with 3f.
      * If you want to access the value of a parameter do parameters.get("Parameter name").floatValue()
      */
-    public void create_parameters(){
+    public void create_parameters() {
         parameters.put("Width", 20f); //Set the width of the simulation in cells
         parameters.put("Height", 20f); //Set the height of the simulation in cells
         parameters.put("Step time", 100f); //The time the simulation waits before performing the next step in ms
         parameters.put("Step size", 1f); //When doing manual steps this says how many steps to perform per button press
         parameters.put("Undo/redo", 0f); //Set whether it is possible to undo/redo by values 0/1
-                                                //Setting undo/redo to 1 will use a lot of memory
+        //Setting undo/redo to 1 will use a lot of memory
 
     }
 
