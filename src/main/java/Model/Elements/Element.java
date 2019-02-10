@@ -119,8 +119,8 @@ public abstract class Element implements Serializable {
 	 */
     public HashSet<Element> getNeighbours(List<List<Element>> cells) {
         HashSet<Element> neighbours = new HashSet<>();
-        for (int xi = x - r; xi < x + r; xi++) {
-            for (int yi = y - r; yi < y + r; yi++) {
+        for (int xi = x - r; xi <= x + r; xi++) {
+            for (int yi = y - r; yi <= y + r; yi++) {
                 if (inBounds(xi, yi)) {
                     Element cell = cells.get(xi).get(yi);
                     if (cell.isWithinCircleOf(this)) {
@@ -144,8 +144,8 @@ public abstract class Element implements Serializable {
 		Checks if the coordinates are within the boundaries of the map.
 	 */
     private boolean inBounds(int x, int y) {
-        int maxX = parameters.get("Height").intValue();
-        int maxY = parameters.get("Width").intValue();
+        int maxX = parameters.get("Width").intValue();
+        int maxY = parameters.get("Height").intValue();
         if (x >= 0 && x < maxX
             && y >= 0 && y < maxY) {
                 return true;

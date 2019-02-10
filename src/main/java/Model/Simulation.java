@@ -33,7 +33,6 @@ public class Simulation extends Observable implements Serializable{
         //This creates an area of trees of x by y, since we don't have the actual map generation yet
         tree_grid(parameters.get("Width").intValue(), parameters.get("Height").intValue());
 
-        cells.get(0).get(0).setBurning();
         //This gathers the first set of cells to be active
 		findActiveCells();
 
@@ -198,9 +197,9 @@ public class Simulation extends Observable implements Serializable{
     private void findActiveCells()
 	{
 	    activeCells = new HashSet<>();
-		for (int x = 0; x < parameters.get("Height").intValue(); x++)
+		for (int x = 0; x < parameters.get("Width").intValue(); x++)
 		{
-			for (int y = 0; y < parameters.get("Width").intValue(); y++)
+			for (int y = 0; y < parameters.get("Height").intValue(); y++)
 			{
 				Element cell = cells.get(x).get(y);
 				if (cell.isBurning())
@@ -246,8 +245,8 @@ public class Simulation extends Observable implements Serializable{
      * If you want to access the value of a parameter do parameters.get("Parameter name").floatValue()
      */
     public void create_parameters() {
-        parameters.put("Width", 20f); //Set the width of the simulation in cells
-        parameters.put("Height", 20f); //Set the height of the simulation in cells
+        parameters.put("Width", 50f); //Set the width of the simulation in cells
+        parameters.put("Height", 30f); //Set the height of the simulation in cells
         parameters.put("Step time", 100f); //The time the simulation waits before performing the next step in ms
         parameters.put("Step size", 1f); //When doing manual steps this says how many steps to perform per button press
         parameters.put("Undo/redo", 0f); //Set whether it is possible to undo/redo by values 0/1
