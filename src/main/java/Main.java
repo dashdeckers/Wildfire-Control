@@ -7,7 +7,7 @@ public class Main
 {
 	public static void main(String[] args)
 	{
-        Simulation model = new Simulation(10);
+        Simulation model = new Simulation();
 	    JFrame mainFrame = new MainFrame(model);
 	}
 }
