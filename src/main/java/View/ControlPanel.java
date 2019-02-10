@@ -6,8 +6,6 @@ import Model.Simulation;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Set;
-import java.util.HashMap;
 import java.util.Map;
 
 public class ControlPanel extends JPanel {

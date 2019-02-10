@@ -34,7 +34,7 @@ public class Simulation extends Observable implements Serializable{
         rand = new Random();
         states = new ArrayList<>();
 
-        //Initilialize the parameters to some default values and make them available for drawing
+        //Initialize the parameters to some default values and make them available for drawing
         create_parameters();
 
         //This creates an area of trees of x by y, since we don't have the actual map generation yet
@@ -50,9 +50,13 @@ public class Simulation extends Observable implements Serializable{
 	/*
 		Debugging function to print the currently active cells
 	 */
-	private void printActiveCells()
+	private void printActiveCells(boolean showCells)
 	{
 		System.out.println("Number of active Cells: " + activeCells.size());
+		if (!showCells)
+		{
+			return;
+		}
 		String output = "";
 		for (Element cell : activeCells)
 		{
@@ -151,7 +155,7 @@ public class Simulation extends Observable implements Serializable{
         updateEnvironment();
         setChanged();
         notifyObservers(cells);
-        printActiveCells();
+        printActiveCells(false);
     }
 
     /**
@@ -171,14 +175,12 @@ public class Simulation extends Observable implements Serializable{
 		// remember elements to add to- or remove from set because we can't while iterating
 		HashSet<Element> toRemove = new HashSet<>();
 		HashSet<Element> toAdd = new HashSet<>();
-		System.out.println("Updating");
 
 		for (Element cell : activeCells)
 		{
 			String status = cell.update(cells);
 			if (status.equals("Dead"))
 			{
-			    System.out.println("Removing cell");
 				toRemove.add(cell);
 			}
 			if (status.equals("Ignited"))

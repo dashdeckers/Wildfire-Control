@@ -27,7 +27,6 @@ public class SimulationPanel extends JPanel implements Observer {
     @Override
     public void paintComponent(Graphics g){
         super.paintComponent(g);
-        System.out.println("Painting all cells");
         //Jump-in boundaries
         //removeAll();
         int start_x = 2;
