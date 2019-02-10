@@ -1,9 +1,6 @@
 package View;
 
 import Controller.Buttons.ControlButton;
-import Controller.Buttons.ResetButton;
-import Controller.Buttons.StartButton;
-import Controller.Buttons.StopButton;
 import Controller.TextFields.parameterAction;
 import Model.Simulation;
 
@@ -66,6 +63,7 @@ public class ControlPanel extends JPanel {
             c.gridx = 1;
             //Could make this nicer by putting the TextField in a panel
             JFormattedTextField t = new JFormattedTextField();
+            t.setText(parameter_list.get(p).toString());
             t.setColumns(3);
             t.getDocument().addDocumentListener(new parameterAction(model, t, p));
             this.add(t, c);

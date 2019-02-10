@@ -36,13 +36,21 @@ class ControlAction extends AbstractAction{
                 model.regenerate();
                 break;
             case "Start":
-                model.stop();
+                new Thread(new Runnable() {
+                    public void run() {
+                        model.start();
+                    }}).start();
+
                 break;
             case "Step back":
-                model.stepBack();
+                for(int i = 0; i < model.getParameters().get("Step size"); i++){
+                    model.stepBack();
+                }
                 break;
             case "Step forward":
-                model.stepForward();
+                for(int i = 0; i < model.getParameters().get("Step size"); i++) {
+                    model.stepForward();
+                }
                 break;
             default:
                 System.out.println("NO ACTION MAPPED TO THIS BUTTON!");

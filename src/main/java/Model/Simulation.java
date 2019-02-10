@@ -4,6 +4,7 @@ import Model.Elements.Element;
 import Model.Elements.Tree;
 
 import javax.swing.undo.*;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -13,20 +14,23 @@ import java.util.Random;
 import java.util.Map;
 import java.util.HashMap;
 
-public class Simulation extends Observable
+public class Simulation extends Observable implements Serializable
 {
 	private List<List<Element>> cells;
 	private Set<Element> activeCells;
+	private List<Simulation> states;
 	Map<String, Float> parameters;
+	Map<String, Float> staged_parameters;
+	private boolean running;
 
 	private Random rand;
-    private UndoManager undoManager;
 
 	public Simulation()
 	{
         parameters = new HashMap<>();
-        undoManager = new UndoManager();
+        staged_parameters = new HashMap<>();
         rand = new Random();
+        states = new ArrayList<>();
 
         create_parameters();
 
@@ -35,38 +39,63 @@ public class Simulation extends Observable
 		findActiveCells();
     }
 
-    public void start(){
-        System.out.println("Starting");
+    public void start() {
+	    running = true;
+        while(running){
+            try {
+                Thread.sleep(Math.abs((long) parameters.get("Step time").floatValue()));
+            } catch (java.lang.InterruptedException e){
+                System.out.println(e.getMessage());
+            }
+            if(parameters.get("Step time") >=0){
+                stepForward();
+            }else{
+                stepBack();
+            }
+
+        }
     }
     public void stop(){
-        System.out.println("Stopping");
+        running = false;
     }
-    public void reset(){}
-    public void regenerate(){
+    public void reset(){
+	    if(states.size() > 0){
+	        Simulation rewind = states.get(0);
+	        states.clear();
+	        this.cells =rewind.cells;
+	        this.activeCells = rewind.activeCells;
+            setChanged();
+            notifyObservers(cells);
+        }
+    }
+    public void regenerate() {
+        for (String s : staged_parameters.keySet()) {
+            parameters.put(s, staged_parameters.get(s));
+        }
+        states.clear();
+        activeCells.clear();
         tree_grid(parameters.get("Width").intValue(), parameters.get("Height").intValue());
+        findActiveCells();
     }
-
     public void stepBack(){
-        if(undoManager.canUndo()){
-            undoManager.undo();
+        if(states.size() > 0){
+            Simulation rewind = states.get(states.size() -1);
+            states.remove(states.size() -1);
+            this.cells = rewind.cells;
+            this.activeCells = rewind.activeCells;
+            setChanged();
+            notifyObservers(cells);
+        }else{
+            running = false;
         }
     }
 
     public void stepForward(){
-        if(undoManager.canRedo()){
-            undoManager.redo();
-        }else{
-            UndoableEdit undoableEdit = new AbstractUndoableEdit() {
+        states.add((Simulation) deepCopy(this));
+        updateEnvironment();
+        setChanged();
+        notifyObservers(cells);
 
-                public void redo() throws CannotRedoException {
-                    super.redo();
-                }
-
-                public void undo() throws CannotUndoException {
-                    super.undo();
-                }
-            };
-        }
     }
 
     public List<List<Element>> getAllCells() {
@@ -82,6 +111,7 @@ public class Simulation extends Observable
 		// remember elements to add to- or remove from set because we can't while iterating
 		HashSet<Element> toRemove = new HashSet<>();
 		HashSet<Element> toAdd = new HashSet<>();
+		System.out.println("Updating");
 
 		for (Element cell : activeCells)
 		{
@@ -147,15 +177,43 @@ public class Simulation extends Observable
         parameters.put("Height", 20f);
         parameters.put("Fire speed", 1f);
         parameters.put("Wind strength", 1f);
-        parameters.put("Yadayada", 0f);
+        parameters.put("Step time", 100f);
+        parameters.put("Step size", 1f);
     }
 
     public void changeParameter(String s, float v){
-        System.out.println("Setting " + s + " to " + v);
-        parameters.put(s, v);
+        switch (s){
+            case "Height":
+            case "Width" :
+                staged_parameters.put(s,v);
+                break;
+            default:
+                parameters.put(s, v);
+        }
+
     }
 
     public Map<String, Float> getParameters(){
         return parameters;
+    }
+
+
+    /**
+     * Makes a deep copy of any Java object that is passed.
+     * Not a clue how this works though.
+     */
+    private static Object deepCopy(Object object) {
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ObjectOutputStream outputStrm = new ObjectOutputStream(outputStream);
+            outputStrm.writeObject(object);
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+            ObjectInputStream objInputStream = new ObjectInputStream(inputStream);
+            return objInputStream.readObject();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

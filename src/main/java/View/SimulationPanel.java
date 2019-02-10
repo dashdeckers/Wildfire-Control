@@ -14,10 +14,13 @@ public class SimulationPanel extends JPanel implements Observer {
     private Simulation model;
     private Graphics g;
     private List<List<Element>> cells;
+    private boolean draw_all;
 
     public SimulationPanel(Simulation model, int size){
+        draw_all = true;
         this.model = model;
         cells = model.getAllCells();
+
         this.setPreferredSize(new Dimension(size,size));
         model.addObserver(this);
     }
@@ -25,7 +28,6 @@ public class SimulationPanel extends JPanel implements Observer {
     @Override
     public void paintComponent(Graphics g){
         super.paintComponent(g);
-        this.g = g; //Need to extract g for pain_changed_cells
         System.out.println("Painting all cells");
         //Jump-in boundaries
         //removeAll();
@@ -42,14 +44,16 @@ public class SimulationPanel extends JPanel implements Observer {
         float x = start_x;
         float y = start_y;
 
-        for(int i = 0; i < cells.get(0).size(); i++){
-            for(int j =0; j < cells.size(); j++){
-                g.setColor(cells.get(j).get(i).getColor());
-                g.fillRect((int)x,(int)y, (int) x_width, (int) y_width);
-                x+= x_jump;
+        if(draw_all) {
+            for (int i = 0; i < cells.get(0).size(); i++) {
+                for (int j = 0; j < cells.size(); j++) {
+                    g.setColor(cells.get(j).get(i).getColor());
+                    g.fillRect((int) x, (int) y, (int) x_width, (int) y_width);
+                    x += x_jump;
+                }
+                y += y_jump;
+                x = start_x;
             }
-            y+= y_jump;
-            x = start_x;
         }
 
     }
