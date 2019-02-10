@@ -4,7 +4,6 @@ import Model.Elements.Element;
 import Model.Simulation;
 
 import javax.swing.*;
-import javax.swing.undo.UndoManager;
 import java.awt.*;
 import java.util.List;
 import java.util.Observable;

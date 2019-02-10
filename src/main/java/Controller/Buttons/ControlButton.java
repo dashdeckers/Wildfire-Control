@@ -12,8 +12,8 @@ public class ControlButton extends JButton {
 }
 
 class ControlAction extends AbstractAction{
-    Simulation model;
-    String name;
+    private Simulation model;
+    private String name;
     public ControlAction(Simulation model, String name){
         this.model = model;
         this.name = name;

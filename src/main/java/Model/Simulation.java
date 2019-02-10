@@ -3,7 +3,6 @@ package Model;
 import Model.Elements.Element;
 import Model.Elements.Tree;
 
-import javax.swing.undo.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -19,18 +18,20 @@ public class Simulation extends Observable implements Serializable
 	private List<List<Element>> cells;
 	private Set<Element> activeCells;
 	private List<Simulation> states;
-	Map<String, Float> parameters;
-	Map<String, Float> staged_parameters;
+	private Map<String, Float> parameters;
+	private Map<String, Float> staged_parameters;
 	private boolean running;
 
 	private Random rand;
 
 	public Simulation()
 	{
+	    //Initialize these things
         parameters = new HashMap<>();
         staged_parameters = new HashMap<>();
         rand = new Random();
         states = new ArrayList<>();
+
 
         create_parameters();
 
@@ -78,20 +79,24 @@ public class Simulation extends Observable implements Serializable
         findActiveCells();
     }
     public void stepBack(){
-        if(states.size() > 0){
-            Simulation rewind = states.get(states.size() -1);
-            states.remove(states.size() -1);
-            this.cells = rewind.cells;
-            this.activeCells = rewind.activeCells;
-            setChanged();
-            notifyObservers(cells);
-        }else{
-            running = false;
+	    if(parameters.get("Undo/redo").intValue() == 1){
+            if (states.size() > 0) {
+                Simulation rewind = states.get(states.size() - 1);
+                states.remove(states.size() - 1);
+                this.cells = rewind.cells;
+                this.activeCells = rewind.activeCells;
+                setChanged();
+                notifyObservers(cells);
+            } else {
+                running = false;
+            }
         }
     }
 
     public void stepForward(){
-        states.add((Simulation) deepCopy(this));
+	    if(parameters.get("Undo/redo").intValue() == 1) {
+            states.add((Simulation) deepCopy(this));
+        }
         updateEnvironment();
         setChanged();
         notifyObservers(cells);
@@ -173,12 +178,14 @@ public class Simulation extends Observable implements Serializable
     }
 
     public void create_parameters(){
-        parameters.put("Width", 20f);
-        parameters.put("Height", 20f);
+        //Reverse order of the way they are drawn
+        parameters.put("Undo/redo", 0f);
         parameters.put("Fire speed", 1f);
         parameters.put("Wind strength", 1f);
         parameters.put("Step time", 100f);
         parameters.put("Step size", 1f);
+        parameters.put("Width", 20f);
+        parameters.put("Height", 20f);
     }
 
     public void changeParameter(String s, float v){

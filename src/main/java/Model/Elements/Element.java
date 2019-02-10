@@ -120,11 +120,10 @@ public abstract class Element implements Serializable {
     private boolean inBounds(int x, int y) {
         int maxX = parameters.get("Height").intValue();
         int maxY = parameters.get("Width").intValue();
-        if (x >= 0 && x < maxX) {
-            if (y >= 0 && y < maxY) {
+        if (x >= 0 && x < maxX
+            && y >= 0 && y < maxY) {
                 return true;
             }
-        }
         return false;
     }
 
@@ -183,9 +182,8 @@ public abstract class Element implements Serializable {
         if (getClass() != obj.getClass())
             return false;
         Element other = (Element) obj;
-        if (x != other.x)
-            return false;
-        if (y != other.y)
+        if (x != other.x
+         || y != other.y)
             return false;
         return true;
     }

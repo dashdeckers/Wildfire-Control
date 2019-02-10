@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ControlPanel extends JPanel {
-    Simulation model;
+    private Simulation model;
     public ControlPanel(Simulation model){
         this.model = model;
         GridBagLayout gbl = new GridBagLayout();
@@ -49,15 +49,13 @@ public class ControlPanel extends JPanel {
     }
 
     /**
-     * This creates parameter textfields according to the parameter map in Simulation. If you want to add parameters, do that there, and this should generate the new parameter
+     * This creates parameter text fields according to the parameter map in Simulation. If you want to add parameters, do that there, and this should generate the new parameter
      * @param c
      */
     public void addParameterFields(GridBagConstraints c){
 
         Map<String, Float> parameter_list = model.getParameters();
         for (String p: parameter_list.keySet()) {
-
-
             JLabel l = new JLabel(p);
             this.add(l, c);
             c.gridx = 1;
