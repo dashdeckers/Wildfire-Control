@@ -51,7 +51,7 @@ public class Simulation extends Observable implements Serializable{
 		printActiveCells();
 
 		cells.get(0).get(0).setBurning();
-		printActiveCells();
+
 	}
 
 	private void printActiveCells()
@@ -155,7 +155,7 @@ public class Simulation extends Observable implements Serializable{
         updateEnvironment();
         setChanged();
         notifyObservers(cells);
-
+        printActiveCells();
     }
 
     /**
@@ -182,6 +182,7 @@ public class Simulation extends Observable implements Serializable{
 			String status = cell.update(cells);
 			if (status.equals("Dead"))
 			{
+			    System.out.println("Removing cell");
 				toRemove.add(cell);
 			}
 			if (status.equals("Ignited"))
@@ -199,6 +200,7 @@ public class Simulation extends Observable implements Serializable{
 	 */
     private void findActiveCells()
 	{
+	    activeCells = new HashSet<>();
 		for (int x = 0; x < parameters.get("Height").intValue(); x++)
 		{
 			for (int y = 0; y < parameters.get("Width").intValue(); y++)

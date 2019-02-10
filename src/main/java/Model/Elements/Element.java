@@ -39,7 +39,7 @@ public abstract class Element implements Serializable {
         }
         boolean wasBurning = isBurning;
         timeStep();
-        if (!isBurning) {
+        if (wasBurning && !isBurning) {
             updateFireActivity(cells, "remove");
             return "Dead";
         }
