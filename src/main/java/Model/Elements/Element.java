@@ -59,13 +59,11 @@ public abstract class Element implements Serializable {
         if (isBurning) {
             fuel -= burnIntensity;
             if (fuel <= 0) {
-                System.out.println("Cell set to burnt");
                 isBurning = false;
                 isBurnt = true;
             }
         } else {
             if (fireActivity > ignitionThreshold) {
-                System.out.println("Cell set to burning");
                 isBurning = true;
             }
         }
