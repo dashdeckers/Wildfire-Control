@@ -16,7 +16,7 @@ import java.util.HashMap;
 public class Simulation extends Observable implements Serializable
 {
 	private List<List<Element>> cells;
-	private Set<Element> activeCells;
+	private Set<Element> activeCells = new HashSet<>();
 	private List<Simulation> states;
 	private Map<String, Float> parameters;
 	private Map<String, Float> staged_parameters;
@@ -38,7 +38,25 @@ public class Simulation extends Observable implements Serializable
         tree_grid(parameters.get("Width").intValue(), parameters.get("Height").intValue());
 
 		findActiveCells();
-    }
+		printActiveCells();
+
+		this.updateEnvironment();
+		printActiveCells();
+
+		cells.get(0).get(0).setBurning();
+		printActiveCells();
+	}
+
+	private void printActiveCells()
+	{
+		System.out.println("Number of active Cells: " + activeCells.size());
+		String output = "";
+		for (Element cell : activeCells)
+		{
+			output += "(" + cell.getX() + " " + cell.getY() + ") ";
+		}
+		System.out.println(output);
+	}
 
     public void start() {
 	    running = true;
@@ -140,7 +158,6 @@ public class Simulation extends Observable implements Serializable
 	 */
     private void findActiveCells()
 	{
-		this.activeCells = new HashSet<>();
 		for (int x = 0; x < parameters.get("Height").intValue(); x++)
 		{
 			for (int y = 0; y < parameters.get("Width").intValue(); y++)
