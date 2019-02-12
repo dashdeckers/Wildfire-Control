@@ -16,11 +16,13 @@ public class Simulation extends Observable implements Serializable{
 	private Map<String, Float> parameters;  //This holds the parameters drawn on the GUI (create_Parameters() for info)
 	private Map<String, Float> staged_parameters; //This hold parameters which need to be imported at regeneration (width&height)
 	private boolean running;    //Boolean on whether the simulation it performing steps
+    private boolean use_gui;
 
 	private Random rand; //initializes RNG
 
-	public Simulation()
+	public Simulation(boolean use_gui)
 	{
+	    this.use_gui = use_gui;
 	    //Initialize these things
         parameters = new LinkedHashMap<>();
         staged_parameters = new HashMap<>();
@@ -149,7 +151,6 @@ public class Simulation extends Observable implements Serializable{
         updateEnvironment();
         setChanged();
         notifyObservers(cells);
-        printActiveCells(false);
     }
 
     /**
@@ -225,7 +226,6 @@ public class Simulation extends Observable implements Serializable{
             for(int j=0; j<y; j++){
                 //Set a random tile on fire
                 if(i== fire_x && j == fire_y){
-                    System.out.println("Fire at " + i + "," + j);
                     Element t = new Tree(i,j, parameters);
                     t.setBurning();
                     row.add(t);
@@ -247,7 +247,11 @@ public class Simulation extends Observable implements Serializable{
     public void create_parameters() {
         parameters.put("Width", 50f); //Set the width of the simulation in cells
         parameters.put("Height", 30f); //Set the height of the simulation in cells
-        parameters.put("Step time", 100f); //The time the simulation waits before performing the next step in ms
+        if(use_gui){
+            parameters.put("Step time", 0f);
+        }else {
+            parameters.put("Step time", 100f); //The time the simulation waits before performing the next step in ms
+        }
         parameters.put("Step size", 1f); //When doing manual steps this says how many steps to perform per button press
         parameters.put("Undo/redo", 0f); //Set whether it is possible to undo/redo by values 0/1
         //Setting undo/redo to 1 will use a lot of memory
