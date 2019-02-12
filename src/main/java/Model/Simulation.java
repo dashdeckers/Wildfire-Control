@@ -2,6 +2,11 @@ package Model;
 
 import Model.Elements.Element;
 import Model.Elements.Tree;
+import Model.Elements.Grass;
+import Model.Elements.Water;
+import Model.Elements.House;
+import Model.Elements.Road;
+
 
 import java.io.*;
 import java.util.*;
@@ -225,12 +230,22 @@ public class Simulation extends Observable implements Serializable{
             List<Element> row = new ArrayList<Element>();
             for(int j=0; j<y; j++){
                 //Set a random tile on fire
-                if(i== fire_x && j == fire_y){
+                if(i== fire_x && j == fire_y) {
                     Element t = new Tree(i,j, parameters);
                     t.setBurning();
                     row.add(t);
-                }else {
-                    row.add(new Tree(i, j, parameters));
+                } else {
+                    if (i == 9 || i == 10) {
+                        row.add(new Water(i, j, parameters));
+                    } else if (i == 12) {
+                        row.add(new House(i, j, parameters));
+                    } else if (i == 14) {
+                        row.add(new Road(i, j, parameters));
+                    } else if (j%5 == 0) {
+                        row.add(new Tree(i, j, parameters));
+                    } else {
+                        row.add(new Grass(i, j, parameters));
+                    }
                 }
             }
             cells.add(row);
@@ -246,9 +261,9 @@ public class Simulation extends Observable implements Serializable{
      */
     public void create_parameters() {
         parameters.put("Width", 50f); //Set the width of the simulation in cells
-        parameters.put("Height", 30f); //Set the height of the simulation in cells
+        parameters.put("Height", 50f); //Set the height of the simulation in cells
         if(use_gui){
-            parameters.put("Step time", 0f);
+            parameters.put("Step time", 250f);
         }else {
             parameters.put("Step time", 100f); //The time the simulation waits before performing the next step in ms
         }
