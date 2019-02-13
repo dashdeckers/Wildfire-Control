@@ -41,7 +41,7 @@ public abstract class Element implements Serializable, Observer {
     int r = 0;
     // color
     Color color = Color.WHITE;
-    String type;
+    protected String type;
     // parameters passed from simulation
     ParameterManager parameterManager;
     // state properties
@@ -61,7 +61,6 @@ public abstract class Element implements Serializable, Observer {
     int height;
 
     public abstract void initializeParameters();
-    public abstract String getType();
 
     /*
 		Updates the cell and the fire activity of its neighbours, returns a
@@ -153,6 +152,7 @@ public abstract class Element implements Serializable, Observer {
     public boolean inBounds(int x, int y) {
         int maxX = width;
         int maxY = height;
+        System.out.println();
         if (x >= 0 && x < maxX
             && y >= 0 && y < maxY) {
                 return true;
@@ -297,5 +297,7 @@ public abstract class Element implements Serializable, Observer {
         }
     }
 
-
+    public String getType() {
+        return type;
+    }
 }

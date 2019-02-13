@@ -22,6 +22,8 @@ public class Agent extends Element
 
         this.simulation = simulation;
         this.parameterManager = simulation.getParameter_manager();
+        initializeParameters();
+        pullParameters();
 
         do {
             this.x = simulation.getRandX();
@@ -30,8 +32,6 @@ public class Agent extends Element
         } while (!checkTile(x,y));
 
         previousElement = simulation.getAllCells().get(this.x).get(this.y);
-
-        initializeParameters();
     }
 
     public void initializeParameters()
@@ -109,11 +109,6 @@ public class Agent extends Element
 
     private void moveDown() {
         y++;
-    }
-
-    @Override
-    public String getType() {
-        return "Agent";
     }
 
 

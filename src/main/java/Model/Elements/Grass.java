@@ -29,8 +29,4 @@ public class Grass extends Element
         this.moveSpeed = 10;
     }
 
-    @Override
-    public String getType() {
-        return "Grass";
-    }
 }
