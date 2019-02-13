@@ -3,10 +3,7 @@ package Model;
 import Model.Elements.*;
 
 import java.io.Serializable;
-import java.util.AbstractMap;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Observable;
+import java.util.*;
 
 public class ParameterManager extends Observable implements Serializable {
 
@@ -109,6 +106,21 @@ public class ParameterManager extends Observable implements Serializable {
      */
     public int getHeight(){
         return Parameters_map.get("Model").get("Height").intValue();
+    }
+
+    public float getParameter(String type, String parameter){
+        if(Parameters_map == null){
+            return -0.0f;
+        }
+        if(Parameters_map.get(type) == null){
+            System.out.println("ERROR NO PARAMETERS FOR TYPE: " + type);
+            return -0.0f;
+        }
+        return Parameters_map.get(type).get(parameter);
+    }
+
+    public Set<String> getTypes(){
+        return Parameters_map.keySet();
     }
     //TODO! Add elements as observers and find some way to update them  DONE
     //TODO! Ensure that new elements are set according to ParameterManager if ParameterManager exists DONE
