@@ -29,8 +29,4 @@ public class Tree extends Element
 		this.moveSpeed = 1;
 	}
 
-	@Override
-	public String getType() {
-		return "Tree";
-	}
 }

@@ -41,13 +41,10 @@ public class Simulation extends Observable implements Serializable, Observer{
 
         parameter_manager = new ParameterManager(this);
         parameter_manager.addObserver(this);
-
         //This creates an area of trees of x by y, since we don't have the actual map generation yet
         tree_grid(width, height);
-
         //This gathers the first set of cells to be active
 		findActiveCells();
-
         //This adds the initial state to the states list
 		states.add((Simulation) deepCopy(this));
 		if(!use_gui){
@@ -262,6 +259,7 @@ public class Simulation extends Observable implements Serializable, Observer{
             }
             cells.add(row);
         }
+        System.out.println("test cell generator");
         //This will create one agent which can will be dropped on a random location on the map.
         agent = new Agent(this);
         setChanged();

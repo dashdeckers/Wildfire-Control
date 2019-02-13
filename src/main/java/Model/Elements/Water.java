@@ -23,8 +23,4 @@ public class Water extends Element
         this.color = DARK_BLUE;
     }
 
-    @Override
-    public String getType() {
-        return "Water";
-    }
 }
