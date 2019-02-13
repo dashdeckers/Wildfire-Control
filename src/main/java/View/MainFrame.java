@@ -12,7 +12,6 @@ public class MainFrame extends JFrame {
      * @param model
      */
     public MainFrame(Simulation model){
-        System.out.println("test");
         //Use gridbaglayout for lot of control
         GridBagLayout gbl = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
