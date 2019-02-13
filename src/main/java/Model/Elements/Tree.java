@@ -27,6 +27,7 @@ public class Tree extends Element
 		this.ignitionThreshold = 15;
 		this.fuel = starting_fuel = 10;
 		this.moveSpeed = 1;
+		this.clearCost = 20;
 	}
 
 }

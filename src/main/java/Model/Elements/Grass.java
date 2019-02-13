@@ -27,6 +27,7 @@ public class Grass extends Element
         this.ignitionThreshold = 5;
         this.fuel = starting_fuel = 5;
         this.moveSpeed = 10;
+        this.clearCost = 5;
     }
 
 }
