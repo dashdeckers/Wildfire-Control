@@ -52,7 +52,7 @@ public abstract class Element implements Serializable, Observer {
     int moveSpeed = 0;
 
     // parameters relevant for fire propagation
-    double fireActivity = 0;
+    double temperature = 0;
     int burnIntensity = 0;
     int ignitionThreshold = 10;
     int fuel = 0;
@@ -64,24 +64,33 @@ public abstract class Element implements Serializable, Observer {
 
 
     /**
-	 *	Updates the cell and the fire activity of its neighbours, returns a
+	 *	Updates the cell and the temperature of its neighbours, returns a
 	 *	simple status string to help keep track of active cells
 	 */
     public String update(List<List<Element>> cells)
     {
+        // if not burnable, dont do anything
         if (!burnable) {
             return "Not Burnable";
         }
+        // remember whether it was burning
         boolean wasBurning = isBurning;
+        // update internal parameters
         timeStep();
+        // if it is burnt out (=no more fuel), remove temperature
         if (isBurnt) {
-            updateFireActivity(cells, "remove");
+            updateTemperature(cells, "remove");
             return "Dead";
         }
-        updateFireActivity(cells, "add");
-        if (!wasBurning) {
-            return "Ignited";
+        if (isBurning)
+        {
+            // if it is burning and it was not burning, it just ignited
+            updateTemperature(cells, "add");
+            if (!wasBurning) {
+                return "Ignited";
+            }
         }
+        // none of the above situations --> no change
         return "No Change";
     }
 
@@ -92,14 +101,16 @@ public abstract class Element implements Serializable, Observer {
      *	ignite it.
 	 */
     private void timeStep() {
+        // if it is burning, we are using up fuel
         if (isBurning) {
             fuel -= 1;
+            // if there is no more fuel, it is burnt out
             if (fuel <= 0) {
                 isBurning = false;
                 isBurnt = true;
             }
         } else {
-            if (fireActivity > ignitionThreshold) {
+            if (temperature > ignitionThreshold) {
                 isBurning = true;
             }
         }
@@ -108,9 +119,9 @@ public abstract class Element implements Serializable, Observer {
     /*
 		Currently implemented as cumulative: Every time this is called, the cells within
 		range (of circle provided by (x, y) and r) of this cell get the burnIntensity of
-		this cell added to their fireActivity.
+		this cell added to their temperature.
 	 */
-    private void updateFireActivity(List<List<Element>> cells, String command) {
+    private void updateTemperature(List<List<Element>> cells, String command) {
 
         // burnIntensity is now used as maximal burnIntensity
 
@@ -120,17 +131,17 @@ public abstract class Element implements Serializable, Observer {
         HashSet<Element> neighbours = getNeighbours(cells);
         for (Element cell : neighbours) {
             if (command.equals("add")) {
-                cell.adjustFireActivityBy(calcFireActivity(cell));
+                cell.adjustTemperatureBy(calcTemperature(cell));
             }
             if (command.equals("remove")) {
-                cell.adjustFireActivityBy(-1 * calcFireActivity(cell));
+                cell.adjustTemperatureBy(-1 * calcTemperature(cell));
             }
         }
     }
 
-    private void adjustFireActivityBy(double amount)
+    private void adjustTemperatureBy(double amount)
     {
-        double newAmount = fireActivity + amount;
+        double newAmount = temperature + amount;
         if (newAmount > 100)
         {
             newAmount = 100;
@@ -140,7 +151,7 @@ public abstract class Element implements Serializable, Observer {
             newAmount = 0;
         }
         // range = [0, 100]
-        fireActivity = newAmount;
+        temperature = newAmount;
     }
 
     /*
@@ -194,7 +205,7 @@ public abstract class Element implements Serializable, Observer {
         return Math.abs(Math.atan2(wVecX*cVecY - wVecY*cVecX, wVecX*cVecX + wVecY*cVecY));
     }
 
-    private double calcFireActivity(Element cell)
+    private double calcTemperature(Element cell)
     {
         int windSpeed = 100;
 
@@ -256,21 +267,74 @@ public abstract class Element implements Serializable, Observer {
         return moveSpeed;
     }
 
-    public Color getColor() {
+    public Color getColor()
+    {
+        if (isBurnt)
+        {
+            return Color.BLACK;
+        }
+        else if (isBurning)
+        {
+            return Color.RED;
+        }
+        else
+        {
+            if (temperature * 0.75 > ignitionThreshold)
+            {
+                return new Color(255, 72, 0);
+            }
+            if (temperature * 0.50 > ignitionThreshold)
+            {
+                return new Color(255,153,0);
+            }
+            if (temperature * 0.25 > ignitionThreshold)
+            {
+                return new Color(255, 255, 0);
+            }
+        }
+        return color;
+    }
+/*
+    public Color getColor()
+    {
+        if (isBurnt)
+        {
+            return Color.BLACK;
+        }
+        else if (isBurning)
+        {
+            return Color.RED;
+        }
+        else
+        {
+            if (temperature * 0.75 > ignitionThreshold)
+            {
+                double red = 255 * (temperature / 100);
+                Color newCol = new Color((int)red, color.getBlue(), color.getGreen());
+                return newCol;
+            }
+            else
+            {
+                return color;
+            }
+        }
+    }
+*/
+/*
         if (isBurning) {
             return Color.RED;
         } else if (isBurnt) {
             return Color.BLACK;
         } else {
-            if (fireActivity > 0)
+            if (temperature > 0)
             {
-                double normalizedFireActivity = fireActivity / 100f;
-                return getRedGreenHue(normalizedFireActivity);
+                double normalizedTemperature = temperature / 100f;
+                return getRedGreenHue(normalizedTemperature);
             }
             return color;
         }
     }
-
+*/
     private Color getRedGreenHue(double power)
     {
         double H = (1 - power) * 0.4; // Hue (note 0.4 = Green)
