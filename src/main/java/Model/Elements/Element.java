@@ -1,10 +1,11 @@
 package Model.Elements;
 
+import Model.ParameterManager;
+import org.omg.Messaging.SYNC_WITH_TRANSPORT;
+
 import java.awt.Color;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /*
 	The abstract element class contains most of what is needed for each element,
@@ -31,7 +32,7 @@ import java.util.Map;
 	    parameters in mind because they are very co-dependent.
  */
 
-public abstract class Element implements Serializable {
+public abstract class Element implements Serializable, Observer {
 
     // coordinates
     int x = 0;
@@ -40,8 +41,9 @@ public abstract class Element implements Serializable {
     int r = 0;
     // color
     Color color = Color.WHITE;
+    String type;
     // parameters passed from simulation
-    Map<String, Float> parameters;
+    ParameterManager parameterManager;
     // state properties
     boolean burnable = false;
     boolean isBurning = false;
@@ -55,6 +57,9 @@ public abstract class Element implements Serializable {
     int ignitionThreshold = 10;
     int fuel = 0;
 
+    int width;
+    int height;
+
     public abstract void initializeParameters();
 
     /*
@@ -62,6 +67,7 @@ public abstract class Element implements Serializable {
 		simple status string to help keep track of active cells
 	 */
     public String update(List<List<Element>> cells) {
+
         if (!burnable) {
             return "Not Burnable";
         }
@@ -144,8 +150,8 @@ public abstract class Element implements Serializable {
 		Checks if the coordinates are within the boundaries of the map.
 	 */
     private boolean inBounds(int x, int y) {
-        int maxX = parameters.get("Width").intValue();
-        int maxY = parameters.get("Height").intValue();
+        int maxX = width;
+        int maxY = height;
         if (x >= 0 && x < maxX
             && y >= 0 && y < maxY) {
                 return true;
@@ -217,6 +223,77 @@ public abstract class Element implements Serializable {
          || y != other.y)
             return false;
         return true;
+    }
+
+    /**
+     * Retrieves the default parameters set in the classes.
+     * This is used by the ParameterManager to get default values
+     * @return
+     */
+    public Map<String, Float> getParameters(){
+        Map<String, Float> returnMap = new HashMap<>();
+        returnMap.put("Radius", (float) r);
+        returnMap.put("Move Speed", (float) moveSpeed);
+        returnMap.put("Burn Intensity", (float) burnIntensity);
+        returnMap.put("Ignition Threshold", (float) ignitionThreshold);
+        //returnMap.put("Fuel", (float) fuel);
+
+        return returnMap;
+    }
+
+    /**
+     * Each element is observer to the parameterManager.
+     * When the parameterManager changes something this update function is called,
+     * with Object o a Map.Entry<String, Map.Entry<String, Float>>.
+     * This way Object holds the recipient (here this.type, elsewhere Model), the Parameter (i.e. Radius) and the value
+     * @param observable
+     * @param o
+     */
+    @Override
+    public void update(Observable observable, Object o) {
+        System.out.println("Update parameter!");
+        if(o instanceof Map.Entry
+                && ((Map.Entry) o).getKey() instanceof String
+                && ((Map.Entry) o).getValue() instanceof Map.Entry
+                && ((Map.Entry) o).getKey() == this.type){
+            Float value = (Float) ((Map.Entry) ((Map.Entry) o).getKey()).getValue();
+            switch( (String) ((Map.Entry) ((Map.Entry) o).getKey()).getKey() ){
+                case "Radius":
+                    r = value.intValue();
+                    break;
+                case "Move Speed":
+                    moveSpeed = value.intValue();
+                    break;
+                case "Burn Intensity":
+                    burnIntensity = value.intValue();
+                    break;
+                case "Ignition Threshold":
+                    ignitionThreshold = value.intValue();
+                    break;
+                case "Fuel":
+                    //TODO! FUEL SHOULD NOT BE CALLED AT RUNTIME!!!
+                    //fuel = value.intValue();
+                    break;
+
+            }
+        }
+    }
+
+    /**
+     * If the parameterManager holds values that our cell currently doesn't yet pullParameters ensures that we are up-to-date
+     */
+    public void pullParameters(){
+        width = parameterManager.getWidth();
+        height = parameterManager.getHeight();
+        if(parameterManager.isChanged(this.type)) {
+            System.out.println("Parameter pulled");
+            Map<String, Float> typeMap = parameterManager.getParameterSet(this.type);
+            r = typeMap.get("Radius").intValue();
+            moveSpeed = typeMap.get("Move Speed").intValue();
+            burnIntensity = typeMap.get("Burn Intensity").intValue();
+            ignitionThreshold = typeMap.get("Ignition Threshold").intValue();
+            //fuel = typeMap.get("Fuel").intValue();
+        }
     }
 
 
