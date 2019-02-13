@@ -14,17 +14,17 @@ import java.util.Map;
 	The important parameters are:
 
 	Fuel: Large and dense biomass such as trees store a larger amount of energy,
-	    so they can burn for longer. While burning, at each iteration the burn
-	    intensity of the cell is subtracted from its fuel reserves
+	    so they can burn for longer. While burning, at each iteration the fuel
+	    level is subtracted by 1.
 
 	Burn Intensity: Some material burns at a higher temperature, or intensity,
 	    and so have a larger potential to ignite neighbouring cells. While
 	    burning, at each iteration the burn intensity of the cell is added to
-	    the fire activity of the neighbouring cells
+	    the fire activity of the neighbouring cells.
 
 	Fire Activity: A measure of how much heat the cell is experiencing from
 	    nearby burning cells. If fire activity exceeds the ignition threshold,
-	    the cell starts burning.
+	    the cell starts burning. This has a maximum value of 100.
 
 	Ignition Threshold: Some materials need a higher temperature to start burning
 	    than others. This value should be set with the burn intensity, and fuel
@@ -50,7 +50,7 @@ public abstract class Element implements Serializable {
     int moveSpeed = 0;
 
     // parameters relevant for fire propagation
-    int fireActivity = 0;
+    double fireActivity = 0;
     int burnIntensity = 0;
     int ignitionThreshold = 10;
     int fuel = 0;
@@ -67,7 +67,7 @@ public abstract class Element implements Serializable {
         }
         boolean wasBurning = isBurning;
         timeStep();
-        if (wasBurning && !isBurning) {
+        if (isBurnt) {
             updateFireActivity(cells, "remove");
             return "Dead";
         }
@@ -85,7 +85,7 @@ public abstract class Element implements Serializable {
 	 */
     private void timeStep() {
         if (isBurning) {
-            fuel -= burnIntensity;
+            fuel -= 1;
             if (fuel <= 0) {
                 isBurning = false;
                 isBurnt = true;
@@ -103,15 +103,36 @@ public abstract class Element implements Serializable {
 		this cell added to their fireActivity.
 	 */
     private void updateFireActivity(List<List<Element>> cells, String command) {
+
+        // burnIntensity is now used as maximal burnIntensity
+
+        // should not be cumulative. one-shot application from neighbouring cells
+        // instead of addition per update
+
         HashSet<Element> neighbours = getNeighbours(cells);
         for (Element cell : neighbours) {
             if (command.equals("add")) {
-                cell.fireActivity += this.burnIntensity;
+                cell.adjustFireActivityBy(calcFireActivity(cell));
             }
             if (command.equals("remove")) {
-                cell.fireActivity -= 3 * this.burnIntensity;
+                cell.adjustFireActivityBy(-1 * calcFireActivity(cell));
             }
         }
+    }
+
+    private void adjustFireActivityBy(double amount)
+    {
+        double newAmount = fireActivity + amount;
+        if (newAmount > 100)
+        {
+            newAmount = 100;
+        }
+        if (newAmount < 0)
+        {
+            newAmount = 0;
+        }
+        // range = [0, 100]
+        fireActivity = newAmount;
     }
 
     /*
@@ -140,6 +161,47 @@ public abstract class Element implements Serializable {
         return Math.pow(x - cell.x, 2) + Math.pow(y - cell.y, 2) <= Math.pow(r, 2);
     }
 
+    private double distanceTo(Element cell)
+    {
+        double d = Math.sqrt(Math.pow(x - cell.x, 2) + Math.pow(y - cell.y, 2));
+        if (d > r)
+        {
+            d = r;
+        }
+        // range = [0, r]
+        return d;
+    }
+
+    private double angleToWind(Element cell)
+    {
+        // vector between this cell and the given cell
+        double cVecX = this.x - cell.x;
+        double cVecY = this.y - cell.y;
+
+        // wind vector
+        double wVecX = 1;
+        double wVecY = 1;
+
+        // return angle between these two vectors (range = [-pi, pi])
+        return Math.abs(Math.atan2(wVecX*cVecY - wVecY*cVecX, wVecX*cVecX + wVecY*cVecY));
+    }
+
+    private double calcFireActivity(Element cell)
+    {
+        double distance = this.distanceTo(cell);
+        if (distance == 0)
+        {
+            return burnIntensity;
+        }
+        double angle = this.angleToWind(cell);
+        if (angle == 0)
+        {
+            return burnIntensity * (1 / distance);
+        }
+        // burnIntensity * ( 1 / ([0, r] + [-pi, pi]) )
+        return burnIntensity * (1 / (distance + angle));
+    }
+
     /*
 		Checks if the coordinates are within the boundaries of the map.
 	 */
@@ -159,10 +221,6 @@ public abstract class Element implements Serializable {
 
     public boolean isBurning() {
         return isBurning;
-    }
-
-    public boolean isBurnt() {
-        return isBurnt;
     }
 
     public boolean isBurnable() {
@@ -188,8 +246,22 @@ public abstract class Element implements Serializable {
         } else if (isBurnt) {
             return Color.BLACK;
         } else {
+            if (fireActivity > 0)
+            {
+                double normalizedFireActivity = fireActivity / 100f;
+                return getRedGreenHue(normalizedFireActivity);
+            }
             return color;
         }
+    }
+
+    private Color getRedGreenHue(double power)
+    {
+        double H = (1 - power) * 0.4; // Hue (note 0.4 = Green)
+        double S = 0.9; // Saturation
+        double B = 0.9; // Brightness
+
+        return Color.getHSBColor((float)H, (float)S, (float)B);
     }
 
     /*
