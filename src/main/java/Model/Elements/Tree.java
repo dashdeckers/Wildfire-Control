@@ -28,4 +28,5 @@ public class Tree extends Element
 		this.fuel = 10;
 		this.moveSpeed = 1;
 	}
+
 }

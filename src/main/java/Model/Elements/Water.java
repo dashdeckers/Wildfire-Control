@@ -22,4 +22,5 @@ public class Water extends Element
         this.type = "Water";
         this.color = DARK_BLUE;
     }
+
 }

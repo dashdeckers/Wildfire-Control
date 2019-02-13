@@ -28,4 +28,5 @@ public class Grass extends Element
         this.fuel = 5;
         this.moveSpeed = 10;
     }
+
 }

@@ -12,13 +12,14 @@ public class MainFrame extends JFrame {
      * @param model
      */
     public MainFrame(Simulation model){
+        System.out.println("test");
         //Use gridbaglayout for lot of control
         GridBagLayout gbl = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
         this.setLayout(gbl);
         /*Simulation area set to a square, with 300 extra width for control panel*/
         int simulation_size = 1000;
-        this.setPreferredSize(new Dimension(simulation_size + 300,simulation_size));
+
 
         c.weightx = 0.5;
         c.weighty = 0.5;
@@ -37,6 +38,8 @@ public class MainFrame extends JFrame {
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.pack();
+        this.setPreferredSize(new Dimension(simulation_size + 300,simulation_size));
+
         this.setLocationRelativeTo(null);
         this.setVisible(true);
     }

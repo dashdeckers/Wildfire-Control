@@ -40,7 +40,7 @@ public abstract class Element implements Serializable, Observer {
     int r = 0;
     // color
     Color color = Color.WHITE;
-    String type;
+    protected String type;
     // parameters passed from simulation
     ParameterManager parameterManager;
     // state properties
@@ -212,9 +212,10 @@ public abstract class Element implements Serializable, Observer {
     /*
 		Checks if the coordinates are within the boundaries of the map.
 	 */
-    private boolean inBounds(int x, int y) {
+    public boolean inBounds(int x, int y) {
         int maxX = width;
         int maxY = height;
+        System.out.println();
         if (x >= 0 && x < maxX
             && y >= 0 && y < maxY) {
                 return true;
@@ -369,5 +370,7 @@ public abstract class Element implements Serializable, Observer {
         }
     }
 
-
+    public String getType() {
+        return type;
+    }
 }

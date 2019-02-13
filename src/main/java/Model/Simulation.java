@@ -1,11 +1,6 @@
 package Model;
 
-import Model.Elements.Element;
-import Model.Elements.Tree;
-import Model.Elements.Grass;
-import Model.Elements.Water;
-import Model.Elements.House;
-import Model.Elements.Road;
+import Model.Elements.*;
 
 
 import java.io.*;
@@ -14,6 +9,7 @@ import java.util.*;
 public class Simulation extends Observable implements Serializable, Observer{
 
 	private List<List<Element>> cells;  //This will hold a 2D array of all cells in the simulation
+    private Agent agent;
 	private Set<Element> activeCells;   //This holds all cells in the simulation which are on fire or near fire
                                             //as these are the only ones who need to be updated
 	private List<Simulation> states;    //This holds a list of previous states of the simulation if undo is set to true
@@ -33,6 +29,7 @@ public class Simulation extends Observable implements Serializable, Observer{
 
 	public Simulation(boolean use_gui)
 	{
+        System.out.println("use_gui= " + use_gui );
 	    this.use_gui = use_gui;
 	    //Initialize these things
         rand = new Random();
@@ -43,13 +40,10 @@ public class Simulation extends Observable implements Serializable, Observer{
 
         parameter_manager = new ParameterManager(this);
         parameter_manager.addObserver(this);
-
         //This creates an area of trees of x by y, since we don't have the actual map generation yet
         tree_grid(width, height);
-
         //This gathers the first set of cells to be active
 		findActiveCells();
-
         //This adds the initial state to the states list
 		states.add((Simulation) deepCopy(this));
 		if(!use_gui){
@@ -116,6 +110,7 @@ public class Simulation extends Observable implements Serializable, Observer{
 	        this.activeCells = rewind.activeCells;
             setChanged();
             notifyObservers(cells);
+            notifyObservers(agent);
         }
     }
 
@@ -168,6 +163,7 @@ public class Simulation extends Observable implements Serializable, Observer{
         }
         setChanged();
         notifyObservers(cells);
+        notifyObservers(agent);
     }
 
     /**
@@ -225,6 +221,7 @@ public class Simulation extends Observable implements Serializable, Observer{
 				}
 			}
 		}
+		activeCells.add(agent);
 	}
 
     /**
@@ -261,8 +258,12 @@ public class Simulation extends Observable implements Serializable, Observer{
             }
             cells.add(row);
         }
+        System.out.println("test cell generator");
+        //This will create one agent which can will be dropped on a random location on the map.
+        agent = new Agent(this);
         setChanged();
         notifyObservers(cells);
+        notifyObservers(agent);
     }
 
     /**
@@ -366,5 +367,23 @@ public class Simulation extends Observable implements Serializable, Observer{
      */
     public ParameterManager getParameter_manager(){
         return parameter_manager;
+    }
+    public Random getRand() {
+        return rand;
+    }
+
+    public void setRand(Random rand) {
+        this.rand = rand;
+    }
+
+    public int getRandX() {return rand.nextInt(width);}
+    public int getRandY() {return rand.nextInt(height);}
+
+    public Agent getAgent() {
+        return agent;
+    }
+
+    public void setAgent(Agent agent) {
+        this.agent = agent;
     }
 }
