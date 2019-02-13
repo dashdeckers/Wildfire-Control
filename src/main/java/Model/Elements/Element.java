@@ -308,21 +308,21 @@ public abstract class Element implements Serializable, Observer {
         }
         else if (isBurning)
         {
-            return new Color(255, 0, 0);
+            return new Color(200, 0, 0);
         }
         else
         {
             if (temperature > ignitionThreshold * 0.75)
             {
-                return new Color(255, 72, 0);
+                return new Color(255, 100, 0);
             }
             if (temperature > ignitionThreshold * 0.50)
             {
-                return new Color(205, 105, 0);
+                return new Color(255, 150, 0);
             }
             if (temperature > ignitionThreshold * 0.25)
             {
-                return new Color(255,153,0);
+                return new Color(255,200,0);
             }
         }
         return color;

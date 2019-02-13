@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class Road extends Element
 {
-    private static final Color DARK_GREY = new Color(51,51,51);
+    private static final Color DARK_GREY = new Color(100,100,100);
     public Road(int x, int y, ParameterManager parameterManager)
     {
         this.x = x;
