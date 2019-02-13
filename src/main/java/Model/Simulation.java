@@ -256,29 +256,29 @@ public class Simulation extends Observable implements Serializable, Observer{
         int fire_y = rand.nextInt(y);
         cells = new ArrayList<>();
         for(int i = 0; i<x; i++){
-            List<Element> row = new ArrayList<>();
+            List<Element> col = new ArrayList<>();
             for(int j=0; j<y; j++){
                 //Set a random tile on fire
                 if(i== fire_x && j == fire_y) {
                     System.out.println("Fire at x= "+ i+ " y = " + j);
                     Element t = new Tree(i,j, parameter_manager);
                     t.setBurning();
-                    row.add(t);
+                    col.add(t);
                 } else {
                     if (i == 9 || i == 10) {
-                        row.add(new Water(i, j, parameter_manager));
+                        col.add(new Water(i, j, parameter_manager));
                     } else if (i == 12) {
-                        row.add(new House(i, j, parameter_manager));
+                        col.add(new House(i, j, parameter_manager));
                     } else if (i == 14) {
-                        row.add(new Road(i, j, parameter_manager));
+                        col.add(new Road(i, j, parameter_manager));
                     } else if (j%5 == 0) {
-                        row.add(new Tree(i, j, parameter_manager));
+                        col.add(new Tree(i, j, parameter_manager));
                     } else {
-                        row.add(new Grass(i, j, parameter_manager));
+                        col.add(new Grass(i, j, parameter_manager));
                     }
                 }
             }
-            cells.add(row);
+            cells.add(col);
         }
         //This will create one agent which can will be dropped on a random location on the map.
         agent = new Agent(this);
