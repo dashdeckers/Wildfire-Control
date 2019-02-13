@@ -241,6 +241,14 @@ public abstract class Element implements Serializable, Observer {
         return returnMap;
     }
 
+    /**
+     * Each element is observer to the parameterManager.
+     * When the parameterManager changes something this update function is called,
+     * with Object o a Map.Entry<String, Map.Entry<String, Float>>.
+     * This way Object holds the recipient (here this.type, elsewhere Model), the Parameter (i.e. Radius) and the value
+     * @param observable
+     * @param o
+     */
     @Override
     public void update(Observable observable, Object o) {
         System.out.println("Update parameter!");
@@ -271,6 +279,9 @@ public abstract class Element implements Serializable, Observer {
         }
     }
 
+    /**
+     * If the parameterManager holds values that our cell currently doesn't yet pullParameters ensures that we are up-to-date
+     */
     public void pullParameters(){
         width = parameterManager.getWidth();
         height = parameterManager.getHeight();

@@ -284,7 +284,8 @@ public class Simulation extends Observable implements Serializable, Observer{
 
 
     /**
-     * Return the parameters currently set, to be used by the parameter manager
+     * Return the parameters currently set, to be used by the parameter manager.
+     * The values are defined in createParameters()
      * @return
      */
     public Map<String, Float> getParameters() {
@@ -321,6 +322,14 @@ public class Simulation extends Observable implements Serializable, Observer{
         }
     }
 
+    /**
+     * Simulation is observer to the parameterManager.
+     * When the parameterManager changes something this update function is called,
+     * with Object o a Map.Entry<String, Map.Entry<String, Float>>.
+     * This way Object holds the recipient (here model, elsewhere i.e. Tree), the Parameter (i.e. Width) and the value
+     * @param observable
+     * @param o
+     */
     @Override
     public void update(Observable observable, Object o) {
         if(o instanceof Map.Entry
