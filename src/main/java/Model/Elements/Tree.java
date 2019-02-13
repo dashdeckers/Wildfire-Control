@@ -1,23 +1,28 @@
 package Model.Elements;
 
+import Model.ParameterManager;
+
 import java.awt.Color;
 import java.util.Map;
 
 public class Tree extends Element
 {
-	public Tree(int x, int y, Map<String, Float> parameters)
+	private static final Color DARK_GREEN = new Color(0,102,0);
+	public Tree(int x, int y, ParameterManager parameterManager)
 	{
 		this.x = x;
 		this.y = y;
-		this.parameters = parameters;
+		this.parameterManager = parameterManager;
 		initializeParameters();
+		pullParameters();
 	}
 
 	public void initializeParameters()
 	{
+		this.type = "Tree";
 		this.r = 2;
 		this.burnable = true;
-		this.color = Color.GREEN;
+		this.color = DARK_GREEN;
 		this.burnIntensity = 5;
 		this.ignitionThreshold = 1000;
 		this.fuel = 10;

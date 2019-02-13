@@ -44,14 +44,10 @@ class ControlAction extends AbstractAction{
 
                 break;
             case "Step back":
-                for(int i = 0; i < model.getParameters().get("Step size"); i++){
                     model.stepBack();
-                }
                 break;
             case "Step forward":
-                for(int i = 0; i < model.getParameters().get("Step size"); i++) {
                     model.stepForward();
-                }
                 break;
             default:
                 System.out.println("NO ACTION MAPPED TO THIS BUTTON!");
