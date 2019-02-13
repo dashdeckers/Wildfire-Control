@@ -1,5 +1,6 @@
 package Controller.TextFields;
 
+import Model.ParameterManager;
 import Model.Simulation;
 
 import javax.swing.*;
@@ -7,11 +8,11 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 public class parameterAction implements DocumentListener {
-    private Simulation model;
+    private ParameterManager parameterManager;
     private JFormattedTextField t;
     private String parameter;
-    public parameterAction(Simulation model, JFormattedTextField t, String parameter){
-        this.model = model;
+    public parameterAction(ParameterManager parameterManager, JFormattedTextField t, String parameter){
+        this.parameterManager = parameterManager;
         this.t = t;
         this.parameter = parameter;
 
@@ -32,8 +33,10 @@ public class parameterAction implements DocumentListener {
 
     public void changed(){
         String inputString = this.t.getText();
+
+
         if (!inputString.equals("")){
-            model.changeParameter(parameter, Float.parseFloat(inputString));
+            parameterManager.changeParameter("Model", parameter, Float.parseFloat(inputString));
         }
     }
 }

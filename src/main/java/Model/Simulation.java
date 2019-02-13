@@ -11,15 +11,21 @@ import Model.Elements.Road;
 import java.io.*;
 import java.util.*;
 
-public class Simulation extends Observable implements Serializable{
+public class Simulation extends Observable implements Serializable, Observer{
 
 	private List<List<Element>> cells;  //This will hold a 2D array of all cells in the simulation
 	private Set<Element> activeCells;   //This holds all cells in the simulation which are on fire or near fire
                                             //as these are the only ones who need to be updated
 	private List<Simulation> states;    //This holds a list of previous states of the simulation if undo is set to true
                                             //otherwise it will only hold the first state for reset
-	private Map<String, Float> parameters;  //This holds the parameters drawn on the GUI (create_Parameters() for info)
-	private Map<String, Float> staged_parameters; //This hold parameters which need to be imported at regeneration (width&height)
+    private int width;
+    private int height;
+    private int step_time;
+    private int step_size;
+    private boolean undo_redo;
+
+    private ParameterManager parameter_manager;
+
 	private boolean running;    //Boolean on whether the simulation it performing steps
     private boolean use_gui;
 
@@ -29,22 +35,26 @@ public class Simulation extends Observable implements Serializable{
 	{
 	    this.use_gui = use_gui;
 	    //Initialize these things
-        parameters = new LinkedHashMap<>();
-        staged_parameters = new HashMap<>();
         rand = new Random();
         states = new ArrayList<>();
 
         //Initialize the parameters to some default values and make them available for drawing
         create_parameters();
 
+        parameter_manager = new ParameterManager(this);
+        parameter_manager.addObserver(this);
+
         //This creates an area of trees of x by y, since we don't have the actual map generation yet
-        tree_grid(parameters.get("Width").intValue(), parameters.get("Height").intValue());
+        tree_grid(width, height);
 
         //This gathers the first set of cells to be active
 		findActiveCells();
 
         //This adds the initial state to the states list
 		states.add((Simulation) deepCopy(this));
+		if(!use_gui){
+		    start();
+        }
 	}
 
 	/*
@@ -74,13 +84,13 @@ public class Simulation extends Observable implements Serializable{
     public void start() {
 	    running = true;
         while(running){
-            if(parameters.get("Step time") >=0){
+            if(step_time >=0){
                 stepForward();
             }else{
                 stepBack();
             }
             try {
-                Thread.sleep(Math.abs((long) parameters.get("Step time").floatValue()));
+                Thread.sleep(Math.abs((long) step_time));
             } catch (java.lang.InterruptedException e){
                 System.out.println(e.getMessage());
             }
@@ -115,12 +125,9 @@ public class Simulation extends Observable implements Serializable{
      */
     public void regenerate() {
         stop();
-        for (String s : staged_parameters.keySet()) {
-            parameters.put(s, staged_parameters.get(s));
-        }
         states.clear();
         activeCells.clear();
-        tree_grid(parameters.get("Width").intValue(), parameters.get("Height").intValue());
+        tree_grid(width, height);
         findActiveCells();
         states.add((Simulation) deepCopy(this));
     }
@@ -131,16 +138,18 @@ public class Simulation extends Observable implements Serializable{
      * Linked to both the Step back button, as well as running the simulation with a negative step time.
      */
     public void stepBack(){
-	    if(parameters.get("Undo/redo").intValue() == 1){
-            if (states.size() > 0) {
-                Simulation rewind = states.get(states.size() - 1);
-                states.remove(states.size() - 1);
-                this.cells = rewind.cells;
-                this.activeCells = rewind.activeCells;
-                setChanged();
-                notifyObservers(cells);
-            } else {
-                running = false;
+	    if(undo_redo == true){
+	        for(int i = 0; i< step_size; i++) {
+                if (states.size() > 0) {
+                    Simulation rewind = states.get(states.size() - 1);
+                    states.remove(states.size() - 1);
+                    this.cells = rewind.cells;
+                    this.activeCells = rewind.activeCells;
+                    setChanged();
+                    notifyObservers(cells);
+                } else {
+                    running = false;
+                }
             }
         }
     }
@@ -150,10 +159,13 @@ public class Simulation extends Observable implements Serializable{
      * The step forward is performed by updateEnvironment(), and the new state is sent to the GUI with notifyObservers()
      */
     public void stepForward(){
-	    if(parameters.get("Undo/redo").intValue() == 1) {
-            states.add((Simulation) deepCopy(this));
+        for(int i = 0; i< step_size; i++) {
+            if (undo_redo == true) {
+                System.out.println("Adding undo_copy");
+                states.add((Simulation) deepCopy(this));
+            }
+            updateEnvironment();
         }
-        updateEnvironment();
         setChanged();
         notifyObservers(cells);
     }
@@ -175,7 +187,6 @@ public class Simulation extends Observable implements Serializable{
 		// remember elements to add to- or remove from set because we can't while iterating
 		HashSet<Element> toRemove = new HashSet<>();
 		HashSet<Element> toAdd = new HashSet<>();
-
 		for (Element cell : activeCells)
 		{
 			String status = cell.update(cells);
@@ -203,9 +214,9 @@ public class Simulation extends Observable implements Serializable{
     private void findActiveCells()
 	{
 	    activeCells = new HashSet<>();
-		for (int x = 0; x < parameters.get("Width").intValue(); x++)
+		for (int x = 0; x < width; x++)
 		{
-			for (int y = 0; y < parameters.get("Height").intValue(); y++)
+			for (int y = 0; y < height; y++)
 			{
 				Element cell = cells.get(x).get(y);
 				if (cell.isBurning())
@@ -231,20 +242,20 @@ public class Simulation extends Observable implements Serializable{
             for(int j=0; j<y; j++){
                 //Set a random tile on fire
                 if(i== fire_x && j == fire_y) {
-                    Element t = new Tree(i,j, parameters);
+                    Element t = new Tree(i,j, parameter_manager);
                     t.setBurning();
                     row.add(t);
                 } else {
                     if (i == 9 || i == 10) {
-                        row.add(new Water(i, j, parameters));
+                        row.add(new Water(i, j, parameter_manager));
                     } else if (i == 12) {
-                        row.add(new House(i, j, parameters));
+                        row.add(new House(i, j, parameter_manager));
                     } else if (i == 14) {
-                        row.add(new Road(i, j, parameters));
+                        row.add(new Road(i, j, parameter_manager));
                     } else if (j%5 == 0) {
-                        row.add(new Tree(i, j, parameters));
+                        row.add(new Tree(i, j, parameter_manager));
                     } else {
-                        row.add(new Grass(i, j, parameters));
+                        row.add(new Grass(i, j, parameter_manager));
                     }
                 }
             }
@@ -260,49 +271,32 @@ public class Simulation extends Observable implements Serializable{
      * If you want to access the value of a parameter do parameters.get("Parameter name").floatValue()
      */
     public void create_parameters() {
-        parameters.put("Width", 50f); //Set the width of the simulation in cells
-        parameters.put("Height", 50f); //Set the height of the simulation in cells
-        if(use_gui){
-            parameters.put("Step time", 250f);
-        }else {
-            parameters.put("Step time", 100f); //The time the simulation waits before performing the next step in ms
+        width = 50;
+        height = 50;
+        if(use_gui) {
+            step_time = 250;
+        }else{
+            step_time = 0;
         }
-        parameters.put("Step size", 1f); //When doing manual steps this says how many steps to perform per button press
-        parameters.put("Undo/redo", 0f); //Set whether it is possible to undo/redo by values 0/1
-        //Setting undo/redo to 1 will use a lot of memory
-
+        step_size = 1;
+        undo_redo = false;
     }
 
 
-
     /**
-     * Update a parameter with a String s and a float v.
-     * If the parameter does not exist it will now be instantiated.
-     * This is used by the text fields.
-     * If you want to add a new parameter to the gui do that in create_parameters.
-     *
-     * Parameters added to staged_parameters will be loaded on the next regenerate, to prevent conflicts.
-     * @param s
-     * @param v
-     */
-    public void changeParameter(String s, float v){
-        switch (s){
-            case "Height": //Height and size will only be set when regenerate() is called.
-            case "Width" :
-                staged_parameters.put(s,v);
-                break;
-            default:
-                parameters.put(s, v);
-        }
-
-    }
-
-    /**
-     * Return the parameters currently set
+     * Return the parameters currently set, to be used by the parameter manager
      * @return
      */
-    public Map<String, Float> getParameters(){
-        return parameters;
+    public Map<String, Float> getParameters() {
+        //TODO!
+        //return parameters;
+        Map<String, Float> return_map = new HashMap<>();
+        return_map.put("Width", (float) width);
+        return_map.put("Height", (float) height);
+        return_map.put("Step Size", (float) step_size);
+        return_map.put("Step Time", (float) step_time);
+        return_map.put("Undo/Redo", undo_redo ? 1f : 0f);
+        return return_map;
     }
 
 
@@ -325,5 +319,43 @@ public class Simulation extends Observable implements Serializable{
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public void update(Observable observable, Object o) {
+        if(o instanceof Map.Entry
+            && ((Map.Entry) o).getKey() instanceof String
+            && ((Map.Entry) o).getValue() instanceof Map.Entry
+                && ((Map.Entry) o).getKey() == "Model"
+                ){  //IF a Map.Entry<String, Map.Entry<String, Float>> and the first string is "Model"
+            Float value = (Float) ((Map.Entry) ((Map.Entry) o).getValue()).getValue();
+            switch( (String) ((Map.Entry) ((Map.Entry) o).getValue()).getKey() ){
+                case "Width":
+                    width = value.intValue();
+                    break;
+                case "Height":
+                    height = value.intValue();
+                    break;
+                case "Step Time":
+                    if(use_gui){
+                        step_time = value.intValue();
+                    }
+                    break;
+                case "Step Size":
+                    step_size = value.intValue();
+                    break;
+                case "Undo/Redo":
+                    undo_redo = value.intValue() == 1;
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Needed to give controlPanel access to parameterManager
+     * @return
+     */
+    public ParameterManager getParameter_manager(){
+        return parameter_manager;
     }
 }

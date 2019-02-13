@@ -2,6 +2,7 @@ package View;
 
 import Controller.Buttons.ControlButton;
 import Controller.TextFields.parameterAction;
+import Model.ParameterManager;
 import Model.Simulation;
 
 import javax.swing.*;
@@ -10,9 +11,11 @@ import java.util.Map;
 
 public class ControlPanel extends JPanel {
     private Simulation model;
+    private ParameterManager parameterManager;
 
     public ControlPanel(Simulation model){
         this.model = model;
+        parameterManager = model.getParameter_manager();
         GridBagLayout gbl = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
         this.setLayout(gbl);
@@ -70,7 +73,7 @@ public class ControlPanel extends JPanel {
             //Could make this nicer by putting the TextField in a panel
             JFormattedTextField t = new JFormattedTextField();
             t.setText(parameter_list.get(p).toString()); //import the default value to the text field
-            t.getDocument().addDocumentListener(new parameterAction(model, t, p)); //add functionality
+            t.getDocument().addDocumentListener(new parameterAction(parameterManager, t, p)); //add functionality
             this.add(t, c);
             c.gridx = 0;
             c.gridy++;
@@ -78,8 +81,7 @@ public class ControlPanel extends JPanel {
     }
 
     public void addTypeParameters(GridBagConstraints c){
-        String[] element_types = {"Tree"};
-        String[] parameter_types = {"Burn Intesity", "Burn Threshold", "Fuel"};
+
 
 
     }
