@@ -56,6 +56,7 @@ public abstract class Element implements Serializable, Observer {
     int burnIntensity = 0;
     int ignitionThreshold = 10;
     int fuel = 0;
+    int starting_fuel = 0;
 
     int width;
     int height;
@@ -237,7 +238,7 @@ public abstract class Element implements Serializable, Observer {
         returnMap.put("Move Speed", (float) moveSpeed);
         returnMap.put("Burn Intensity", (float) burnIntensity);
         returnMap.put("Ignition Threshold", (float) ignitionThreshold);
-        //returnMap.put("Fuel", (float) fuel);
+        returnMap.put("Starting Fuel", (float) starting_fuel);
 
         return returnMap;
     }
@@ -270,9 +271,9 @@ public abstract class Element implements Serializable, Observer {
                 case "Ignition Threshold":
                     ignitionThreshold = value.intValue();
                     break;
-                case "Fuel":
+                case "Starting Fuel":
                     //TODO! FUEL SHOULD NOT BE CALLED AT RUNTIME!!!
-                    //fuel = value.intValue();
+                    starting_fuel = value.intValue();
                     break;
                 default:
                     System.out.println("PARAMETER CHANGED BUT NOT DEFINED IN Element.update(...)");
@@ -289,14 +290,15 @@ public abstract class Element implements Serializable, Observer {
         height = parameterManager.getHeight();
         parameterManager.addObserver(this);
         if(parameterManager.isChanged(this.type)) {
-            System.out.println("Parameter pulled");
             Map<String, Float> typeMap = parameterManager.getParameterSet(this.type);
             r = typeMap.get("Radius").intValue();
             moveSpeed = typeMap.get("Move Speed").intValue();
             burnIntensity = typeMap.get("Burn Intensity").intValue();
             ignitionThreshold = typeMap.get("Ignition Threshold").intValue();
-            //fuel = typeMap.get("Fuel").intValue();
+            starting_fuel = typeMap.get("Starting Fuel").intValue();
+            fuel = starting_fuel;
         }
+
     }
 
     public String getType(){

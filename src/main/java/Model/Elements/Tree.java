@@ -25,7 +25,7 @@ public class Tree extends Element
 		this.color = DARK_GREEN;
 		this.burnIntensity = 5;
 		this.ignitionThreshold = 1;
-		this.fuel = 50;
+		this.fuel = starting_fuel = 50;
 		this.moveSpeed = 1;
 	}
 

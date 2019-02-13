@@ -25,7 +25,7 @@ public class House extends Element
         this.color = LIGHT_BROWN;
         this.burnIntensity = 5;
         this.ignitionThreshold = 1;
-        this.fuel = 25;
+        this.fuel = starting_fuel = 25;
         this.moveSpeed = 1;
     }
 
