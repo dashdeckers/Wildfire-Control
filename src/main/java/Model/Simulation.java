@@ -259,7 +259,6 @@ public class Simulation extends Observable implements Serializable, Observer{
             }
             cells.add(row);
         }
-        System.out.println("test cell generator");
         //This will create one agent which can will be dropped on a random location on the map.
         agent = new Agent(this);
         setChanged();

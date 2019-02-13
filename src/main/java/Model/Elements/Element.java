@@ -229,7 +229,6 @@ public abstract class Element implements Serializable, Observer {
     public boolean inBounds(int x, int y) {
         int maxX = width;
         int maxY = height;
-        System.out.println();
         if (x >= 0 && x < maxX
             && y >= 0 && y < maxY) {
                 return true;
@@ -397,13 +396,12 @@ public abstract class Element implements Serializable, Observer {
      */
     @Override
     public void update(Observable observable, Object o) {
-        System.out.println("Update parameter!");
         if(o instanceof Map.Entry
                 && ((Map.Entry) o).getKey() instanceof String
                 && ((Map.Entry) o).getValue() instanceof Map.Entry
                 && ((Map.Entry) o).getKey() == this.type){
-            Float value = (Float) ((Map.Entry) ((Map.Entry) o).getKey()).getValue();
-            switch( (String) ((Map.Entry) ((Map.Entry) o).getKey()).getKey() ){
+            Float value = (Float) ((Map.Entry) ((Map.Entry) o).getValue()).getValue();
+            switch( (String) ((Map.Entry) ((Map.Entry) o).getValue()).getKey() ){
                 case "Radius":
                     r = value.intValue();
                     break;
@@ -420,6 +418,8 @@ public abstract class Element implements Serializable, Observer {
                     //TODO! FUEL SHOULD NOT BE CALLED AT RUNTIME!!!
                     //fuel = value.intValue();
                     break;
+                default:
+                    System.out.println("PARAMETER CHANGED BUT NOT DEFINED IN Element.update(...)");
 
             }
         }
@@ -431,6 +431,7 @@ public abstract class Element implements Serializable, Observer {
     public void pullParameters(){
         width = parameterManager.getWidth();
         height = parameterManager.getHeight();
+        parameterManager.addObserver(this);
         if(parameterManager.isChanged(this.type)) {
             System.out.println("Parameter pulled");
             Map<String, Float> typeMap = parameterManager.getParameterSet(this.type);
