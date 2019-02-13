@@ -1,7 +1,6 @@
 package Model.Elements;
 
 import Model.ParameterManager;
-import org.omg.Messaging.SYNC_WITH_TRANSPORT;
 
 import java.awt.Color;
 import java.io.Serializable;
@@ -194,6 +193,8 @@ public abstract class Element implements Serializable, Observer {
 
     private double calcFireActivity(Element cell)
     {
+        int windSpeed = 100;
+
         double distance = this.distanceTo(cell);
         if (distance == 0)
         {
@@ -205,7 +206,7 @@ public abstract class Element implements Serializable, Observer {
             return burnIntensity * (1 / distance);
         }
         // burnIntensity * ( 1 / ([0, r] + [-pi, pi]) )
-        return burnIntensity * (1 / (distance + angle));
+        return burnIntensity * (1 / (distance + (angle / windSpeed)));
     }
 
     /*
