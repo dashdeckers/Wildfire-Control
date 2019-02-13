@@ -19,7 +19,7 @@ public class MainFrame extends JFrame {
         this.setLayout(gbl);
         /*Simulation area set to a square, with 300 extra width for control panel*/
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int simulation_size = screenSize.height;
+        int simulation_size = screenSize.height * 2/3;
 
 
         c.weightx = 0.5;
