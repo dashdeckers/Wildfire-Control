@@ -1,35 +1,35 @@
 package Model.Elements;
 
 import Model.ParameterManager;
-import org.omg.Messaging.SYNC_WITH_TRANSPORT;
 
 import java.awt.Color;
 import java.io.Serializable;
 import java.util.*;
 
-/*
-	The abstract element class contains most of what is needed for each element,
-	each subclass must implement initializeParameters() which defines the unique
-	properties of each specific element.
+/**
+    The abstract element class contains most of what is needed for each element,
+    each subclass must implement initializeParameters() which defines the unique
+    properties of each specific element.
 
-	The important parameters are:
+    The important parameters are:
 
-	Fuel: Large and dense biomass such as trees store a larger amount of energy,
-	    so they can burn for longer. While burning, at each iteration the burn
-	    intensity of the cell is subtracted from its fuel reserves
+    Fuel: Large and dense biomass such as trees store a larger amount of energy,
+    so they can burn for longer. While burning, at each iteration the fuel
+    level is subtracted by 1.
 
-	Burn Intensity: Some material burns at a higher temperature, or intensity,
-	    and so have a larger potential to ignite neighbouring cells. While
-	    burning, at each iteration the burn intensity of the cell is added to
-	    the fire activity of the neighbouring cells
+    Burn Intensity: Some material burns at a higher temperature, or intensity,
+    and so have a larger potential to ignite neighbouring cells. While
+    burning, at each iteration a value between [0, burnIntensity] is added
+    to neighbouring cells. This value is also based on the wind speed and
+    direction.
 
-	Fire Activity: A measure of how much heat the cell is experiencing from
-	    nearby burning cells. If fire activity exceeds the ignition threshold,
-	    the cell starts burning.
+    Fire Activity: A measure of how much heat the cell is experiencing from
+    nearby burning cells. If fire activity exceeds the ignition threshold,
+    the cell starts burning. This has a maximum value of 100.
 
-	Ignition Threshold: Some materials need a higher temperature to start burning
-	    than others. This value should be set with the burn intensity, and fuel
-	    parameters in mind because they are very co-dependent.
+    Ignition Threshold: Some materials need a higher temperature to start burning
+    than others. This value should be set with the burn intensity, and fuel
+    parameters in mind because they are very co-dependent.
  */
 
 public abstract class Element implements Serializable, Observer {
@@ -37,7 +37,7 @@ public abstract class Element implements Serializable, Observer {
     // coordinates
     int x = 0;
     int y = 0;
-    // radius of influence, if burning
+    // maximal radius of influence, if burning
     int r = 0;
     // color
     Color color = Color.WHITE;
@@ -52,7 +52,7 @@ public abstract class Element implements Serializable, Observer {
     int moveSpeed = 0;
 
     // parameters relevant for fire propagation
-    int fireActivity = 0;
+    double temperature = 0;
     int burnIntensity = 0;
     int ignitionThreshold = 10;
     int fuel = 0;
@@ -64,67 +64,108 @@ public abstract class Element implements Serializable, Observer {
     public abstract void initializeParameters();
 
 
-    /*
-		Updates the cell and the fire activity of its neighbours, returns a
-		simple status string to help keep track of active cells
+    /**
+	 *	Updates the cell and the temperature of its neighbours, returns a
+	 *	simple status string to help keep track of active cells
 	 */
-    public String update(List<List<Element>> cells) {
-
+    public String update(List<List<Element>> cells)
+    {
+        // if not burnable, dont do anything
         if (!burnable) {
             return "Not Burnable";
         }
+        // remember whether it was burning
         boolean wasBurning = isBurning;
+        // update internal parameters
         timeStep();
-        if (wasBurning && !isBurning) {
-            updateFireActivity(cells, "remove");
+        // if it is burnt out (=no more fuel), remove temperature
+        if (isBurnt) {
+            updateTemperature(cells, "remove");
             return "Dead";
         }
-        updateFireActivity(cells, "add");
-        if (!wasBurning) {
-            return "Ignited";
+        if (isBurning)
+        {
+            // if it is burning and it was not burning, it just ignited
+            updateTemperature(cells, "add");
+            if (!wasBurning) {
+                return "Ignited";
+            }
         }
+        // none of the above situations --> no change
         return "No Change";
     }
 
-    /*
-		At every time step, the fuel of the cell is reduced by its burnIntensity if the
-		cell is burning, and it is burnt out of there is no more fuel left. If the cell
-		is not burning, we check if the ignitionThreshold is reached and possibly ignite.
+    /**
+	 *	At every time step, the fuel of the cell is reduced by 1 if the cell is
+	 *	burning. It is burnt out of there is no more fuel left. If the cell
+	 *	is not burning, we check if the ignitionThreshold is reached and possibly
+     *	ignite it.
 	 */
     private void timeStep() {
+        // if it is burning, we are using up fuel
         if (isBurning) {
-            fuel -= burnIntensity;
+            fuel -= 1;
+            // if there is no more fuel, it is burnt out
             if (fuel <= 0) {
                 isBurning = false;
                 isBurnt = true;
             }
         } else {
-            if (fireActivity > ignitionThreshold) {
+            if (temperature > ignitionThreshold) {
                 isBurning = true;
             }
         }
     }
 
-    /*
-		Currently implemented as cumulative: Every time this is called, the cells within
-		range (of circle provided by (x, y) and r) of this cell get the burnIntensity of
-		this cell added to their fireActivity.
-	 */
-    private void updateFireActivity(List<List<Element>> cells, String command) {
+    /**
+     * 	Adds to the temperature of the cell a value that is based on the result
+     * 	of the calcTemperature function.
+     * @param cells
+     * @param command
+     */
+    private void updateTemperature(List<List<Element>> cells, String command) {
+
+        // burnIntensity is now used as maximal burnIntensity
+
+        // should not be cumulative. one-shot application from neighbouring cells
+        // instead of addition per update
+
         HashSet<Element> neighbours = getNeighbours(cells);
         for (Element cell : neighbours) {
             if (command.equals("add")) {
-                cell.fireActivity += this.burnIntensity;
+                cell.adjustTemperatureBy(calcTemperature(cell));
             }
             if (command.equals("remove")) {
-                cell.fireActivity -= 3 * this.burnIntensity;
+                cell.adjustTemperatureBy(-1 * calcTemperature(cell));
             }
         }
     }
 
-    /*
-		Returns a set of cells that fall within the range of this cell.
-	 */
+    /**
+     * Adds or removes heat to the current temperature, but keeps the
+     * value between [0, 100]
+     * @param amount
+     */
+    private void adjustTemperatureBy(double amount)
+    {
+        double newAmount = temperature + amount;
+        if (newAmount > 100)
+        {
+            newAmount = 100;
+        }
+        if (newAmount < 0)
+        {
+            newAmount = 0;
+        }
+        // range = [0, 100]
+        temperature = newAmount;
+    }
+
+    /**
+     * 	Returns a set of cells that fall within the range of this cell.
+     * @param cells
+     * @return
+     */
     public HashSet<Element> getNeighbours(List<List<Element>> cells) {
         HashSet<Element> neighbours = new HashSet<>();
         for (int xi = x - r; xi <= x + r; xi++) {
@@ -140,16 +181,80 @@ public abstract class Element implements Serializable, Observer {
         return neighbours;
     }
 
-    /*
-		Check if this cell is within range of another cell, defined by the circle given
-		by (x, y) and r.
-	 */
+    /**
+     *	Check if this cell is within range of another cell, defined by the circle given
+     *	by (x, y) and r.
+     * @param cell
+     * @return
+     */
     private boolean isWithinCircleOf(Element cell) {
         return Math.pow(x - cell.x, 2) + Math.pow(y - cell.y, 2) <= Math.pow(r, 2);
     }
 
-    /*
-		Checks if the coordinates are within the boundaries of the map.
+    /**
+     * Calculates the distance between this cell and the given cell. If the the distance
+     * @param cell
+     * @return
+     */
+    private double distanceTo(Element cell)
+    {
+        double d = Math.sqrt(Math.pow(x - cell.x, 2) + Math.pow(y - cell.y, 2));
+        // SHOULD I BE DOING THIS? IF D > R, CHECK FOR THAT ELSEWHERE?
+        if (d > r)
+        {
+            d = r;
+        }
+        // range = [0, r]
+        return d;
+    }
+
+    /**
+     * Calculates the angle between two vectors. The wind direction vector
+     * and the vector between the given cell and this cell
+     * @param cell
+     * @return
+     */
+    private double angleToWind(Element cell)
+    {
+        // vector between this cell and the given cell
+        double cVecX = this.x - cell.x;
+        double cVecY = this.y - cell.y;
+
+        // wind vector
+        double wVecX = 1;
+        double wVecY = 1;
+
+        // return angle between these two vectors (range = [-pi, pi])
+        return Math.abs(Math.atan2(wVecX*cVecY - wVecY*cVecX, wVecX*cVecX + wVecY*cVecY));
+    }
+
+    /**
+     * Calculates the temperature that the given cell should get from
+     * this cell if this cell is burning, based on wind speed and direction,
+     * and cell burn intensity
+     * @param cell
+     * @return
+     */
+    private double calcTemperature(Element cell)
+    {
+        int windSpeed = 100;
+
+        double distance = this.distanceTo(cell);
+        if (distance == 0)
+        {
+            return burnIntensity;
+        }
+        double angle = this.angleToWind(cell);
+        if (angle == 0)
+        {
+            return burnIntensity * (1 / distance);
+        }
+        // burnIntensity * ( 1 / ([0, r] + [-pi, pi]) )
+        return burnIntensity * (1 / (distance + (angle / windSpeed)));
+    }
+
+    /**
+     * Checks if the coordinates are within the boundaries of the map.
 	 */
     public boolean inBounds(int x, int y) {
         int maxX = width;
@@ -169,12 +274,13 @@ public abstract class Element implements Serializable, Observer {
         return isBurning;
     }
 
-    public boolean isBurnt() {
-        return isBurnt;
-    }
-
     public boolean isBurnable() {
         return burnable;
+    }
+
+    public boolean isBurnt()
+    {
+        return isBurnt;
     }
 
     public int getX() {
@@ -190,14 +296,94 @@ public abstract class Element implements Serializable, Observer {
         return moveSpeed;
     }
 
-    public Color getColor() {
+    /**
+     * Returns the color based on the state. Black if burnt, Red if
+     * burning, otherwise 3 shades of orange based on temperature
+     * @return
+     */
+    public Color getColor()
+    {
+        if (isBurnt)
+        {
+            return Color.BLACK;
+        }
+        else if (isBurning)
+        {
+            return new Color(255, 0, 0);
+        }
+        else
+        {
+            if (temperature > ignitionThreshold * 0.75)
+            {
+                return new Color(255, 72, 0);
+            }
+            if (temperature > ignitionThreshold * 0.50)
+            {
+                return new Color(205, 105, 0);
+            }
+            if (temperature > ignitionThreshold * 0.25)
+            {
+                return new Color(255,153,0);
+            }
+        }
+        return color;
+    }
+/*
+    public Color getColor()
+    {
+        if (isBurnt)
+        {
+            return Color.BLACK;
+        }
+        else if (isBurning)
+        {
+            return Color.RED;
+        }
+        else
+        {
+            if (temperature * 0.75 > ignitionThreshold)
+            {
+                double red = 255 * (temperature / 100);
+                Color newCol = new Color((int)red, color.getBlue(), color.getGreen());
+                return newCol;
+            }
+            else
+            {
+                return color;
+            }
+        }
+    }
+*/
+/*
         if (isBurning) {
             return Color.RED;
         } else if (isBurnt) {
             return Color.BLACK;
         } else {
+            if (temperature > 0)
+            {
+                double normalizedTemperature = temperature / 100f;
+                return getRedGreenHue(normalizedTemperature);
+            }
             return color;
         }
+    }
+*/
+
+    /**
+     * Returns a hue between green and red, depending on the input, where
+     * power is a double between 0 and 1: 0 gives a bright green, 1 gives
+     * a bright red
+     * @param power
+     * @return
+     */
+    private Color getRedGreenHue(double power)
+    {
+        double H = (1 - power) * 0.4; // Hue (note 0.4 = Green)
+        double S = 0.9; // Saturation
+        double B = 0.9; // Brightness
+
+        return Color.getHSBColor((float)H, (float)S, (float)B);
     }
 
     /*
