@@ -24,8 +24,8 @@ public class Grass extends Element
         this.burnable = true;
         this.color = LIGHT_GREEN;
         this.burnIntensity = 2;
-        this.ignitionThreshold = 1;
-        this.fuel = 5;
+        this.ignitionThreshold = 5;
+        this.fuel = starting_fuel = 5;
         this.moveSpeed = 10;
         this.clearCost = 5;
     }

@@ -14,6 +14,8 @@ public class Simulation extends Observable implements Serializable, Observer{
                                             //as these are the only ones who need to be updated
 	private List<Simulation> states;    //This holds a list of previous states of the simulation if undo is set to true
                                             //otherwise it will only hold the first state for reset
+    private int steps_taken = 0;
+
     private int width;
     private int height;
     private int step_time;
@@ -26,13 +28,16 @@ public class Simulation extends Observable implements Serializable, Observer{
     private boolean use_gui;
 
 	private Random rand; //initializes RNG
+    private long randomizer_seed = 0;
 
 	public Simulation(boolean use_gui)
 	{
         System.out.println("use_gui= " + use_gui );
 	    this.use_gui = use_gui;
 	    //Initialize these things
-        rand = new Random();
+        Random seed_gen = new Random();
+        randomizer_seed = seed_gen.nextLong();
+        rand = new Random(randomizer_seed);
         states = new ArrayList<>();
 
         //Initialize the parameters to some default values and make them available for drawing
@@ -45,7 +50,7 @@ public class Simulation extends Observable implements Serializable, Observer{
         //This gathers the first set of cells to be active
 		findActiveCells();
         //This adds the initial state to the states list
-		states.add((Simulation) deepCopy(this));
+		//states.add((Simulation) deepCopy(this));
 		if(!use_gui){
 		    start();
         }
@@ -103,15 +108,17 @@ public class Simulation extends Observable implements Serializable, Observer{
      * Resets the simulation to the first state since the last regeneration. Linked to the reset button.
      */
     public void reset(){
-	    if(states.size() > 0){
 	        stop();
-	        Simulation rewind = (Simulation) deepCopy(states.get(0));
-	        this.cells = rewind.cells;
-	        this.activeCells = rewind.activeCells;
+
+            rand = new Random(randomizer_seed);
+            states = new ArrayList<>();
+            tree_grid(width, height);
+            findActiveCells();
+
             setChanged();
             notifyObservers(cells);
             notifyObservers(agent);
-        }
+
     }
 
     /**
@@ -135,6 +142,18 @@ public class Simulation extends Observable implements Serializable, Observer{
     public void stepBack(){
 	    if(undo_redo == true){
 	        for(int i = 0; i< step_size; i++) {
+	            if(steps_taken > 0){
+	                reset();
+	                for(int j= 0; j < steps_taken; j++){
+	                    stepForward();
+                        setChanged();
+                        notifyObservers(cells);
+                    }
+
+                }else{
+	                running = false;
+                }
+                /*
                 if (states.size() > 0) {
                     Simulation rewind = states.get(states.size() - 1);
                     states.remove(states.size() - 1);
@@ -145,6 +164,7 @@ public class Simulation extends Observable implements Serializable, Observer{
                 } else {
                     running = false;
                 }
+                */
             }
         }
     }
@@ -158,6 +178,7 @@ public class Simulation extends Observable implements Serializable, Observer{
             if (undo_redo == true) {
                 System.out.println("Adding undo_copy");
                 states.add((Simulation) deepCopy(this));
+                steps_taken++;
             }
             updateEnvironment();
         }
@@ -233,30 +254,31 @@ public class Simulation extends Observable implements Serializable, Observer{
 	private void tree_grid(int x, int y){
         int fire_x = rand.nextInt(x);
         int fire_y = rand.nextInt(y);
-        cells = new ArrayList<List<Element>>();
+        cells = new ArrayList<>();
         for(int i = 0; i<x; i++){
-            List<Element> row = new ArrayList<Element>();
+            List<Element> col = new ArrayList<>();
             for(int j=0; j<y; j++){
                 //Set a random tile on fire
                 if(i== fire_x && j == fire_y) {
+                    System.out.println("Fire at x= "+ i+ " y = " + j);
                     Element t = new Tree(i,j, parameter_manager);
                     t.setBurning();
-                    row.add(t);
+                    col.add(t);
                 } else {
                     if (i == 9 || i == 10) {
-                        row.add(new Water(i, j, parameter_manager));
+                        col.add(new Water(i, j, parameter_manager));
                     } else if (i == 12) {
-                        row.add(new House(i, j, parameter_manager));
+                        col.add(new House(i, j, parameter_manager));
                     } else if (i == 14) {
-                        row.add(new Road(i, j, parameter_manager));
+                        col.add(new Road(i, j, parameter_manager));
                     } else if (j%5 == 0) {
-                        row.add(new Tree(i, j, parameter_manager));
+                        col.add(new Tree(i, j, parameter_manager));
                     } else {
-                        row.add(new Grass(i, j, parameter_manager));
+                        col.add(new Grass(i, j, parameter_manager));
                     }
                 }
             }
-            cells.add(row);
+            cells.add(col);
         }
         //This will create one agent which can will be dropped on a random location on the map.
         agent = new Agent(this);
