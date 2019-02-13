@@ -18,7 +18,8 @@ public class MainFrame extends JFrame {
         GridBagConstraints c = new GridBagConstraints();
         this.setLayout(gbl);
         /*Simulation area set to a square, with 300 extra width for control panel*/
-        int simulation_size = 1000;
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int simulation_size = screenSize.height;
 
 
         c.weightx = 0.5;
@@ -37,6 +38,9 @@ public class MainFrame extends JFrame {
         this.setTitle("Wildfire simulation");
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+
+
         this.pack();
         this.setPreferredSize(new Dimension(simulation_size + 300,simulation_size));
 

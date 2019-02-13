@@ -62,6 +62,7 @@ public abstract class Element implements Serializable, Observer {
 
     public abstract void initializeParameters();
 
+
     /*
 		Updates the cell and the fire activity of its neighbours, returns a
 		simple status string to help keep track of active cells
@@ -376,7 +377,8 @@ public abstract class Element implements Serializable, Observer {
         }
     }
 
-    public String getType() {
-        return type;
+    public String getType(){
+        return this.type;
     }
+
 }

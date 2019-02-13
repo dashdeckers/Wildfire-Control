@@ -26,13 +26,14 @@ public class Simulation extends Observable implements Serializable, Observer{
     private boolean use_gui;
 
 	private Random rand; //initializes RNG
+    private long randomizer_seed = 0;
 
 	public Simulation(boolean use_gui)
 	{
         System.out.println("use_gui= " + use_gui );
 	    this.use_gui = use_gui;
 	    //Initialize these things
-        rand = new Random();
+        rand = new Random(randomizer_seed);
         states = new ArrayList<>();
 
         //Initialize the parameters to some default values and make them available for drawing
