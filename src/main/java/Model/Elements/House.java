@@ -28,4 +28,9 @@ public class House extends Element
         this.fuel = 25;
         this.moveSpeed = 1;
     }
+
+    @Override
+    public String getType() {
+        return "House";
+    }
 }

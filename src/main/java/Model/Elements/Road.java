@@ -22,4 +22,9 @@ public class Road extends Element
         this.type = "Road";
         this.color = DARK_GREY;
     }
+
+    @Override
+    public String getType() {
+        return "Road";
+    }
 }

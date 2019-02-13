@@ -21,12 +21,12 @@ public class Agent extends Element
     {
 
         this.simulation = simulation;
-        this.parameters = simulation.getParameters();
+        this.parameterManager = simulation.getParameter_manager();
 
         do {
             this.x = simulation.getRandX();
             this.y = simulation.getRandY();
-            System.out.println("x= " + x + "\ny= " + y);
+            //System.out.println("x= " + x + "\ny= " + y);
         } while (!checkTile(x,y));
 
         previousElement = simulation.getAllCells().get(this.x).get(this.y);
@@ -99,7 +99,7 @@ public class Agent extends Element
     private void cutTree() {
         Element cell = simulation.getAllCells().get(x).get(y);
         if((cell.getType().equals("Tree") || cell.getType().equals("Grass")) && (!cell.isBurnt())){
-            simulation.getAllCells().get(x).set(y, new Road(x, y, simulation.getParameters()));
+            simulation.getAllCells().get(x).set(y, new Road(x, y, simulation.getParameter_manager()));
         }
     }
 

@@ -28,4 +28,9 @@ public class Tree extends Element
 		this.fuel = 50;
 		this.moveSpeed = 1;
 	}
+
+	@Override
+	public String getType() {
+		return "Tree";
+	}
 }

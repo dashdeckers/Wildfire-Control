@@ -61,6 +61,7 @@ public abstract class Element implements Serializable, Observer {
     int height;
 
     public abstract void initializeParameters();
+    public abstract String getType();
 
     /*
 		Updates the cell and the fire activity of its neighbours, returns a
@@ -149,7 +150,7 @@ public abstract class Element implements Serializable, Observer {
     /*
 		Checks if the coordinates are within the boundaries of the map.
 	 */
-    private boolean inBounds(int x, int y) {
+    public boolean inBounds(int x, int y) {
         int maxX = width;
         int maxY = height;
         if (x >= 0 && x < maxX
