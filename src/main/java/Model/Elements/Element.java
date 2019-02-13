@@ -63,12 +63,12 @@ public abstract class Element implements Serializable, Observer {
     public abstract void initializeParameters();
 
 
-    /*
-		Updates the cell and the fire activity of its neighbours, returns a
-		simple status string to help keep track of active cells
+    /**
+	 *	Updates the cell and the fire activity of its neighbours, returns a
+	 *	simple status string to help keep track of active cells
 	 */
-    public String update(List<List<Element>> cells) {
-
+    public String update(List<List<Element>> cells)
+    {
         if (!burnable) {
             return "Not Burnable";
         }
@@ -85,10 +85,11 @@ public abstract class Element implements Serializable, Observer {
         return "No Change";
     }
 
-    /*
-		At every time step, the fuel of the cell is reduced by its burnIntensity if the
-		cell is burning, and it is burnt out of there is no more fuel left. If the cell
-		is not burning, we check if the ignitionThreshold is reached and possibly ignite.
+    /**
+	 *	At every time step, the fuel of the cell is reduced by 1 if the cell is
+	 *	burning. It is burnt out of there is no more fuel left. If the cell
+	 *	is not burning, we check if the ignitionThreshold is reached and possibly
+     *	ignite it.
 	 */
     private void timeStep() {
         if (isBurning) {
