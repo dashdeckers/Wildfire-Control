@@ -23,7 +23,7 @@ public class Tree extends Element
 		this.r = 2;
 		this.burnable = true;
 		this.color = DARK_GREEN;
-		this.burnIntensity = 3;
+		this.burnIntensity = 4;
 		this.ignitionThreshold = 15;
 		this.fuel = 10;
 		this.moveSpeed = 1;
