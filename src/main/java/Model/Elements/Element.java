@@ -20,7 +20,8 @@ import java.util.*;
 	Burn Intensity: Some material burns at a higher temperature, or intensity,
 	    and so have a larger potential to ignite neighbouring cells. While
 	    burning, at each iteration the burn intensity of the cell is added to
-	    the fire activity of the neighbouring cells.
+	    the fire activity of the neighbouring cells, depending on the wind speed,
+	    wind direction, and the distance to the cell.
 
 	Fire Activity: A measure of how much heat the cell is experiencing from
 	    nearby burning cells. If fire activity exceeds the ignition threshold,
@@ -36,7 +37,7 @@ public abstract class Element implements Serializable, Observer {
     // coordinates
     int x = 0;
     int y = 0;
-    // radius of influence, if burning
+    // maximal radius of influence, if burning
     int r = 0;
     // color
     Color color = Color.WHITE;
@@ -233,6 +234,11 @@ public abstract class Element implements Serializable, Observer {
 
     public boolean isBurnable() {
         return burnable;
+    }
+
+    public boolean isBurnt()
+    {
+        return isBurnt;
     }
 
     public int getX() {
