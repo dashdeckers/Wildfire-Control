@@ -1,6 +1,9 @@
 package Model.Elements;
 
 import Model.ParameterManager;
+import Model.Simulation;
+import View.ControlPanel;
+import View.MainFrame;
 
 import java.awt.Color;
 import java.io.Serializable;
@@ -45,7 +48,7 @@ public abstract class Element implements Serializable, Observer {
     // parameters passed from simulation
     ParameterManager parameterManager;
     // state properties
-    boolean burnable = false;
+    boolean isBurnable = false;
     boolean isBurning = false;
     boolean isBurnt = false;
     // move speed: 0 is not traversable, 3 is easy to traverse
@@ -70,9 +73,9 @@ public abstract class Element implements Serializable, Observer {
 	 */
     public String update(List<List<Element>> cells)
     {
-        // if not burnable, dont do anything
-        if (!burnable) {
-            return "Not Burnable";
+        // if not isBurnable, dont do anything
+        if (!isBurnable) {
+            return "Not burnable";
         }
         // remember whether it was burning
         boolean wasBurning = isBurning;
@@ -172,12 +175,22 @@ public abstract class Element implements Serializable, Observer {
             for (int yi = y - r; yi <= y + r; yi++) {
                 if (inBounds(xi, yi)) {
                     Element cell = cells.get(xi).get(yi);
-                    if (cell.isWithinCircleOf(this)) {
+                    if (!cell.isBurnt && cell.isBurnable && cell.isWithinCircleOf(this)) {
                         neighbours.add(cell);
                     }
                 }
             }
-        }
+        }/* WEAK ATTEMPT AT IVO'S THEORY FOR NEIGHBOURS
+        for (int x = -r; x <= r; x++) {
+            for (int y = -r; x+y <= r; y++) {
+                int neighbourX = getX() + x;
+                int neighbourY = getY() + y;
+                Element cell = cells.get(neighbourX).get(neighbourY);
+                if (!cell.isBurnt && cell.isBurnable) {
+                    neighbours.add(cell);
+                }
+            }
+        }*/
         return neighbours;
     }
 
@@ -274,8 +287,8 @@ public abstract class Element implements Serializable, Observer {
         return isBurning;
     }
 
-    public boolean isBurnable() {
-        return burnable;
+    public boolean isisBurnable() {
+        return isBurnable;
     }
 
     public boolean isBurnt()

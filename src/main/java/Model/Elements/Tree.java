@@ -21,7 +21,7 @@ public class Tree extends Element
 	{
 		this.type = "Tree";
 		this.r = 2;
-		this.burnable = true;
+		this.isBurnable = true;
 		this.color = DARK_GREEN;
 		this.burnIntensity = 4;
 		this.ignitionThreshold = 15;
