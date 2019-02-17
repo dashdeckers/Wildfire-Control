@@ -140,7 +140,8 @@ public class Simulation extends Observable implements Serializable{
          * 1) Rural : if high then amount of trees higher and amount of houses & roads lower
          * 2) Wetlands: If high then more rivers & lakes, if low then less rivers
          */
-        int numberBushes = rand.nextInt((int) (0.05*area));
+        int numberBushes = rand.nextInt((int) (0.2*area));
+        int numberHouses = rand.nextInt((int) (0.05*area));
         cells = new ArrayList<List<Element>>();
 
 
@@ -150,48 +151,55 @@ public class Simulation extends Observable implements Serializable{
         // First fill with grass
         for(int i = 0; i<x; i++){
             List<Element> row = new ArrayList<Element>();
+
             for(int j=0; j<y; j++){
                 row.add(new Grass(i, j, parameters));
             }
             cells.add(row);
         }
 
-        /*
+
 
         //
         // TREES
         //
         // Add Trees at random points
         for(int i = 0; i<x; i++){
-            List<Element> row = new ArrayList<Element>();
+            List<Element> row = cells.get(i);
+
             for(int j=0; j<y; j++){
 
                 // chance = numberBushes/area that a tree is placed
                 if( rand.nextInt(area) < numberBushes  ){
 
-                    row.add(new Tree(i, j, parameters));
+                    row.set(j, new Tree(i, j, parameters));
                     //
                     // implement helper function to randomly place trees around
                     //
                 }
             }
-            cells.add(row);
+            cells.set(i, row);
         }
 
 
         //
         // HOUSES
         //
-        // Add Houses at random points
+        // Add HOUSES at random points
         for(int i = 0; i<x; i++){
-            List<Element> row = new ArrayList<Element>();
+            List<Element> row = cells.get(i);
+
             for(int j=0; j<y; j++){
-                // chance = numberBushes/area that a forest is placed
-                if( rand.nextInt(area) < numberBushes  ){
-                    row.add(new House(i, j, parameters));
+
+                // chance = numberBushes/area that a tree is placed
+                if( rand.nextInt(area) < numberHouses  ){
+
+                    row.set(j, new House(i, j, parameters));
+                    //
+                    // Make sure houses are placed next to each other
                 }
             }
-            cells.add(row);
+            cells.set(i, row);
         }
 
 
@@ -201,60 +209,87 @@ public class Simulation extends Observable implements Serializable{
         // Add either a vertical or a horizontal road
         int chooseXY = rand.nextInt(2);
 
-        // make vertical road ( I believe this starts at the top)
-        if (chooseXY == 1){
+
+        // make vertical road (Starts at the top)
+        if (chooseXY == 0){
             int randomX = rand.nextInt(x);
-            for(int i = 0; i<y; i++) {
-                List<Element> row = new ArrayList<Element>();
-                row.add(new Road(randomX, i, parameters));
-                cells.add(row);
+
+            List<Element> row = cells.get(randomX);
+            for(int i = 0; i<y; i++){
+
+                row.set(i, new Road(randomX, i, parameters));
+                cells.set(randomX, row);
             }
 
-        // make horizontal road ( I believe this starts at the left)
+
+        // make horizontal road (Starts at the left)
         } else {
+
             int randomY = rand.nextInt(y);
-            for (int i = 0; i < x; i++) {
-                List<Element> row = new ArrayList<Element>();
-                row.add(new Road(i, randomY, parameters));
-                cells.add(row);
+
+            for(int i=0; i<x; i++){
+
+                List<Element> row = cells.get(i);
+                row.set(randomY, new Road(i, randomY, parameters));
+                cells.set(randomY, row);
             }
+
         }
+
 
         //
         // RIVER
         //
         // Add a meandering river, either starting at the left or at the top
-        int chooseXY = rand.nextInt(2);
+        chooseXY = rand.nextInt(2);
 
-        if (chooseXY == 1){
+        // make vertical river ( I believe this starts at the top)
+        if (chooseXY == 0){
 
-            // make vertical river ( I believe this starts at the top)
-            int riverX = rand.nextInt(x);
+            // Ensure the south direction is implemented first
             int riverY = 0;
-            row.add(new River(riverX, riverY, parameters));
+            int riverX = rand.nextInt(x);
 
-            while(riverX >= 0 && riverX < x && riverY >= 0 && riverY < y){
+            int west = 0;
+            int east = 1;
 
-                int directionRiver = rand.nextInt(3);
+            System.out.printf("----1\n");
+            System.out.printf("riverX = %d\n", riverX);
+            System.out.printf("riverY = %d\n", riverY);
+
+            // Then let the river meander with a tendency to go south
+            while (riverX >= 0 && riverX < x && riverY < y){
+
+                System.out.printf("----2\n");
+                System.out.printf("riverX = %d\n", riverX);
+                System.out.printf("riverY = %d\n", riverY);
+
+                List<Element> row = cells.get(riverX);
+                row.set(riverY, new Water(riverX, riverY, parameters));
+                cells.set(riverY, row);
+
+                int directionRiver = rand.nextInt(6);
+
                 if (directionRiver == 0) { // West
                     riverX--;
-                    row.add(new River(riverX, riverY, parameters));
                 }
-                if (directionRiver == 1) { // South
+                if (directionRiver == 1 || directionRiver == 2 || directionRiver == 3 || directionRiver == 4) { // South, tendency to go south
                     riverY++;
-                    row.add(new River(riverX, riverY, parameters));
                 }
-                if (directionRiver == 2) { // East
+                if (directionRiver == 5) { // East
                     riverX++;
-                    row.add(new River(riverX, riverY, parameters));
+
                 }
+
 
             }
 
+            System.out.printf("riverX = %d\n", riverX);
+            System.out.printf("riverY = %d\n", riverY);
+            System.out.printf("riverY ========================== %d\n", riverY);
+        }/* else {
 
-        } else {
-
-            // make horizontal river ( I believe this starts at the left)
+            // make horizontal river (Starts at the left)
             int riverX = 0;
             int riverY = rand.nextInt(y);
             row.add(new River(riverX, riverY, parameters));
@@ -277,26 +312,32 @@ public class Simulation extends Observable implements Serializable{
 
             }
         }
-
+        //
+        // Also lakes?
+        //
+*/
+/*
         //
         // FIRE
         //
         int fire_x = rand.nextInt(x);
         int fire_y = rand.nextInt(y);
-        cells = new ArrayList<List<Element>>();
-        for(int i = 0; i<x; i++){
-            List<Element> row = new ArrayList<Element>();
-            for(int j=0; j<y; j++){
-                //Set a random tile on fire
-                if(i== fire_x && j == fire_y) {
-                    Element t = new Tree(i,j, parameters);
-                    t.setBurning();
-                    row.add(t);
-            }
-            cells.add(row);
-        }
 
-        */
+        for(int i = 0; i<x; i++) {
+            List<Element> row = cells.get(i);
+            for (int j = 0; j < y; j++) {
+                //Set a random tile on fire
+                if (i == fire_x && j == fire_y) {
+                    Element t = new Tree(i, j, parameters);
+                    t.setBurning();
+                    //row.add(t);
+                    row.set(j, t);
+                    cells.set(j, row);
+                }
+            }
+
+        }
+*/
 
 
         setChanged();
