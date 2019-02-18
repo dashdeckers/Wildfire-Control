@@ -1,3 +1,4 @@
+import Model.Elements.Agent;
 import Model.Simulation;
 import View.MainFrame;
 

@@ -41,7 +41,8 @@ public class SimulationPanel extends JPanel implements Observer {
         float y_width = y_jump - 1;
 
         float x = start_x;
-        float y = start_y;
+        //float y = start_y;
+        float y = end_y - y_jump;
 
         if(draw_all) {  //Else not implemented yet
             for (int i = 0; i < cells.get(0).size(); i++) {
@@ -49,11 +50,16 @@ public class SimulationPanel extends JPanel implements Observer {
                     g.setColor(cells.get(j).get(i).getColor());
                     g.fillRect((int) x, (int) y, (int) x_width, (int) y_width);
                     x += x_jump;
+
+
                 }
-                y += y_jump;
+                y -= y_jump;
                 x = start_x;
             }
+            g.setColor(model.getAgent().getColor());
+            g.fillRect((int) (model.getAgent().getX()*x_jump), (int) ((end_y-y_jump) - (int) model.getAgent().getY()*y_jump ) , (int) x_width, (int) y_width);
         }
+
 
     }
 

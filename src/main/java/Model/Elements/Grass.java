@@ -1,27 +1,33 @@
 package Model.Elements;
 
+import Model.ParameterManager;
+
 import java.awt.Color;
 import java.util.Map;
 
 public class Grass extends Element
 {
     private static final Color LIGHT_GREEN = new Color(0,153,0);
-    public Grass(int x, int y, Map<String, Float> parameters)
+    public Grass(int x, int y, ParameterManager parameterManager)
     {
         this.x = x;
         this.y = y;
-        this.parameters = parameters;
+        this.parameterManager = parameterManager;
         initializeParameters();
+        pullParameters();
     }
 
     public void initializeParameters()
     {
+        this.type = "Grass";
         this.r = 1;
-        this.burnable = true;
+        this.isBurnable = true;
         this.color = LIGHT_GREEN;
         this.burnIntensity = 2;
-        this.ignitionThreshold = 1;
-        this.fuel = 5;
+        this.ignitionThreshold = 5;
+        this.fuel = starting_fuel = 5;
         this.moveSpeed = 10;
+        this.clearCost = 5;
     }
+
 }
