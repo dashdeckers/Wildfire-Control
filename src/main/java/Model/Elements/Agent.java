@@ -92,6 +92,7 @@ public class Agent extends Element
             String currentAction = actions.get(r.nextInt(actions.size()));
             System.out.println("Decided to do: " + currentAction + ", having energy level: " + energyLevel);
             Element currentCell = simulation.getAllCells().get(x).get(y);
+//            System.out.println("Current position: x = " + x + ", y = " + y);
             switch (currentAction){
                 case "Cut Tree":
                 case "Cut Grass":
