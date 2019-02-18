@@ -87,6 +87,7 @@ public abstract class Element implements Serializable, Observer {
         timeStep();
         // if it is burnt out (=no more fuel), remove temperature
         if (isBurnt) {
+            isBurnable = false;
             updateTemperature(cells, "remove");
             return "Dead";
         }
@@ -109,11 +110,18 @@ public abstract class Element implements Serializable, Observer {
      *	ignite it.
 	 */
     private void timeStep() {
+        // "cool down" trees that did not get lit
+        if (isBurnable) {
+            if (temperature > 0) {
+                temperature -= 1;
+            }
+        }
         // if it is burning, we are using up fuel
         if (isBurning) {
             fuel -= 1;
             // if there is no more fuel, it is burnt out
             if (fuel <= 0) {
+                isBurnable = false;
                 isBurning = false;
                 isBurnt = true;
             }
@@ -169,13 +177,14 @@ public abstract class Element implements Serializable, Observer {
     }
 
     /**
-     * 	Returns a set of cells that fall within the range of this cell.
+     * 	Used to: Returns a set of cells that fall within the range of this cell.
+     * 	Now: Determines the "diamond" shape of burnable neighbours of a given cell, using the cells radius.
      * @param cells
      * @return
      */
     public HashSet<Element> getNeighbours(List<List<Element>> cells) {
         HashSet<Element> neighbours = new HashSet<>();
-        for (int xi = x - r; xi <= x + r; xi++) {
+        /*for (int xi = x - r; xi <= x + r; xi++) {
             for (int yi = y - r; yi <= y + r; yi++) {
                 if (inBounds(xi, yi)) {
                     Element cell = cells.get(xi).get(yi);
@@ -184,17 +193,61 @@ public abstract class Element implements Serializable, Observer {
                     }
                 }
             }
-        }/* WEAK ATTEMPT AT IVO'S THEORY FOR NEIGHBOURS
-        for (int x = -r; x <= r; x++) {
-            for (int y = -r; x+y <= r; y++) {
-                int neighbourX = getX() + x;
-                int neighbourY = getY() + y;
-                Element cell = cells.get(neighbourX).get(neighbourY);
-                if (!cell.isBurnt && cell.isBurnable) {
-                    neighbours.add(cell);
+        }*/
+        for (int deltaX = 0; deltaX <= r; deltaX++) {
+            int originX = this.getX();
+            int originY = this.getY();
+            for (int deltaY = 0; deltaY <= r; deltaY++) {
+                // Out of bounds skip
+                if (originX + deltaX >= width || originX - deltaX < 0 || originY + deltaY >= height || originY - deltaY < 0) {
+                    continue;
+                }
+                // Add point of origin to neighbours anyway
+                Element cell = cells.get(originX).get(originY);
+                if (cell.isBurnable) {
+                    neighbours.add(cells.get(originX).get(originY));
+                }
+                // When X and Y both aren't 0, add surrounding combinations of +/-
+                if (deltaX != 0 && deltaY != 0) {
+                    cell = cells.get(originX+deltaX).get(originY+deltaY);
+                    if (cell.isBurnable) {
+                        neighbours.add(cell);
+                    }
+                    cell = cells.get(originX+deltaX).get(originY-deltaY);
+                    if (cell.isBurnable) {
+                        neighbours.add(cell);
+                    }
+                    cell = cells.get(originX-deltaX).get(originY+deltaY);
+                    if (cell.isBurnable) {
+                        neighbours.add(cell);
+                    }
+                    cell = cells.get(originX-deltaX).get(originY-deltaY);
+                    if (cell.isBurnable) {
+                        neighbours.add(cell);
+                    }
+                // When X is 0, add delta Y +/- line
+                } else if (deltaX == 0 && deltaY != 0) {
+                    cell = cells.get(originX).get(originY+deltaY);
+                    if (cell.isBurnable) {
+                        neighbours.add(cell);
+                    }
+                    cell = cells.get(originX).get(originY-deltaY);
+                    if (cell.isBurnable) {
+                        neighbours.add(cell);
+                    }
+                // When Y is 0, add delta X +/- line
+                } else if (deltaX != 0 && deltaY == 0) {
+                    cell = cells.get(originX+deltaX).get(originY);
+                    if (cell.isBurnable) {
+                        neighbours.add(cell);
+                    }
+                    cell = cells.get(originX-deltaX).get(originY);
+                    if (cell.isBurnable) {
+                        neighbours.add(cell);
+                    }
                 }
             }
-        }*/
+        }
         return neighbours;
     }
 
@@ -238,8 +291,8 @@ public abstract class Element implements Serializable, Observer {
         double cVecY = this.y - cell.y;
 
         // wind vector
-        double wVecX = 1;
-        double wVecY = 1;
+        double wVecX = 0;
+        double wVecY = -1;
 
         // return angle between these two vectors (range = [-pi, pi])
         return Math.abs(Math.atan2(wVecX*cVecY - wVecY*cVecX, wVecX*cVecX + wVecY*cVecY));
