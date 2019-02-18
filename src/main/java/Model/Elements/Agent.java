@@ -127,10 +127,10 @@ public class Agent extends Element
         if (energyLevel >= currentCell.getParameters().get("Clear Cost") && currentCell.getType()=="Grass"){
             actions.add("Cut Grass");
         }
-        if (checkTile(x, y + 1) && (determineMoveCost(simulation.getAllCells().get(x).get(y-1)))<=energyLevel){
+        if (checkTile(x, y - 1) && (determineMoveCost(simulation.getAllCells().get(x).get(y-1)))<=energyLevel){
             actions.add("Go Down");
         }
-        if (checkTile(x, y - 1) && (determineMoveCost(simulation.getAllCells().get(x).get(y+1)))<=energyLevel) {
+        if (checkTile(x, y + 1) && (determineMoveCost(simulation.getAllCells().get(x).get(y+1)))<=energyLevel) {
             actions.add("Go Up");
         }
         if (checkTile(x + 1, y) && (determineMoveCost(simulation.getAllCells().get(x+1).get(y)))<=energyLevel) {
@@ -174,13 +174,13 @@ public class Agent extends Element
     }
 
     private void moveDown() {
-        energyLevel-= determineMoveCost(simulation.getAllCells().get(x).get(y+1));
-        y++;
+        energyLevel-= determineMoveCost(simulation.getAllCells().get(x).get(y-1));
+        y--;
     }
 
     private void moveUp() {
-        energyLevel-= determineMoveCost(simulation.getAllCells().get(x).get(y-1));
-        y--;
+        energyLevel-= determineMoveCost(simulation.getAllCells().get(x).get(y+1));
+        y++;
     }
 
 

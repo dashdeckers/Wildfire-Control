@@ -279,7 +279,7 @@ public class Simulation extends Observable implements Serializable, Observer{
                         col.add(new House(i, j, parameter_manager));
                     } else if (i == 14) {
                         col.add(new Road(i, j, parameter_manager));
-                    } else if (j%5 == 0) {
+                    } else if (j < 0.2*height) {
                         col.add(new Tree(i, j, parameter_manager));
                     } else {
                         col.add(new Grass(i, j, parameter_manager));
@@ -304,7 +304,7 @@ public class Simulation extends Observable implements Serializable, Observer{
         width = 50;
         height = 50;
         if(use_gui) {
-            step_time = 250;
+            step_time = 100;
         }else{
             step_time = 0;
         }
