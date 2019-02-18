@@ -195,33 +195,41 @@ public class Simulation extends Observable implements Serializable, Observer{
         return cells;
     }
 
-    /*
-    	Updates all activeCells, removing burnt out cells and adding newly active cells (= cells
-    	that are- or are nearby burning cells) along the way
-     */
+	/**
+	 *  Update the list of active cells. Apply the heat from the burning cell cell to all
+	 *  of its neighbouring cells. If it ignites a neighbouring cell, add that cell to the
+	 *  activeCells. If a burning cell runs out of fuel, remove it from the activeCells.
+	 */
     public void updateEnvironment()
 	{
-		// remember elements to add to- or remove from set because we can't while iterating
 		HashSet<Element> toRemove = new HashSet<>();
 		HashSet<Element> toAdd = new HashSet<>();
-		for (Element cell : activeCells)
+		for (Element burningCell : activeCells)
 		{
-			String status = cell.update(cells);
+			String status = burningCell.timeStep();
 			if (status.equals("Dead"))
 			{
-				toRemove.add(cell);
+				toRemove.add(burningCell);
 			}
-			if (status.equals("Ignited"))
+			if (status.equals("No Change"))
 			{
-				toAdd.addAll(cell.getNeighbours(cells));
+				HashSet<Element> neighbours = burningCell.getNeighbours(cells);
+				for (Element neighbourCell : neighbours)
+				{
+					if (neighbourCell.isBurnable())
+					{
+						neighbourCell.getHeatFrom(burningCell);
+						status = neighbourCell.timeStep();
+						if (status.equals("Ignited"))
+						{
+							toAdd.add(neighbourCell);
+						}
+					}
+				}
 			}
 		}
-		activeCells.addAll(toAdd);
 		activeCells.removeAll(toRemove);
-		//If the fire has stopped, stop the simulation
-		if(activeCells.size() == 0){
-		    running = false;
-		}
+		activeCells.addAll(toAdd);
 	}
 
 	/*
@@ -238,7 +246,7 @@ public class Simulation extends Observable implements Serializable, Observer{
 				Element cell = cells.get(x).get(y);
 				if (cell.isBurning())
 				{
-					activeCells.addAll(cell.getNeighbours(cells));
+					activeCells.add(cell);
 				}
 			}
 		}

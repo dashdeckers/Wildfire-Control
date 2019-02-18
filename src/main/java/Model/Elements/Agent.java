@@ -62,7 +62,6 @@ public class Agent extends Element
 
     }
 
-    @Override
     public String update(List<List<Element>> cells) {
 
         takeActions();
@@ -114,7 +113,6 @@ public class Agent extends Element
 
             }
             System.out.println("energy finish = " + energyLevel);
-
         }
     }
 
