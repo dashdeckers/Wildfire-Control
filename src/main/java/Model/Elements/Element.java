@@ -1,6 +1,9 @@
 package Model.Elements;
 
 import Model.ParameterManager;
+import Model.Simulation;
+import View.ControlPanel;
+import View.MainFrame;
 
 import java.awt.Color;
 import java.io.Serializable;
@@ -45,7 +48,7 @@ public abstract class Element implements Serializable, Observer {
     // parameters passed from simulation
     ParameterManager parameterManager;
     // state properties
-    boolean burnable = false;
+    boolean isBurnable = false;
     boolean isBurning = false;
     boolean isBurnt = false;
     // move speed: 0 is not traversable, 3 is easy to traverse
@@ -74,9 +77,9 @@ public abstract class Element implements Serializable, Observer {
 	 */
     public String update(List<List<Element>> cells)
     {
-        // if not burnable, dont do anything
-        if (!burnable) {
-            return "Not Burnable";
+        // if not isBurnable, dont do anything
+        if (!isBurnable) {
+            return "Not burnable";
         }
         // remember whether it was burning
         boolean wasBurning = isBurning;
@@ -84,6 +87,7 @@ public abstract class Element implements Serializable, Observer {
         timeStep();
         // if it is burnt out (=no more fuel), remove temperature
         if (isBurnt) {
+            isBurnable = false;
             updateTemperature(cells, "remove");
             return "Dead";
         }
@@ -106,11 +110,18 @@ public abstract class Element implements Serializable, Observer {
      *	ignite it.
 	 */
     private void timeStep() {
+        // "cool down" trees that did not get lit
+        if (isBurnable) {
+            if (temperature > 0) {
+                temperature -= 1;
+            }
+        }
         // if it is burning, we are using up fuel
         if (isBurning) {
             fuel -= 1;
             // if there is no more fuel, it is burnt out
             if (fuel <= 0) {
+                isBurnable = false;
                 isBurning = false;
                 isBurnt = true;
             }
@@ -166,17 +177,72 @@ public abstract class Element implements Serializable, Observer {
     }
 
     /**
-     * 	Returns a set of cells that fall within the range of this cell.
+     * 	Used to: Returns a set of cells that fall within the range of this cell.
+     * 	Now: Determines the "diamond" shape of burnable neighbours of a given cell, using the cells radius.
      * @param cells
      * @return
      */
     public HashSet<Element> getNeighbours(List<List<Element>> cells) {
         HashSet<Element> neighbours = new HashSet<>();
-        for (int xi = x - r; xi <= x + r; xi++) {
+        /*for (int xi = x - r; xi <= x + r; xi++) {
             for (int yi = y - r; yi <= y + r; yi++) {
                 if (inBounds(xi, yi)) {
                     Element cell = cells.get(xi).get(yi);
-                    if (cell.isWithinCircleOf(this)) {
+                    if (!cell.isBurnt && cell.isBurnable && cell.isWithinCircleOf(this)) {
+                        neighbours.add(cell);
+                    }
+                }
+            }
+        }*/
+        for (int deltaX = 0; deltaX <= r; deltaX++) {
+            int originX = this.getX();
+            int originY = this.getY();
+            for (int deltaY = 0; deltaY <= r; deltaY++) {
+                // Out of bounds skip
+                if (originX + deltaX >= width || originX - deltaX < 0 || originY + deltaY >= height || originY - deltaY < 0) {
+                    continue;
+                }
+                // Add point of origin to neighbours anyway
+                Element cell = cells.get(originX).get(originY);
+                if (cell.isBurnable) {
+                    neighbours.add(cells.get(originX).get(originY));
+                }
+                // When X and Y both aren't 0, add surrounding combinations of +/-
+                if (deltaX != 0 && deltaY != 0) {
+                    cell = cells.get(originX+deltaX).get(originY+deltaY);
+                    if (cell.isBurnable) {
+                        neighbours.add(cell);
+                    }
+                    cell = cells.get(originX+deltaX).get(originY-deltaY);
+                    if (cell.isBurnable) {
+                        neighbours.add(cell);
+                    }
+                    cell = cells.get(originX-deltaX).get(originY+deltaY);
+                    if (cell.isBurnable) {
+                        neighbours.add(cell);
+                    }
+                    cell = cells.get(originX-deltaX).get(originY-deltaY);
+                    if (cell.isBurnable) {
+                        neighbours.add(cell);
+                    }
+                // When X is 0, add delta Y +/- line
+                } else if (deltaX == 0 && deltaY != 0) {
+                    cell = cells.get(originX).get(originY+deltaY);
+                    if (cell.isBurnable) {
+                        neighbours.add(cell);
+                    }
+                    cell = cells.get(originX).get(originY-deltaY);
+                    if (cell.isBurnable) {
+                        neighbours.add(cell);
+                    }
+                // When Y is 0, add delta X +/- line
+                } else if (deltaX != 0 && deltaY == 0) {
+                    cell = cells.get(originX+deltaX).get(originY);
+                    if (cell.isBurnable) {
+                        neighbours.add(cell);
+                    }
+                    cell = cells.get(originX-deltaX).get(originY);
+                    if (cell.isBurnable) {
                         neighbours.add(cell);
                     }
                 }
@@ -225,8 +291,8 @@ public abstract class Element implements Serializable, Observer {
         double cVecY = this.y - cell.y;
 
         // wind vector
-        double wVecX = 1;
-        double wVecY = 1;
+        double wVecX = 0;
+        double wVecY = -1;
 
         // return angle between these two vectors (range = [-pi, pi])
         return Math.abs(Math.atan2(wVecX*cVecY - wVecY*cVecX, wVecX*cVecX + wVecY*cVecY));
@@ -278,8 +344,8 @@ public abstract class Element implements Serializable, Observer {
         return isBurning;
     }
 
-    public boolean isBurnable() {
-        return burnable;
+    public boolean isisBurnable() {
+        return isBurnable;
     }
 
     public boolean isBurnt()
@@ -313,21 +379,21 @@ public abstract class Element implements Serializable, Observer {
         }
         else if (isBurning)
         {
-            return new Color(255, 0, 0);
+            return new Color(200, 0, 0);
         }
         else
         {
             if (temperature > ignitionThreshold * 0.75)
             {
-                return new Color(255, 72, 0);
+                return new Color(255, 100, 0);
             }
             if (temperature > ignitionThreshold * 0.50)
             {
-                return new Color(205, 105, 0);
+                return new Color(255, 150, 0);
             }
             if (temperature > ignitionThreshold * 0.25)
             {
-                return new Color(255,153,0);
+                return new Color(255,200,0);
             }
         }
         return color;

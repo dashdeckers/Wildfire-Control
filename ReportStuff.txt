@@ -1,0 +1,5 @@
+https://www.wolframalpha.com/input/?i=3d+plot&assumption=%7B%22F%22,+%223DPlot%22,+%223dplotfunction%22%7D+-%3E%221%2F(0*a%2Bd)%22&assumption=%7B%22F%22,+%223DPlot%22,+%223dplotvariable1%22%7D+-%3E%22a%22&assumption=%7B%22F%22,+%223DPlot%22,+%223dplotlowerrange1%22%7D+-%3E%220%22&assumption=%7B%22F%22,+%223DPlot%22,+%223dplotupperrange1%22%7D+-%3E%223.14%22&assumption=%7B%22F%22,+%223DPlot%22,+%223dplotvariable2%22%7D+-%3E%22d%22&assumption=%7B%22F%22,+%223DPlot%22,+%223dplotlowerrange2%22%7D+-%3E%221%22&assumption=%7B%22F%22,+%223DPlot%22,+%223dplotupperrange2%22%7D+-%3E%225%22&assumption=%7B%22MC%22,+%223d+plot%22%7D+-%3E+%7B%22Calculator%22,+%22dflt%22%7D
+
+Long link, but awesome plots. That 3D plot models the relationship between wind direction and distance.
+The wind speed is inputted as a constant (multiplied with the angle to wind direction) because a 4D plot
+is not very doable.

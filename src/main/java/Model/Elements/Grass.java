@@ -21,13 +21,13 @@ public class Grass extends Element
     {
         this.type = "Grass";
         this.r = 1;
-        this.burnable = true;
+        this.isBurnable = true;
         this.color = LIGHT_GREEN;
-        this.burnIntensity = 2;
-        this.ignitionThreshold = 5;
+        this.burnIntensity = 3;
+        this.ignitionThreshold = 10;
         this.fuel = starting_fuel = 5;
         this.moveSpeed = 10;
-        this.clearCost = 5;
+        this.clearCost = 2;
     }
 
 }

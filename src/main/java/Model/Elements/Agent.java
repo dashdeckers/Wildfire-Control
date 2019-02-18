@@ -34,7 +34,7 @@ public class Agent extends Element
     public void initializeParameters()
     {
         this.r = 1;
-        this.burnable = true;
+        this.isBurnable = true;
         this.color = Color.YELLOW;
         this.burnIntensity = 2;
         this.ignitionThreshold = 10;
