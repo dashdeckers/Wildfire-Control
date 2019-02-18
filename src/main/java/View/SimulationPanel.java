@@ -50,6 +50,8 @@ public class SimulationPanel extends JPanel implements Observer {
                     g.setColor(cells.get(j).get(i).getColor());
                     g.fillRect((int) x, (int) y, (int) x_width, (int) y_width);
                     x += x_jump;
+
+
                 }
                 y -= y_jump;
                 x = start_x;
