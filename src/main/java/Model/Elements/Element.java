@@ -197,7 +197,7 @@ public abstract class Element implements Serializable, Observer {
         for (int deltaX = 0; deltaX <= r; deltaX++) {
             int originX = this.getX();
             int originY = this.getY();
-            for (int deltaY = 0; deltaY <= r; deltaY++) {
+            for (int deltaY = 0; deltaX+deltaY <= r; deltaY++) {
                 // Out of bounds skip
                 if (originX + deltaX >= width || originX - deltaX < 0 || originY + deltaY >= height || originY - deltaY < 0) {
                     continue;

@@ -24,10 +24,10 @@ public class Tree extends Element
 		this.isBurnable = true;
 		this.color = DARK_GREEN;
 		this.burnIntensity = 6;
-		this.ignitionThreshold = 25;
-		this.fuel = starting_fuel = 25;
+		this.ignitionThreshold = 6;
+		this.fuel = starting_fuel = 15;
 		this.moveSpeed = 1;
-		this.clearCost = 10;
+		this.clearCost = 5;
 	}
 
 }
