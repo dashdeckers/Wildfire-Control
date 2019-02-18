@@ -276,7 +276,6 @@ public class Simulation extends Observable implements Serializable, Observer{
 
                 List<Element> row = cells.get(riverX);
                 row.set(riverY, new Water(riverX, riverY, parameter_manager));
-                cells.set(riverY, row);
 
                 int directionRiver = rand.nextInt(6);
 
