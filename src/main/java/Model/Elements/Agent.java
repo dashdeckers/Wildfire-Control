@@ -60,16 +60,16 @@ public class Agent extends Element
 
     }
 
-    @Override
-    public String update(List<List<Element>> cells, List<Agent> agents) {
-
-        takeActions();
-        return super.update(cells, agents);
-    }
+//    @Override
+//    public String update(List<List<Element>> cells, List<Agent> agents) {
+//
+//        takeActions();
+//        return super.update(cells, agents);
+//    }
 
     private void takeActions() {
         energyLevel = energyEachStep;
-        while(energyLevel>0 && !isBurnt) {
+        while(energyLevel>0 && fuel > 0) {
             List<String> actions = possibleActions();
             System.out.println("action list = " + actions.toString());
             Random r = new Random();

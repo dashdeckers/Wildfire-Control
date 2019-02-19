@@ -56,7 +56,7 @@ public abstract class Element implements Serializable, Observer {
 	boolean isBurning = false;
 
 	// parameters relevant for fire propagation
-	private double temperature = 0;
+	protected double temperature = 0;
 	int burnIntensity = 0;
 	int ignitionThreshold = 10;
 	int fuel = 0;

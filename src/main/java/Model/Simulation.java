@@ -19,7 +19,7 @@ public class Simulation extends Observable implements Serializable, Observer{
     private int height;
     private int step_time;
     private int step_size;
-    private int nr_agents=5;
+    private int nr_agents=1;
     private boolean undo_redo;
 
     private ParameterManager parameter_manager;
@@ -154,6 +154,7 @@ public class Simulation extends Observable implements Serializable, Observer{
         int numberBushes = rand.nextInt((int) (0.2*area));
         int numberHouses = rand.nextInt((int) (0.05*area));
         cells = new ArrayList<List<Element>>();
+        agents = new ArrayList<>();
 
 
         //
@@ -326,7 +327,7 @@ public class Simulation extends Observable implements Serializable, Observer{
         // Also lakes?
         //
 */
-/*
+
         //
         // FIRE
         //
@@ -338,7 +339,7 @@ public class Simulation extends Observable implements Serializable, Observer{
             for (int j = 0; j < y; j++) {
                 //Set a random tile on fire
                 if (i == fire_x && j == fire_y) {
-                    Element t = new Tree(i, j, parameters);
+                    Element t = new Tree(i, j, parameter_manager);
                     t.setBurning();
                     //row.add(t);
                     row.set(j, t);
@@ -347,7 +348,17 @@ public class Simulation extends Observable implements Serializable, Observer{
             }
 
         }
-*/
+
+        //
+        // AGENTS
+        //
+
+        for (int i = 0; i<nr_agents; i++) {
+            agents.add(new Agent(this));
+        }
+
+
+
 
 
         setChanged();
@@ -475,9 +486,9 @@ public class Simulation extends Observable implements Serializable, Observer{
 			}
 		}
 
-		for (int i = 0; i<nr_agents; i++){
-            activeCells.add(agents.get(i));
-        }
+//		for (int i = 0; i<nr_agents; i++){
+//            activeCells.add(agents.get(i));
+//        }
 
 	}
 
