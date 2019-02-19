@@ -121,7 +121,7 @@ public abstract class Element implements Serializable, Observer {
 	{
 		double distance = distanceTo(burningCell);
 		double angle = angleToWind(burningCell);
-
+		System.out.println("cell type: " + this.getType());
 		temperature += burnIntensity * Math.pow(windSpeed * angle + distance, -1);
 		System.out.println("Temperature increase by: " + Math.pow(windSpeed * angle + distance, -1));
 		// doing this check at the start will save some computation, but
@@ -159,7 +159,7 @@ public abstract class Element implements Serializable, Observer {
 	 *  by being the maximal amount of steps you can take from the origin to land on a cell
 	 *  that still counts as being a neighbour.
 	 */
-	public HashSet<Element> getNeighbours(List<List<Element>> cells)
+	public HashSet<Element> getNeighbours(List<List<Element>> cells, List<Agent> agents)
 	{
 		HashSet<Element> neighbours = new HashSet<>();
 		int originX = getX();
@@ -197,6 +197,12 @@ public abstract class Element implements Serializable, Observer {
 				}
 			}
 		}
+		for (Agent agent : agents) {
+			if (agent.getX() > originX-r && agent.getX() < originX+r && agent.getY() > originY-r && agent.getY() < originY+r) {
+				neighbours.add(agent);
+			}
+		}
+
 		return neighbours;
 	}
 

@@ -31,11 +31,12 @@ public class Agent extends Element
 
     public void initializeParameters()
     {
+        this.type = "Agent";
         this.r = 1;
         this.isBurnable = true;
         this.color = Color.YELLOW;
         this.burnIntensity = 2;
-        this.ignitionThreshold = 80;
+        this.ignitionThreshold = 1;
         this.fuel = 1;
         this.moveSpeed = 1;
         this.energyEachStep = 20;
@@ -60,12 +61,12 @@ public class Agent extends Element
 
     }
 
-//    @Override
-//    public String update(List<List<Element>> cells, List<Agent> agents) {
-//
-//        takeActions();
-//        return super.update(cells, agents);
-//    }
+    @Override
+    public String timeStep() {
+
+        takeActions();
+        return super.timeStep();
+    }
 
     private void takeActions() {
         energyLevel = energyEachStep;

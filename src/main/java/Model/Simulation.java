@@ -19,7 +19,7 @@ public class Simulation extends Observable implements Serializable, Observer{
     private int height;
     private int step_time;
     private int step_size;
-    private int nr_agents=1;
+    private int nr_agents=5;
     private boolean undo_redo;
 
     private ParameterManager parameter_manager;
@@ -442,23 +442,27 @@ public class Simulation extends Observable implements Serializable, Observer{
 		for (Element burningCell : activeCells)
 		{
 			String status = burningCell.timeStep();
-			if (status.equals("Dead"))
-			{
-				toRemove.add(burningCell);
-			}
-			if (status.equals("No Change"))
-			{
-				HashSet<Element> neighbours = burningCell.getNeighbours(cells);
-				for (Element neighbourCell : neighbours)
-				{
-					if (neighbourCell.isBurnable())
-					{
-						neighbourCell.getHeatFrom(burningCell);
-						status = neighbourCell.timeStep();
-						if (status.equals("Ignited"))
-						{
-							toAdd.add(neighbourCell);
-						}
+            if (!burningCell.getType().equals("Agent")) {
+			    if (status.equals("Dead"))
+			    {
+			    	toRemove.add(burningCell);
+			    }
+			    if (status.equals("No Change"))
+			    {
+			    	HashSet<Element> neighbours = burningCell.getNeighbours(cells, agents);
+			    	for (Element neighbourCell : neighbours)
+			    	{
+			    		if (neighbourCell.isBurnable())
+			    		{
+
+                            neighbourCell.getHeatFrom(burningCell);
+                            status = neighbourCell.timeStep();
+                            if (status.equals("Ignited"))
+                            {
+                                toAdd.add(neighbourCell);
+                            }
+                        }
+
 					}
 				}
 			}
@@ -486,9 +490,9 @@ public class Simulation extends Observable implements Serializable, Observer{
 			}
 		}
 
-//		for (int i = 0; i<nr_agents; i++){
-//            activeCells.add(agents.get(i));
-//        }
+		for (int i = 0; i<nr_agents; i++){
+            activeCells.add(agents.get(i));
+        }
 
 	}
 
