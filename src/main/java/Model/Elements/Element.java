@@ -75,7 +75,7 @@ public abstract class Element implements Serializable, Observer {
 	 *	Updates the cell and the temperature of its neighbours, returns a
 	 *	simple status string to help keep track of active cells
 	 */
-    public String update(List<List<Element>> cells)
+    public String update(List<List<Element>> cells, List<Agent> agents)
     {
         // if not isBurnable, dont do anything
         if (!isBurnable) {
@@ -88,13 +88,13 @@ public abstract class Element implements Serializable, Observer {
         // if it is burnt out (=no more fuel), remove temperature
         if (isBurnt) {
             isBurnable = false;
-            updateTemperature(cells, "remove");
+            updateTemperature(cells, agents, "remove");
             return "Dead";
         }
         if (isBurning)
         {
             // if it is burning and it was not burning, it just ignited
-            updateTemperature(cells, "add");
+            updateTemperature(cells, agents, "add");
             if (!wasBurning) {
                 return "Ignited";
             }
@@ -138,14 +138,14 @@ public abstract class Element implements Serializable, Observer {
      * @param cells
      * @param command
      */
-    private void updateTemperature(List<List<Element>> cells, String command) {
+    private void updateTemperature(List<List<Element>> cells, List<Agent> agents, String command) {
 
         // burnIntensity is now used as maximal burnIntensity
 
         // should not be cumulative. one-shot application from neighbouring cells
         // instead of addition per update
 
-        HashSet<Element> neighbours = getNeighbours(cells);
+        HashSet<Element> neighbours = getNeighbours(cells, agents);
         for (Element cell : neighbours) {
             if (command.equals("add")) {
                 cell.adjustTemperatureBy(calcTemperature(cell));
@@ -182,7 +182,7 @@ public abstract class Element implements Serializable, Observer {
      * @param cells
      * @return
      */
-    public HashSet<Element> getNeighbours(List<List<Element>> cells) {
+    public HashSet<Element> getNeighbours(List<List<Element>> cells, List<Agent> agents) {
         HashSet<Element> neighbours = new HashSet<>();
         /*for (int xi = x - r; xi <= x + r; xi++) {
             for (int yi = y - r; yi <= y + r; yi++) {
@@ -194,9 +194,10 @@ public abstract class Element implements Serializable, Observer {
                 }
             }
         }*/
+        int originX = this.getX();
+        int originY = this.getY();
         for (int deltaX = 0; deltaX <= r; deltaX++) {
-            int originX = this.getX();
-            int originY = this.getY();
+
             for (int deltaY = 0; deltaY <= r; deltaY++) {
                 // Out of bounds skip
                 if (originX + deltaX >= width || originX - deltaX < 0 || originY + deltaY >= height || originY - deltaY < 0) {
@@ -246,6 +247,12 @@ public abstract class Element implements Serializable, Observer {
                         neighbours.add(cell);
                     }
                 }
+            }
+        }
+        for (int i = 0; i<agents.size(); i++) {
+            Agent agent = agents.get(i);
+            if (agent.getX()>originX-r && agent.getX()<originX-r && agent.getY()>originY-y && agent.getY()<originY+y) {
+                neighbours.add(agent);
             }
         }
         return neighbours;

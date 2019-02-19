@@ -61,10 +61,10 @@ public class Agent extends Element
     }
 
     @Override
-    public String update(List<List<Element>> cells) {
+    public String update(List<List<Element>> cells, List<Agent> agents) {
 
         takeActions();
-        return super.update(cells);
+        return super.update(cells, agents);
     }
 
     private void takeActions() {

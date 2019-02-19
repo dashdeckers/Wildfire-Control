@@ -20,7 +20,7 @@ public class Simulation extends Observable implements Serializable, Observer{
     private int height;
     private int step_time;
     private int step_size;
-    private int nr_agents=3;
+    private int nr_agents=1;
     private boolean undo_redo;
 
     private ParameterManager parameter_manager;
@@ -208,14 +208,14 @@ public class Simulation extends Observable implements Serializable, Observer{
 		HashSet<Element> toAdd = new HashSet<>();
 		for (Element cell : activeCells)
 		{
-			String status = cell.update(cells);
+			String status = cell.update(cells, agents);
 			if (status.equals("Dead"))
 			{
 				toRemove.add(cell);
 			}
 			if (status.equals("Ignited"))
 			{
-				toAdd.addAll(cell.getNeighbours(cells));
+				toAdd.addAll(cell.getNeighbours(cells, agents));
 			}
 		}
 		activeCells.addAll(toAdd);
@@ -240,7 +240,7 @@ public class Simulation extends Observable implements Serializable, Observer{
 				Element cell = cells.get(x).get(y);
 				if (cell.isBurning())
 				{
-					activeCells.addAll(cell.getNeighbours(cells));
+					activeCells.addAll(cell.getNeighbours(cells, agents));
 				}
 			}
 		}
