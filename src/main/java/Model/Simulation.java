@@ -20,7 +20,7 @@ public class Simulation extends Observable implements Serializable, Observer{
     private int height;
     private int step_time;
     private int step_size;
-    private int nr_agents=1;
+    private int nr_agents=5;
     private boolean undo_redo;
 
     private ParameterManager parameter_manager;
@@ -46,7 +46,7 @@ public class Simulation extends Observable implements Serializable, Observer{
 
         parameter_manager = new ParameterManager(this);
         parameter_manager.addObserver(this);
-        agents = new ArrayList<>();
+
         //This creates an area of trees of x by y, since we don't have the actual map generation yet
         tree_grid(width, height);
         //This gathers the first set of cells to be active
@@ -260,6 +260,7 @@ public class Simulation extends Observable implements Serializable, Observer{
 	private void tree_grid(int x, int y){
         int fire_x = rand.nextInt(x);
         int fire_y = rand.nextInt(y);
+        agents = new ArrayList<>();
         cells = new ArrayList<>();
         for(int i = 0; i<x; i++){
             List<Element> col = new ArrayList<>();

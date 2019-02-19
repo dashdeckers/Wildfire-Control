@@ -62,7 +62,7 @@ public abstract class Element implements Serializable, Observer {
     int starting_fuel = 0;
 
     //parameters relevant for agent actions
-    int energyEachStep = 5;
+    int energyEachStep = 0;
     int clearCost = 0;
 
     int width;
@@ -153,6 +153,7 @@ public abstract class Element implements Serializable, Observer {
             if (command.equals("remove")) {
                 cell.adjustTemperatureBy(-1 * calcTemperature(cell));
             }
+            //System.out.println("cell type: " + cell.getType());
         }
     }
 
@@ -251,7 +252,7 @@ public abstract class Element implements Serializable, Observer {
         }
         for (int i = 0; i<agents.size(); i++) {
             Agent agent = agents.get(i);
-            if (agent.getX()>originX-r && agent.getX()<originX-r && agent.getY()>originY-y && agent.getY()<originY+y) {
+            if (agent.getX()>originX-r && agent.getX()<originX+r && agent.getY()>originY-y && agent.getY()<originY+y) {
                 neighbours.add(agent);
             }
         }

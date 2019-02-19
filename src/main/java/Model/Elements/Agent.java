@@ -35,7 +35,7 @@ public class Agent extends Element
         this.isBurnable = true;
         this.color = Color.YELLOW;
         this.burnIntensity = 2;
-        this.ignitionThreshold = 10;
+        this.ignitionThreshold = 80;
         this.fuel = 1;
         this.moveSpeed = 1;
         this.energyEachStep = 20;
@@ -69,12 +69,12 @@ public class Agent extends Element
 
     private void takeActions() {
         energyLevel = energyEachStep;
-        while(energyLevel>0) {
+        while(energyLevel>0 && !isBurnt) {
             List<String> actions = possibleActions();
             System.out.println("action list = " + actions.toString());
             Random r = new Random();
             String currentAction = actions.get(r.nextInt(actions.size()));
-            System.out.println("Decided to do: " + currentAction + ", having energy level: " + energyLevel + " and isBurning: " + isBurning);
+            System.out.println("Decided to do: " + currentAction + ", having energy level: " + energyLevel + " and temperature: " + temperature);
             Element currentCell = simulation.getAllCells().get(x).get(y);
 //            System.out.println("Current position: x = " + x + ", y = " + y);
             switch (currentAction){
@@ -108,10 +108,10 @@ public class Agent extends Element
         Element currentCell = simulation.getAllCells().get(x).get(y);
 
 
-        if (energyLevel >= currentCell.getParameters().get("Clear Cost") && currentCell.getType()=="Tree"){
+        if (energyLevel >= currentCell.getParameters().get("Clear Cost") && currentCell.getType().equals("Tree")){
             actions.add("Cut Tree");
         }
-        if (energyLevel >= currentCell.getParameters().get("Clear Cost") && currentCell.getType()=="Grass"){
+        if (energyLevel >= currentCell.getParameters().get("Clear Cost") && currentCell.getType().equals("Grass")){
             actions.add("Cut Grass");
         }
         if (checkTile(x, y - 1) && (determineMoveCost(simulation.getAllCells().get(x).get(y-1)))<=energyLevel){
