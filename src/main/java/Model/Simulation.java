@@ -9,7 +9,7 @@ import java.util.*;
 public class Simulation extends Observable implements Serializable, Observer{
 
 	private List<List<Element>> cells;  //This will hold a 2D array of all cells in the simulation
-    private Agent agent;
+    private List<Agent> agents;
 	private Set<Element> activeCells;   //This holds all cells in the simulation which are on fire or near fire
                                             //as these are the only ones who need to be updated
 	private List<Simulation> states;    //This holds a list of previous states of the simulation if undo is set to true
@@ -20,6 +20,7 @@ public class Simulation extends Observable implements Serializable, Observer{
     private int height;
     private int step_time;
     private int step_size;
+    private int nr_agents=3;
     private boolean undo_redo;
 
     private ParameterManager parameter_manager;
@@ -45,6 +46,7 @@ public class Simulation extends Observable implements Serializable, Observer{
 
         parameter_manager = new ParameterManager(this);
         parameter_manager.addObserver(this);
+        agents = new ArrayList<>();
         //This creates an area of trees of x by y, since we don't have the actual map generation yet
         tree_grid(width, height);
         //This gathers the first set of cells to be active
@@ -117,7 +119,7 @@ public class Simulation extends Observable implements Serializable, Observer{
 
             setChanged();
             notifyObservers(cells);
-            notifyObservers(agent);
+            notifyObservers(agents);
 
     }
 
@@ -184,7 +186,7 @@ public class Simulation extends Observable implements Serializable, Observer{
         }
         setChanged();
         notifyObservers(cells);
-        notifyObservers(agent);
+        notifyObservers(agents);
     }
 
     /**
@@ -242,7 +244,11 @@ public class Simulation extends Observable implements Serializable, Observer{
 				}
 			}
 		}
-		activeCells.add(agent);
+
+		for (int i = 0; i<nr_agents; i++){
+            activeCells.add(agents.get(i));
+        }
+
 	}
 
     /**
@@ -280,11 +286,17 @@ public class Simulation extends Observable implements Serializable, Observer{
             }
             cells.add(col);
         }
-        //This will create one agent which can will be dropped on a random location on the map.
-        agent = new Agent(this);
+
+        // Instead of adding individual agents, all agents will be stored in a final ArrayList added to the tree-grid. This way the amount of agents can be modified easily.
+        //This will create one agents which can will be dropped on a random location on the map.
+        for (int i = 0; i<nr_agents; i++) {
+            agents.add(new Agent(this));
+        }
+
+        //cells.add(agents);
         setChanged();
         notifyObservers(cells);
-        notifyObservers(agent);
+        //notifyObservers(agents);
     }
 
     /**
@@ -400,11 +412,19 @@ public class Simulation extends Observable implements Serializable, Observer{
     public int getRandX() {return rand.nextInt(width);}
     public int getRandY() {return rand.nextInt(height);}
 
-    public Agent getAgent() {
-        return agent;
+    public List<Agent> getAgents() {
+        return agents;
     }
 
-    public void setAgent(Agent agent) {
-        this.agent = agent;
+    public void setAgents(List<Agent> agents) {
+        this.agents = agents;
+    }
+
+    public int getNr_agents() {
+        return nr_agents;
+    }
+
+    public void setNr_agents(int nr_agents) {
+        this.nr_agents = nr_agents;
     }
 }

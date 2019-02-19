@@ -18,7 +18,7 @@ We need:
 	Define score (future)
 	
 Ritten proposes to take Agents with actions including:
-	Bulldozer agent
+	Bulldozer agents
 		Moving in cardinal directions
 		Cutting in cardinal directions
 	Burnability

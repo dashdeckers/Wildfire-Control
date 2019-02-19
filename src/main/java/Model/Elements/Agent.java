@@ -3,10 +3,8 @@ package Model.Elements;
 import Model.Simulation;
 
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 public class Agent extends Element
 {
@@ -66,21 +64,7 @@ public class Agent extends Element
     public String update(List<List<Element>> cells) {
 
         takeActions();
-//        if (!burnable) {
-//            return "Not Burnable";
-//        }
-//        boolean wasBurning = isBurning;
-//        (super) timeStep();
-//        if (wasBurning && !isBurning) {
-//            updateFireActivity(cells, "remove");
-//            return "Dead";
-//        }
-//        updateFireActivity(cells, "add");
-//        if (!wasBurning) {
-//            return "Ignited";
-//        }
-//        return "No Change";
-        return  "Dead";
+        return super.update(cells);
     }
 
     private void takeActions() {
@@ -90,7 +74,7 @@ public class Agent extends Element
             System.out.println("action list = " + actions.toString());
             Random r = new Random();
             String currentAction = actions.get(r.nextInt(actions.size()));
-            System.out.println("Decided to do: " + currentAction + ", having energy level: " + energyLevel);
+            System.out.println("Decided to do: " + currentAction + ", having energy level: " + energyLevel + " and isBurning: " + isBurning);
             Element currentCell = simulation.getAllCells().get(x).get(y);
 //            System.out.println("Current position: x = " + x + ", y = " + y);
             switch (currentAction){
