@@ -2,7 +2,6 @@ package Model;
 
 import Model.Elements.*;
 
-
 import java.io.*;
 import java.util.*;
 
@@ -46,7 +45,6 @@ public class Simulation extends Observable implements Serializable, Observer{
 
         parameter_manager = new ParameterManager(this);
         parameter_manager.addObserver(this);
-
         //This creates an area of trees of x by y, since we don't have the actual map generation yet
         tree_grid(width, height);
         //This gathers the first set of cells to be active
@@ -131,12 +129,236 @@ public class Simulation extends Observable implements Serializable, Observer{
         stop();
         states.clear();
         activeCells.clear();
-        tree_grid(width, height);
+
+        //tree_grid(parameter_manager.getWidth(), parameter_manager.getHeight());
+        regenerateAuxiliary2(parameter_manager.getWidth(), parameter_manager.getHeight());
+
         findActiveCells();
         states.add((Simulation) deepCopy(this));
     }
 
     /**
+     * Creates a randomly generated maps
+     *
+     * @param x
+     * @param y
+     */
+    private void regenerateAuxiliary2(int x, int y){
+        int area = x*y;
+
+        /**
+         * make two overarching variables:
+         * 1) Rural : if high then amount of trees higher and amount of houses & roads lower
+         * 2) Wetlands: If high then more rivers & lakes, if low then less rivers
+         */
+        int numberBushes = rand.nextInt((int) (0.2*area));
+        int numberHouses = rand.nextInt((int) (0.05*area));
+        cells = new ArrayList<List<Element>>();
+
+
+        //
+        // GRASS
+        //
+        // First fill with grass
+        for(int i = 0; i<x; i++){
+            List<Element> row = new ArrayList<Element>();
+
+            for(int j=0; j<y; j++){
+                row.add(new Grass(i, j, parameter_manager));
+            }
+            cells.add(row);
+        }
+
+
+
+        //
+        // TREES
+        //
+        // Add Trees at random points
+        for(int i = 0; i<x; i++){
+            List<Element> row = cells.get(i);
+
+            for(int j=0; j<y; j++){
+
+                // chance = numberBushes/area that a tree is placed
+                if( rand.nextInt(area) < numberBushes  ){
+
+                    row.set(j, new Tree(i, j, parameter_manager));
+                    //
+                    // implement helper function to randomly place trees around
+                    //
+                }
+            }
+            cells.set(i, row);
+        }
+
+
+        //
+        // HOUSES
+        //
+        // Add HOUSES at random points
+        for(int i = 0; i<x; i++){
+            List<Element> row = cells.get(i);
+
+            for(int j=0; j<y; j++){
+
+                // chance = numberBushes/area that a tree is placed
+                if( rand.nextInt(area) < numberHouses  ){
+
+                    row.set(j, new House(i, j, parameter_manager));
+                    //
+                    // Make sure houses are placed next to each other
+                }
+            }
+            cells.set(i, row);
+        }
+
+
+        //
+        // ROAD
+        //
+        // Add either a vertical or a horizontal road
+        int chooseXY = rand.nextInt(2);
+
+
+        // make vertical road (Starts at the top)
+        if (chooseXY == 0){
+            int randomX = rand.nextInt(x);
+
+            List<Element> row = cells.get(randomX);
+            for(int i = 0; i<y; i++){
+
+                row.set(i, new Road(randomX, i, parameter_manager));
+                cells.set(randomX, row);
+            }
+
+
+        // make horizontal road (Starts at the left)
+        } else {
+
+            int randomY = rand.nextInt(y);
+
+            for(int i=0; i<x; i++){
+
+                List<Element> row = cells.get(i);
+                row.set(randomY, new Road(i, randomY, parameter_manager));
+                cells.set(randomY, row);
+            }
+
+        }
+
+
+        //
+        // RIVER
+        //
+        // Add a meandering river, either starting at the left or at the top
+        chooseXY = rand.nextInt(2);
+
+        // make vertical river ( I believe this starts at the top)
+        if (chooseXY == 0){
+
+            // Ensure the south direction is implemented first
+            int riverY = 0;
+            int riverX = rand.nextInt(x);
+
+            int west = 0;
+            int east = 1;
+
+            System.out.printf("----1\n");
+            System.out.printf("riverX = %d\n", riverX);
+            System.out.printf("riverY = %d\n", riverY);
+
+            // Then let the river meander with a tendency to go south
+            while (riverX >= 0 && riverX < x && riverY < y){
+
+                System.out.printf("----2\n");
+                System.out.printf("riverX = %d\n", riverX);
+                System.out.printf("riverY = %d\n", riverY);
+
+                List<Element> row = cells.get(riverX);
+                row.set(riverY, new Water(riverX, riverY, parameter_manager));
+
+                int directionRiver = rand.nextInt(6);
+
+                if (directionRiver == 0) { // West
+                    riverX--;
+                }
+                if (directionRiver == 1 || directionRiver == 2 || directionRiver == 3 || directionRiver == 4) { // South, tendency to go south
+                    riverY++;
+                }
+                if (directionRiver == 5) { // East
+                    riverX++;
+
+                }
+
+
+            }
+
+            System.out.printf("riverX = %d\n", riverX);
+            System.out.printf("riverY = %d\n", riverY);
+            System.out.printf("riverY ========================== %d\n", riverY);
+        }/* else {
+
+            // make horizontal river (Starts at the left)
+            int riverX = 0;
+            int riverY = rand.nextInt(y);
+            row.add(new River(riverX, riverY, parameters));
+
+            while(riverX >= 0 && riverX < x && riverY >= 0 && riverY < y){
+
+                int directionRiver = rand.nextInt(3);
+                if (directionRiver == 0) { // North
+                    riverY--;
+                    row.add(new River(riverX, riverY, parameters));
+                }
+                if (directionRiver == 1) { // West
+                    riverX++;
+                    row.add(new River(riverX, riverY, parameters));
+                }
+                if (directionRiver == 2) { // South
+                    riverX++;
+                    row.add(new River(riverX, riverY, parameters));
+                }
+
+            }
+        }
+        //
+        // Also lakes?
+        //
+*/
+/*
+        //
+        // FIRE
+        //
+        int fire_x = rand.nextInt(x);
+        int fire_y = rand.nextInt(y);
+
+        for(int i = 0; i<x; i++) {
+            List<Element> row = cells.get(i);
+            for (int j = 0; j < y; j++) {
+                //Set a random tile on fire
+                if (i == fire_x && j == fire_y) {
+                    Element t = new Tree(i, j, parameters);
+                    t.setBurning();
+                    //row.add(t);
+                    row.set(j, t);
+                    cells.set(j, row);
+                }
+            }
+
+        }
+*/
+
+
+        setChanged();
+        notifyObservers(cells);
+
+
+    }
+
+
+    /**
+     *
      * Revert the simulation by one time step if undo/redo is enabled.
      * If there are no steps to take back anymore, the simulation is paused.
      * Linked to both the Step back button, as well as running the simulation with a negative step time.
@@ -197,33 +419,41 @@ public class Simulation extends Observable implements Serializable, Observer{
         return cells;
     }
 
-    /*
-    	Updates all activeCells, removing burnt out cells and adding newly active cells (= cells
-    	that are- or are nearby burning cells) along the way
-     */
+	/**
+	 *  Update the list of active cells. Apply the heat from the burning cell cell to all
+	 *  of its neighbouring cells. If it ignites a neighbouring cell, add that cell to the
+	 *  activeCells. If a burning cell runs out of fuel, remove it from the activeCells.
+	 */
     public void updateEnvironment()
 	{
-		// remember elements to add to- or remove from set because we can't while iterating
 		HashSet<Element> toRemove = new HashSet<>();
 		HashSet<Element> toAdd = new HashSet<>();
-		for (Element cell : activeCells)
+		for (Element burningCell : activeCells)
 		{
-			String status = cell.update(cells, agents);
+			String status = burningCell.timeStep();
 			if (status.equals("Dead"))
 			{
-				toRemove.add(cell);
+				toRemove.add(burningCell);
 			}
-			if (status.equals("Ignited"))
+			if (status.equals("No Change"))
 			{
-				toAdd.addAll(cell.getNeighbours(cells, agents));
+				HashSet<Element> neighbours = burningCell.getNeighbours(cells);
+				for (Element neighbourCell : neighbours)
+				{
+					if (neighbourCell.isBurnable())
+					{
+						neighbourCell.getHeatFrom(burningCell);
+						status = neighbourCell.timeStep();
+						if (status.equals("Ignited"))
+						{
+							toAdd.add(neighbourCell);
+						}
+					}
+				}
 			}
 		}
-		activeCells.addAll(toAdd);
 		activeCells.removeAll(toRemove);
-		//If the fire has stopped, stop the simulation
-		if(activeCells.size() == 0){
-		    running = false;
-		}
+		activeCells.addAll(toAdd);
 	}
 
 	/*
@@ -240,7 +470,7 @@ public class Simulation extends Observable implements Serializable, Observer{
 				Element cell = cells.get(x).get(y);
 				if (cell.isBurning())
 				{
-					activeCells.addAll(cell.getNeighbours(cells, agents));
+					activeCells.add(cell);
 				}
 			}
 		}

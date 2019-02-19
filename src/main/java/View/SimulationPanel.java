@@ -41,7 +41,7 @@ public class SimulationPanel extends JPanel implements Observer {
         float y_width = y_jump - 1;
 
         float x = start_x;
-        //float y = start_y;
+        //Draw from top to bottom since GUI defaults origin in upperLeft, but we want lowerLeft
         float y = end_y - y_jump;
 
         if(draw_all) {  //Else not implemented yet
@@ -50,6 +50,8 @@ public class SimulationPanel extends JPanel implements Observer {
                     g.setColor(cells.get(j).get(i).getColor());
                     g.fillRect((int) x, (int) y, (int) x_width, (int) y_width);
                     x += x_jump;
+
+
                 }
                 y -= y_jump;
                 x = start_x;
