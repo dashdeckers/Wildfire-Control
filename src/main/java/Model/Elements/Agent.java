@@ -1,5 +1,6 @@
 package Model.Elements;
 
+import Model.ParameterManager;
 import Model.Simulation;
 
 import java.awt.*;
@@ -16,13 +17,17 @@ public class Agent extends Element
 
 
     private static final Color BLACK = new Color(0,0,0);
-    public Agent(Simulation simulation)
+    public Agent(Simulation simulation, ParameterManager parameterManager)
     {
 
         this.simulation = simulation;
-        this.parameterManager = simulation.getParameter_manager();
+        this.parameterManager = parameterManager;
         initializeParameters();
         pullParameters();
+
+    }
+
+    public void giveLocation() {
         do {
             this.x = simulation.getRandX();
             this.y = simulation.getRandY();

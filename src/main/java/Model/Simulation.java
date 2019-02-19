@@ -354,7 +354,9 @@ public class Simulation extends Observable implements Serializable, Observer{
         //
 
         for (int i = 0; i<nr_agents; i++) {
-            agents.add(new Agent(this));
+            Agent agent = new Agent(this, parameter_manager);
+            agent.giveLocation();
+            agents.add(agent);
         }
 
 
@@ -536,7 +538,9 @@ public class Simulation extends Observable implements Serializable, Observer{
         // Instead of adding individual agents, all agents will be stored in a final ArrayList added to the tree-grid. This way the amount of agents can be modified easily.
         //This will create one agents which can will be dropped on a random location on the map.
         for (int i = 0; i<nr_agents; i++) {
-            agents.add(new Agent(this));
+            Agent agent = new Agent(this, parameter_manager);
+            agent.giveLocation();
+            agents.add(agent);
         }
 
         //cells.add(agents);

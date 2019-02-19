@@ -27,7 +27,7 @@ public class ParameterManager extends Observable implements Serializable {
 
     /**
      * Load the default values from the elements by creating a dummy element and getting it's parameters.
-     * Afte this the elements can disappear
+     * After this the elements can disappear
      */
     public void fetchElementParameters(){
         Map<String, Float> grassMap = new Grass(0,0, this).getParameters();
@@ -40,6 +40,8 @@ public class ParameterManager extends Observable implements Serializable {
         Parameters_map.put("Tree", treeMap);
         Map<String, Float> waterMap = new Water(0,0,this).getParameters();
         Parameters_map.put("Water", waterMap);
+        Map<String, Float> agentMap = new Agent(model, this).getParameters();
+        Parameters_map.put("Agent", agentMap);
     }
 
     /**
