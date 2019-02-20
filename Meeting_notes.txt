@@ -1,7 +1,7 @@
 Meeting BSc Wildfire control 7-2-2019
 Attending: Travis, Ivo, Dirk-Jelle, Ritten
 Not attending: Roel Rotteveel
-Meeting started at: 
+Meeting started at: 13.00
 
 Minutes:
 Travis created a git-hub repository.
@@ -48,5 +48,32 @@ Generation should be done by Roel(to be discussed):
 Coding should be done according to MVC pattern.
 
 Max fire speed = 10mph
+
+
+Meeting BSc Wildfire control 20-2-2019
+Attending: Traivs, Ivo, Dirk-Jelle, Ritten, Roel
+Not attending: 
+Meeting started at: 13.00
+
+The current to-dos soom to be approximating completion (apart from bugs), so we should define the next tasks. 
+
+Feature selection			- Travis
+	Downsampling	
+	Outlines
+	InfoDump
+
+
+Tune fire parameters		- Dirk-Jelle
+
+Refine map Generation 		- Roel & Dirk-Jelle
 	
+Fitness						- Ritten
+
+Add Score to gui 			- Ivo
+Add Element info on click to GUI - Ivo
+
+
+Bugfixing					- Everyone
+
+
 	
