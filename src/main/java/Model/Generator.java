@@ -64,7 +64,6 @@ public class Generator implements Serializable {
             }
             cells.add(col);
         }
-
         // Instead of adding individual agents, all agents will be stored in a final ArrayList added to the tree-grid. This way the amount of agents can be modified easily.
         //This will create one agents which can will be dropped on a random location on the map.
         for (int i = 0; i<nr_agents; i++) {
@@ -243,49 +242,42 @@ public class Generator implements Serializable {
 
         }
 
-/*
         //
         // FIRE
         //
-        int fire_x = rand.nextInt(x);
-        int fire_y = rand.nextInt(y);
-
-        for(int i = 0; i<x; i++) {
-            List<Element> row = cells.get(i);
-            for (int j = 0; j < y; j++) {
-                //Set a random tile on fire
-                if (i == fire_x && j == fire_y) {
-                    Element t = new Tree(i, j, parameters);
-                    t.setBurning();
-                    //row.add(t);
-                    row.set(j, t);
-                    cells.set(j, row);
+        int rand_x = rand.nextInt(width);
+        int rand_y = rand.nextInt(height);
+        boolean fireStarted = false;
+        while (!fireStarted) {
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    if (x == rand_x && y == rand_y) {
+                        Element cell = cells.get(x).get(y);
+                        if (cell.isBurnable() && cell.getType() != "Agent") {
+                            cell.setBurning();
+                            fireStarted = true;
+                        }
+                    }
                 }
             }
-
         }
-*/
-
-        //
-        // FIRE
-        //
-        int fire_x = rand.nextInt(width);
-        int fire_y = rand.nextInt(height);
-
-        for(int i = 0; i<width; i++) {
-            List<Element> row = cells.get(i);
-            for (int j = 0; j < height; j++) {
-                //Set a random tile on fire
-                if (i == fire_x && j == fire_y) {
-                    Element t = new Tree(i, j, parameter_manager);
-                    t.setBurning();
-                    //row.add(t);
-                    row.set(j, t);
-                    cells.set(j, row);
-                }
-            }
-
-        }
+//        int fire_x = rand.nextInt(width);
+//        int fire_y = rand.nextInt(height);
+//
+//        for(int i = 0; i<width; i++) {
+//            List<Element> row = cells.get(i);
+//            for (int j = 0; j < height; j++) {
+//                //Set a random tile on fire
+//                if (i == fire_x && j == fire_y) {
+//                    Element t = new Tree(i, j, parameter_manager);
+//                    t.setBurning();
+//                    //row.add(t);
+//                    row.set(j, t);
+//                    cells.set(j, row);
+//                }
+//            }
+//
+//        }
 
         //
         // AGENTS

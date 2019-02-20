@@ -120,9 +120,6 @@ public class Simulation extends Observable implements Serializable, Observer{
         states.clear();
         activeCells.clear();
 
-        //tree_grid(parameter_manager.getWidth(), parameter_manager.getHeight());
-        //regenerateAuxiliary2(parameter_manager.getWidth(), parameter_manager.getHeight());
-
         generator.regenerate();
         setChanged();
         notifyObservers(cells);
