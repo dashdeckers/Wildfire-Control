@@ -12,8 +12,8 @@ View/SimulationPanel.class
 Model/Elements/Dirt.class
 View/ElementFrame.class
 Model/Elements/House.class
-Controller/Buttons/ControlAction.class
 Controller/Buttons/RadioListener.class
+Controller/Buttons/ControlAction.class
 Controller/Buttons/ControlButton.class
 Model/Elements/Tree.class
 Model/Elements/Element.class
