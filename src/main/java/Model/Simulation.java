@@ -21,6 +21,9 @@ public class Simulation extends Observable implements Serializable, Observer{
     private int step_time;
     private int step_size;
     private int nr_agents;
+    private float wVecX;
+    private float wVecY;
+    private float windSpeed;
     private boolean undo_redo;
 
     private ParameterManager parameter_manager;
@@ -302,6 +305,9 @@ public class Simulation extends Observable implements Serializable, Observer{
         }
         step_size = 1;
         undo_redo = false;
+        wVecX = -1;
+        wVecY = 0;
+        windSpeed = 2;
     }
 
 
@@ -320,6 +326,9 @@ public class Simulation extends Observable implements Serializable, Observer{
         return_map.put("Step Size", (float) step_size);
         return_map.put("Step Time", (float) step_time);
         return_map.put("Undo/Redo", undo_redo ? 1f : 0f);
+        return_map.put("Wind x", wVecX);
+        return_map.put("Wind y", wVecY);
+        return_map.put("Wind Speed", windSpeed);
         return return_map;
     }
 
@@ -381,6 +390,15 @@ public class Simulation extends Observable implements Serializable, Observer{
                     break;
                 case "Number of Agents":
                     nr_agents = value.intValue();
+                    break;
+                case "Wind x":
+                    wVecX = value;
+                    break;
+                case "Wind y":
+                    wVecY = value;
+                    break;
+                case "Wind Speed":
+                    windSpeed = value;
                     break;
                 default:
                     System.out.println("No action defined in Simulation.update for " + (String) ((Map.Entry) ((Map.Entry) o).getValue()).getKey());

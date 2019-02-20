@@ -72,9 +72,9 @@ public abstract class Element implements Serializable, Observer {
 	private int height;
 
 	// wind parameters
-	double windSpeed = 2;
-	double wVecX = -1;
-	double wVecY = 0;
+	double windSpeed;
+	double wVecX;
+	double wVecY;
 
 	/**
 	 * TODO: Element parameters
@@ -350,6 +350,11 @@ public abstract class Element implements Serializable, Observer {
 	public void pullParameters(){
 		width = parameterManager.getWidth();
 		height = parameterManager.getHeight();
+		wVecX = parameterManager.getParameterSet("Model").get("Wind x");
+		wVecY = parameterManager.getParameterSet("Model").get("Wind y");
+		windSpeed = parameterManager.getParameterSet("Model").get("Wind Speed");
+
+
 		parameterManager.addObserver(this);
 		if(parameterManager.isChanged(this.type)) {
 			Map<String, Float> typeMap = parameterManager.getParameterSet(this.type);
