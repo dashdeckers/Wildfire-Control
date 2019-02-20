@@ -72,9 +72,9 @@ public abstract class Element implements Serializable, Observer {
 	private int height;
 
 	// wind parameters
-	double windSpeed = 5;
-	double wVecX = 1;
-	double wVecY = 1;
+	double windSpeed = 2;
+	double wVecX = -1;
+	double wVecY = 0;
 
 	/**
 	 * TODO: Element parameters
@@ -91,11 +91,15 @@ public abstract class Element implements Serializable, Observer {
 	/**
 	 *	If the element is burning, reduce fuel levels. If fuel levels are empty, return "Dead"
 	 *  otherwise return "No Change".
+     *  If the element is burnable, but does not burn right now, reduce temperature X every step.
 	 *  If it is not burning, check if the heat levels are high enough. If they are higher than
 	 *  ignition threshold, return "Ignited", otherwise return "No Change"
 	 */
 	public String timeStep()
 	{
+	    if (isBurnable && !isBurning && temperature > 0) {
+	        temperature -= 0.5;
+        }
 		if (isBurning)
 		{
 			fuel -= 1;
@@ -157,44 +161,42 @@ public abstract class Element implements Serializable, Observer {
 	/**
 	 *  Returns a set of neighbouring cells. The radius determines the amount of neighbours
 	 *  by being the maximal amount of steps you can take from the origin to land on a cell
-	 *  that still counts as being a neighbour.
+	 *  that still counts as being a neighbour. Only burnable neighbours are considered.
 	 */
 	public HashSet<Element> getNeighbours(List<List<Element>> cells, List<Agent> agents)
 	{
 		HashSet<Element> neighbours = new HashSet<>();
 		int originX = getX();
 		int originY = getY();
-		for (int x = 0; x <= r; x++)
-		{
-			for (int y = 0; y+x <= r; y++)
-			{
-				if (x == 0 && y == 0)
-				{
+		for (int x = 0; x <= r; x++) {
+			for (int y = 0; y+x <= r; y++) {
+				if (x == 0 && y == 0) {
 					continue;
 				}
-				int neg_x = -x;
-				int neg_y = -y;
-
-				if (inBounds(originX + x, originY + y))
-				{
-					Element cellQ1 = cells.get(originX + x).get(originY + y);
-					neighbours.add(cellQ1);
+				if (inBounds(originX + x, originY + y)) {
+				    Element cell = cells.get(originX + x).get(originY + y);
+				    if (cell.isBurnable) {
+                        neighbours.add(cell);
+                    }
 				}
-				if (inBounds(originX + neg_x, originY + y))
-				{
-					Element cellQ2 = cells.get(originX + neg_x).get(originY + y);
-					neighbours.add(cellQ2);
+				if (inBounds(originX + x, originY - y)) {
+				    Element cell = cells.get(originX + x).get(originY - y);
+				    if (cell.isBurnable) {
+                        neighbours.add(cell);
+                    }
 				}
-				if (inBounds(originX + x, originY + neg_y))
-				{
-					Element cellQ3 = cells.get(originX + x).get(originY + neg_y);
-					neighbours.add(cellQ3);
-				}
-				if (inBounds(originX + neg_x, originY + neg_y))
-				{
-					Element cellQ4 = cells.get(originX + neg_x).get(originY + neg_y);
-					neighbours.add(cellQ4);
-				}
+                if (inBounds(originX - x, originY + y)) {
+                    Element cell = cells.get(originX - x).get(originY + y);
+                    if (cell.isBurnable) {
+                        neighbours.add(cell);
+                    }
+                }
+                if (inBounds(originX - x, originY - y)) {
+                    Element cell = cells.get(originX - x).get(originY - y);
+                    if (cell.isBurnable) {
+                        neighbours.add(cell);
+                    }
+                }
 			}
 		}
 		for (Agent agent : agents) {
@@ -202,15 +204,13 @@ public abstract class Element implements Serializable, Observer {
 				neighbours.add(agent);
 			}
 		}
-
 		return neighbours;
 	}
 
 	/**
 	 * Checks if the coordinates are within the boundaries of the map.
 	 */
-	public boolean inBounds(int x, int y)
-	{
+	public boolean inBounds(int x, int y) {
 		int maxX = width;
 		int maxY = height;
 		return x >= 0 && x < maxX
@@ -239,28 +239,21 @@ public abstract class Element implements Serializable, Observer {
 	 * Returns the color based on the state. Black if burnt, Red if
 	 * burning, otherwise 3 shades of orange based on temperature
 	 */
-	public Color getColor()
-	{
-		if (fuel <= 0 && isBurnable())
-		{
+	public Color getColor() {
+		if (fuel <= 0 && isBurnable()) {
 			return Color.BLACK;
 		}
-		else if (isBurning)
-		{
+		else if (isBurning) {
 			return new Color(200, 0, 0);
 		}
-		else
-		{
-			if (temperature > ignitionThreshold * 0.75)
-			{
+		else {
+			if (temperature > ignitionThreshold * 0.75) {
 				return new Color(255, 100, 0);
 			}
-			if (temperature > ignitionThreshold * 0.50)
-			{
+			if (temperature > ignitionThreshold * 0.50)	{
 				return new Color(255, 150, 0);
 			}
-			if (temperature > ignitionThreshold * 0.25)
-			{
+			if (temperature > ignitionThreshold * 0.25) {
 				return new Color(255,200,0);
 			}
 		}
