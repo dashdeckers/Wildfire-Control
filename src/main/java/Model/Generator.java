@@ -140,7 +140,7 @@ public class Generator implements Serializable {
                     row.set(j, new House(i, j, parameter_manager));
                     // Small chance (2/width) that a lake is placed
                     if (rand.nextInt(width) < 1) {
-                        placeBlob(i, j, "House");
+                        placeSquare(i, j, "House");
                     }
                     //TODO: realistic villages
                 }
@@ -285,7 +285,7 @@ public class Generator implements Serializable {
     }
 
     /**
-     * Places tiles in a random radius around a XY-coordinate
+     * Places tiles in a circle with a random radius around a XY-coordinate
      */
     void placeBlob(int originX, int originY, String element) {
 
@@ -312,6 +312,39 @@ public class Generator implements Serializable {
                     placeElementBlob((originX - x), (originY - y), element);
 
                 }
+            }
+        }
+    }
+
+    /**
+     * Places tiles in a circle with a random radius around a XY-coordinate
+     */
+    void placeSquare(int originX, int originY, String element) {
+
+        int radius = rand.nextInt(5);
+
+        for (int x = 0; x <= radius; x++) {
+            for (int y = 0; y + x <= radius; y++) {
+
+                System.out.print("in placeBlob\n");
+
+                if (x == 0 && y == 0) {
+                    continue;
+                }
+                if (inBounds(originX + x, originY + y)) {
+                    placeElementBlob((originX + x), (originY + y), element);
+                }
+                /*
+                if (inBounds(originX + x, originY - y)) {
+                    placeElementBlob((originX + x), (originY - y), element);
+                }
+                if (inBounds(originX - x, originY + y)) {
+                    placeElementBlob((originX - x), (originY + y), element);
+                }
+                if (inBounds(originX - x, originY - y)) {
+                    placeElementBlob((originX - x), (originY - y), element);
+
+                }*/
             }
         }
     }
