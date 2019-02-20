@@ -94,7 +94,7 @@ public class Agent extends Element
             switch (currentAction){
                 case "Cut Tree":
                 case "Cut Grass":
-                    makeRoad();
+                    makeDirt();
                     break;
                 case "Go Down":
                     moveDown();
@@ -152,10 +152,10 @@ public class Agent extends Element
     /**
      * All actions related to actual fire control
      */
-    private void makeRoad() {
+    private void makeDirt() {
         Element cell = simulation.getAllCells().get(x).get(y);
         energyLevel-=cell.getParameters().get("Clear Cost");
-        simulation.getAllCells().get(x).set(y, new Road(x, y, simulation.getParameter_manager()));
+        simulation.getAllCells().get(x).set(y, new Dirt(x, y, simulation.getParameter_manager()));
 
     }
 
