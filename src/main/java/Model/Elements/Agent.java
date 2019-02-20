@@ -87,10 +87,10 @@ public class Agent extends Element
         energyLevel = energyEachStep;
         while(energyLevel>0 && fuel > 0) {
             List<String> actions = possibleActions();
-            System.out.println("action list = " + actions.toString());
+            //System.out.println("action list = " + actions.toString());
             Random r = new Random();
             String currentAction = actions.get(r.nextInt(actions.size()));
-            System.out.println("Decided to do: " + currentAction + ", having energy level: " + energyLevel + " and temperature: " + temperature);
+            //System.out.println("Decided to do: " + currentAction + ", having energy level: " + energyLevel + " and temperature: " + temperature);
             switch (currentAction){
                 case "Cut Tree":
                 case "Cut Grass":
@@ -112,7 +112,7 @@ public class Agent extends Element
                     energyLevel=0;
 
             }
-            System.out.println("energy finish = " + energyLevel);
+            //System.out.println("energy finish = " + energyLevel);
         }
     }
 

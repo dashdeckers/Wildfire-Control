@@ -65,25 +65,6 @@ public class Simulation extends Observable implements Serializable, Observer{
         }
 	}
 
-	/*
-		Debugging function to print the currently active cells
-	 */
-	private void printActiveCells(boolean showCells)
-	{
-		System.out.println("Number of active Cells: " + activeCells.size());
-		if (!showCells)
-		{
-			return;
-		}
-		String output = "";
-		for (Element cell : activeCells)
-		{
-			output += "(" + cell.getX() + " " + cell.getY() + ") ";
-		}
-		System.out.println(output);
-	}
-
-
     /**
      * Start is linked to the start button. It moves one step forward every Step_time in ms.
      * A negative time will make it perform steps backwards, but only if undo/redo is enabled.
@@ -223,6 +204,33 @@ public class Simulation extends Observable implements Serializable, Observer{
 	{
 		HashSet<Element> toRemove = new HashSet<>();
 		HashSet<Element> toAdd = new HashSet<>();
+
+		boolean onlyAgentsLeft = false;
+		// should be if activeCells.size() == nr_agents
+		if (true)
+		{
+			onlyAgentsLeft = true;
+			for (Element agent : activeCells)
+			{
+				if (!agent.getType().equals("Agent"))
+				{
+					onlyAgentsLeft = false;
+					break;
+				}
+			}
+		}
+		if (onlyAgentsLeft)
+		{
+			running = false;
+			System.out.println(activeCells.size() + " VS " + nr_agents);
+			for (Element e : activeCells)
+			{
+				System.out.println("Element " + e.getType() + ", at (" + e.getX() + "," + e.getY() + ")");
+			}
+			System.out.println("STOPPED");
+		}
+
+		// burningCell can also be an agent, they are counted as activeCells
 		for (Element burningCell : activeCells)
 		{
 			String status = burningCell.timeStep();
