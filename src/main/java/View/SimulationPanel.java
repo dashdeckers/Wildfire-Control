@@ -5,11 +5,13 @@ import Model.Simulation;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-public class SimulationPanel extends JPanel implements Observer {
+public class SimulationPanel extends JPanel implements Observer, MouseListener {
     private Simulation model;
     private Graphics g;
     private List<List<Element>> cells; //Holds the cells
@@ -19,6 +21,7 @@ public class SimulationPanel extends JPanel implements Observer {
         draw_all = true;
         this.model = model;
         cells = model.getAllCells();
+        this.addMouseListener(this);
 
         this.setPreferredSize(new Dimension(size,size));
         model.addObserver(this);
@@ -75,5 +78,59 @@ public class SimulationPanel extends JPanel implements Observer {
             cells = (List<List<Element>>) o;
             repaint();
         }
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent mouseEvent) {
+
+        int x = mouseEvent.getX();
+        int y = mouseEvent.getY();
+        //recreate jump-in boundaries
+        x = x -2;
+        y = y -2;
+
+        int start_x = 2;
+        int start_y = 2;
+        int end_x = this.getSize().width - 2;
+        int end_y = this.getSize().height - 2;
+        float x_jump = (float) (end_x - start_x)/ (float) cells.size();
+        float y_jump = (float) (end_y - start_y)/ (float) cells.get(0).size();
+        float x_coord = x / x_jump;
+        float y_coord = cells.get(0).size() -  y / y_jump;
+
+        Element e = cells.get((int) x_coord).get((int) y_coord);
+
+        if(mouseEvent.getButton() == MouseEvent.BUTTON1) {
+            for (int i = 0; i < model.getNr_agents(); i++) {
+                if (x >= model.getAgents().get(i).getX() * x_jump
+                        && y >= ((end_y - y_jump) - (int) model.getAgents().get(i).getY() * y_jump)
+                        && x <= model.getAgents().get(i).getX() * x_jump + x_jump - 1
+                        && y <= ((end_y - y_jump) - (int) model.getAgents().get(i).getY() * y_jump + y_jump - 1)) {
+                    e = model.getAgents().get(i);
+                }
+            }
+        }
+
+        new ElementFrame(e);
+    }
+
+    @Override
+    public void mousePressed(MouseEvent mouseEvent) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent mouseEvent) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent mouseEvent) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent mouseEvent) {
+
     }
 }

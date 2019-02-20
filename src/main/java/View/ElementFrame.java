@@ -23,7 +23,6 @@ public class ElementFrame extends JFrame {
         this.pack();
 
         this.setVisible(true);
-        System.out.println("ElementFrame made");
     }
 
 
