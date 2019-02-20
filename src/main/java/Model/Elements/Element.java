@@ -121,9 +121,9 @@ public abstract class Element implements Serializable, Observer {
 	{
 		double distance = distanceTo(burningCell);
 		double angle = angleToWind(burningCell);
-		System.out.println("cell type: " + this.getType());
+		//System.out.println("cell type: " + this.getType());
 		temperature += burnIntensity * Math.pow(windSpeed * angle + distance, -1);
-		System.out.println("Temperature increase by: " + Math.pow(windSpeed * angle + distance, -1));
+		//System.out.println("Temperature increase by: " + Math.pow(windSpeed * angle + distance, -1));
 		// doing this check at the start will save some computation, but
 		// it will not guarantee that the temperature is always <= 100
 		if (temperature > 100)

@@ -14,9 +14,21 @@ public class Agent extends Element
 
     private Simulation simulation;
     private int energyLevel;
-
-
     private static final Color BLACK = new Color(0,0,0);
+
+
+    public Agent(int x, int y, Simulation simulation, ParameterManager parameterManager)
+    {
+
+        this.simulation = simulation;
+        this.parameterManager = parameterManager;
+        initializeParameters();
+        pullParameters();
+        this.x=x;
+        this.y=y;
+
+    }
+
     public Agent(Simulation simulation, ParameterManager parameterManager)
     {
 
@@ -24,15 +36,13 @@ public class Agent extends Element
         this.parameterManager = parameterManager;
         initializeParameters();
         pullParameters();
-
-    }
-
-    public void giveLocation() {
         do {
             this.x = simulation.getRandX();
             this.y = simulation.getRandY();
         } while (!checkTile(x,y));
+
     }
+
 
     public void initializeParameters()
     {
@@ -81,7 +91,6 @@ public class Agent extends Element
             Random r = new Random();
             String currentAction = actions.get(r.nextInt(actions.size()));
             System.out.println("Decided to do: " + currentAction + ", having energy level: " + energyLevel + " and temperature: " + temperature);
-            Element currentCell = simulation.getAllCells().get(x).get(y);
             switch (currentAction){
                 case "Cut Tree":
                 case "Cut Grass":

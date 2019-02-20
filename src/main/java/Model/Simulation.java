@@ -19,7 +19,7 @@ public class Simulation extends Observable implements Serializable, Observer{
     private int height;
     private int step_time;
     private int step_size;
-    private int nr_agents=5;
+    private int nr_agents;
     private boolean undo_redo;
 
     private ParameterManager parameter_manager;
@@ -355,7 +355,6 @@ public class Simulation extends Observable implements Serializable, Observer{
 
         for (int i = 0; i<nr_agents; i++) {
             Agent agent = new Agent(this, parameter_manager);
-            agent.giveLocation();
             agents.add(agent);
         }
 
@@ -539,7 +538,6 @@ public class Simulation extends Observable implements Serializable, Observer{
         //This will create one agents which can will be dropped on a random location on the map.
         for (int i = 0; i<nr_agents; i++) {
             Agent agent = new Agent(this, parameter_manager);
-            agent.giveLocation();
             agents.add(agent);
         }
 
@@ -557,6 +555,7 @@ public class Simulation extends Observable implements Serializable, Observer{
     public void create_parameters() {
         width = 50;
         height = 50;
+        nr_agents = 3;
         if(use_gui) {
             step_time = 100;
         }else{
@@ -578,6 +577,7 @@ public class Simulation extends Observable implements Serializable, Observer{
         Map<String, Float> return_map = new HashMap<>();
         return_map.put("Width", (float) width);
         return_map.put("Height", (float) height);
+        return_map.put("Number of Agents", (float) nr_agents);
         return_map.put("Step Size", (float) step_size);
         return_map.put("Step Time", (float) step_time);
         return_map.put("Undo/Redo", undo_redo ? 1f : 0f);
