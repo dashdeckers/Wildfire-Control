@@ -236,9 +236,7 @@ public class Generator implements Serializable {
 
         // Make horizontal road (Starts at the left)
         } else {
-
             int randomY = rand.nextInt(height);
-
             for (int i = 0; i < width; i++) {
                 List<Element> row = cells.get(i);
                 row.set(randomY, new Road(i, randomY, parameter_manager));
@@ -248,28 +246,14 @@ public class Generator implements Serializable {
         //
         // FIRE
         //
-        int rand_x = rand.nextInt(width);
-        System.out.println("rand_x=" + rand_x);
-        int rand_y = rand.nextInt(height);
-        System.out.println("rand_y=" + rand_y);
         boolean fireStarted = false;
         while (!fireStarted) {
-
-            //System.out.println("in Fire");
-            for (int x = 0; x < width; x++) {
-                //System.out.println("in Fire1");
-                for (int y = 0; y < height; y++) {
-                    //System.out.println("in Fire2");
-                    if (x == rand_x && y == rand_y) {
-                        //System.out.println("in Fire3");
-                        Element cell = cells.get(x).get(y);
-                        if (cell.isBurnable() && !cell.getType().equals("Agent")) {
-                            System.out.println("in Fire4");
-                            cell.setBurning();
-                            fireStarted = true;
-                        }
-                    }
-                }
+            int rand_x = rand.nextInt(width);
+            int rand_y = rand.nextInt(height);
+            Element cell = cells.get(rand_x).get(rand_y);
+            if (cell.isBurnable() && !cell.getType().equals("Agent")) {
+                cell.setBurning();
+                fireStarted = true;
             }
         }
 
@@ -277,7 +261,6 @@ public class Generator implements Serializable {
         // AGENTS
         //
         for (int i = 0; i < nr_agents; i++) {
-            //System.out.println("in Agents");
             Agent agent = new Agent(model, parameter_manager);
             agents.add(agent);
         }
