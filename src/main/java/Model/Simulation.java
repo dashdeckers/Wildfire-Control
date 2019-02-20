@@ -640,6 +640,11 @@ public class Simulation extends Observable implements Serializable, Observer{
                 case "Undo/Redo":
                     undo_redo = value.intValue() == 1;
                     break;
+                case "Number of Agents":
+                    nr_agents = value.intValue();
+                    break;
+                default:
+                    System.out.println("No action defined in Simulation.update for " + (String) ((Map.Entry) ((Map.Entry) o).getValue()).getKey());
             }
         }
     }
