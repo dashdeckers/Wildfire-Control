@@ -1,6 +1,7 @@
 package Model;
 
 import Model.Elements.*;
+import View.ElementFrame;
 
 import java.io.*;
 import java.util.*;
@@ -342,6 +343,7 @@ public class Simulation extends Observable implements Serializable, Observer{
                     Element t = new Tree(i, j, parameter_manager);
                     t.setBurning();
                     //row.add(t);
+                    new ElementFrame(t);
                     row.set(j, t);
                     cells.set(j, row);
                 }
