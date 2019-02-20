@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class House extends Element
 {
-    private static final Color LIGHT_BROWN = new Color(153,102,0);
+//    private static final Color LIGHT_BROWN = new Color(153,102,0);
     public House(int x, int y, ParameterManager parameterManager)
     {
         this.x = x;
@@ -22,7 +22,7 @@ public class House extends Element
         this.type = "House";
         this.r = 1;
         this.isBurnable = true;
-        this.color = LIGHT_BROWN;
+        this.color = color.WHITE;
         this.burnIntensity = 5;
         this.ignitionThreshold = 1;
         this.fuel = starting_fuel = 25;
