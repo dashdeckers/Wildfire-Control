@@ -6,8 +6,10 @@ import javax.swing.*;
 import java.awt.*;
 
 public class ElementFrame extends JFrame {
+    Element e;
 
     public ElementFrame (Element e){
+        this.e = e;
 
         JPanel elementPanel = new ElementPanel(e);
 
@@ -26,6 +28,9 @@ public class ElementFrame extends JFrame {
     }
 
 
+    public Element getElement() {
+        return e;
+    }
 }
 
 class ElementPanel extends JPanel{
@@ -56,7 +61,7 @@ class ElementPanel extends JPanel{
         c.gridx = 1;
 
 
-        JLabel coords = new JLabel("Coordinates = ("+ Integer.toString(e.getX()) + "," + Integer.toString(e.getX()) +")" );
+        JLabel coords = new JLabel("Coordinates = ("+ Integer.toString(e.getX()) + "," + Integer.toString(e.getY()) +")" );
         coords.setPreferredSize(new Dimension(150, square_height));
         coords.setBorder(BorderFactory.createLineBorder(Color.black));
         coords.setHorizontalAlignment(JLabel.CENTER);
@@ -80,6 +85,7 @@ class ElementPanel extends JPanel{
         if(e.isBurning()){
             fireString = "On fire";
         }else{
+
             fireString = "Not on fire";
         }
         JLabel fire = new JLabel(fireString);

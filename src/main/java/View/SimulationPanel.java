@@ -16,7 +16,7 @@ public class SimulationPanel extends JPanel implements Observer, MouseListener {
     private Graphics g;
     private List<List<Element>> cells; //Holds the cells
     private boolean draw_all; // intended to be able to draw only changed cells, but not implemented yet. Keep at 1
-    private JFrame elementFrame;
+    private ElementFrame elementFrame;
 
     public SimulationPanel(Simulation model, int size){
         draw_all = true;
@@ -31,6 +31,12 @@ public class SimulationPanel extends JPanel implements Observer, MouseListener {
     @Override
     public void paintComponent(Graphics g){
         super.paintComponent(g);
+
+        if(elementFrame != null){
+            Element e = elementFrame.getElement();
+            elementFrame.dispose();
+            elementFrame = new ElementFrame(e);
+        }
         //Jump-in boundaries
         int start_x = 2;
         int start_y = 2;
