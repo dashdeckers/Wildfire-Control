@@ -117,7 +117,7 @@ public class Generator implements Serializable {
 
                     row.set(j, new Tree(i, j, parameter_manager));
                     //
-                    // implement helper function to randomly place trees around
+                    // Place circles/blobs around the original tree
                     //
                     placeBlob(i, j, "Tree"); // implement to define Element
                 }
@@ -140,7 +140,7 @@ public class Generator implements Serializable {
                     row.set(j, new House(i, j, parameter_manager));
                     // Small chance (2/width) that a lake is placed
                     if (rand.nextInt(width) < 1) {
-                        placeSquare(i, j, "House");
+                        //placeSquare(i, j, "House");
                     }
                     //TODO: realistic villages
                 }
@@ -170,7 +170,6 @@ public class Generator implements Serializable {
                 if (rand.nextInt(width) < 2) {
                     placeBlob(riverX, riverY, "Water");
                 }
-
 
                 int directionRiver = rand.nextInt(4);
 
@@ -204,7 +203,6 @@ public class Generator implements Serializable {
                 if (rand.nextInt(height) < 2) {
                     placeBlob(riverX, riverY, "Water");
                 }
-
                 int directionRiver = rand.nextInt(4);
 
                 if (directionRiver == 0) { // North
@@ -227,9 +225,7 @@ public class Generator implements Serializable {
         //
         // Add either a vertical or a horizontal road
         chooseXY = rand.nextInt(2);
-
-
-        // make vertical road (Starts at the top)
+        // Make vertical road (Starts at the top)
         if (chooseXY == 0) {
             int randomX = rand.nextInt(width);
 
@@ -238,43 +234,32 @@ public class Generator implements Serializable {
                 row.set(i, new Road(randomX, i, parameter_manager));
             }
 
-
-            // make horizontal road (Starts at the left)
+        // Make horizontal road (Starts at the left)
         } else {
-
             int randomY = rand.nextInt(height);
-
             for (int i = 0; i < width; i++) {
                 List<Element> row = cells.get(i);
                 row.set(randomY, new Road(i, randomY, parameter_manager));
             }
-
         }
 
         //
         // FIRE
         //
-        int rand_x = rand.nextInt(width);
-        int rand_y = rand.nextInt(height);
         boolean fireStarted = false;
         while (!fireStarted) {
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    if (x == rand_x && y == rand_y) {
-                        Element cell = cells.get(x).get(y);
-                        if (cell.isBurnable() && !cell.getType().equals("Agent")) {
-                            cell.setBurning();
-                            fireStarted = true;
-                        }
-                    }
-                }
+            int rand_x = rand.nextInt(width);
+            int rand_y = rand.nextInt(height);
+            Element cell = cells.get(rand_x).get(rand_y);
+            if (cell.isBurnable() && !cell.getType().equals("Agent")) {
+                cell.setBurning();
+                fireStarted = true;
             }
         }
 
         //
         // AGENTS
         //
-
         for (int i = 0; i < nr_agents; i++) {
             Agent agent = new Agent(model, parameter_manager);
             agents.add(agent);
@@ -294,7 +279,6 @@ public class Generator implements Serializable {
         for (int x = 0; x <= radius; x++) {
             for (int y = 0; y + x <= radius; y++) {
 
-                System.out.print("in placeBlob\n");
 
                 if (x == 0 && y == 0) {
                     continue;
@@ -325,16 +309,20 @@ public class Generator implements Serializable {
 
         for (int x = 0; x <= radius; x++) {
             for (int y = 0; y + x <= radius; y++) {
-
-                System.out.print("in placeBlob\n");
-
                 if (x == 0 && y == 0) {
                     continue;
                 }
                 if (inBounds(originX + x, originY + y)) {
                     placeElementBlob((originX + x), (originY + y), element);
                 }
+
+
                 /*
+
+                if (inBounds(originX + x, originY + y)) {
+                    placeElementBlob((originX + x), (originY + y), element);
+                }
+
                 if (inBounds(originX + x, originY - y)) {
                     placeElementBlob((originX + x), (originY - y), element);
                 }
