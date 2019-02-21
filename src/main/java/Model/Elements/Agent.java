@@ -13,8 +13,9 @@ public class Agent extends Element
     // the agent up to date, the agent needs access to the entire simulation.
 
     private Simulation simulation;
-    private int energyLevel;
     private static final Color BLACK = new Color(0,0,0);
+    private int energyLevel;
+    private double totalCosts;
 
 
     public Agent(int x, int y, Simulation simulation, ParameterManager parameterManager)
@@ -54,7 +55,7 @@ public class Agent extends Element
         this.ignitionThreshold = 1;
         this.fuel = 1;
         this.moveSpeed = 1;
-        this.energyEachStep = 20;
+        //this.energyEachStep = 20;
     }
 
     /**
@@ -84,7 +85,7 @@ public class Agent extends Element
     }
 
     private void takeActions() {
-        energyLevel = energyEachStep;
+        energyLevel = simulation.getEnergyAgents();
         while(energyLevel>0 && fuel > 0) {
             List<String> actions = possibleActions();
             System.out.println("action list = " + actions.toString());
@@ -109,6 +110,7 @@ public class Agent extends Element
                     moveLeft();
                     break;
                 default:
+                    simulation.setFitness(simulation.getFitness()+energyLevel);
                     energyLevel=0;
 
             }
@@ -119,7 +121,6 @@ public class Agent extends Element
     private List<String> possibleActions() {
         List<String> actions = new ArrayList<>();
         Element currentCell = simulation.getAllCells().get(x).get(y);
-
 
         if (energyLevel >= currentCell.getParameters().get("Clear Cost") && currentCell.getType().equals("Tree")){
             actions.add("Cut Tree");
@@ -145,7 +146,7 @@ public class Agent extends Element
     }
 
     private int determineMoveCost(Element e){
-        return (int) ((double)energyEachStep/(double)e.getParameters().get("Move Speed"));
+        return (int) ((double)simulation.getEnergyAgents()/(double)e.getParameters().get("Move Speed"));
     }
 
 
@@ -155,6 +156,7 @@ public class Agent extends Element
     private void makeDirt() {
         Element cell = simulation.getAllCells().get(x).get(y);
         energyLevel-=cell.getParameters().get("Clear Cost");
+        simulation.setFitness(simulation.getFitness() - Math.round(cell.getParameters().get("Clear Cost")));
         simulation.getAllCells().get(x).set(y, new Dirt(x, y, simulation.getParameter_manager()));
 
     }
@@ -164,22 +166,26 @@ public class Agent extends Element
      * All actions related to the movement of the agent
      */
     private void moveRight() {
-        energyLevel-= determineMoveCost(simulation.getAllCells().get(x+1).get(y));
+        int actionCost = determineMoveCost(simulation.getAllCells().get(x+1).get(y));
+        energyLevel -= actionCost;
         x++;
     }
 
     private void moveLeft() {
-        energyLevel-= determineMoveCost(simulation.getAllCells().get(x-1).get(y));
+        int actionCost = determineMoveCost(simulation.getAllCells().get(x-1).get(y));
+        energyLevel -= actionCost;
         x--;
     }
 
     private void moveDown() {
-        energyLevel-= determineMoveCost(simulation.getAllCells().get(x).get(y-1));
+        int actionCost = determineMoveCost(simulation.getAllCells().get(x).get(y-1));
+        energyLevel -= actionCost;
         y--;
     }
 
     private void moveUp() {
-        energyLevel-= determineMoveCost(simulation.getAllCells().get(x).get(y+1));
+        int actionCost = determineMoveCost(simulation.getAllCells().get(x).get(y+1));
+        energyLevel -= actionCost;
         y++;
     }
 

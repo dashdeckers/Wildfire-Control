@@ -63,7 +63,7 @@ public abstract class Element implements Serializable, Observer {
 	int starting_fuel = 0;
 
 	//parameters relevant for agent actions
-	int energyEachStep = 5;
+	//int energyEachStep = 5;
 	int clearCost = 0;
 	// move speed: 0 is not traversable, 3 is easy to traverse
 	int moveSpeed = 0;
@@ -300,7 +300,7 @@ public abstract class Element implements Serializable, Observer {
 		returnMap.put("Ignition Threshold", (float) ignitionThreshold);
 		returnMap.put("Starting Fuel", (float) starting_fuel);
 
-		returnMap.put("Energy Level", (float) energyEachStep);
+		//returnMap.put("Energy Level", (float) energyEachStep);
 		returnMap.put("Clear Cost", (float) clearCost);
 
 		return returnMap;
@@ -357,7 +357,7 @@ public abstract class Element implements Serializable, Observer {
 			moveSpeed = typeMap.get("Move Speed").intValue();
 			burnIntensity = typeMap.get("Burn Intensity").intValue();
 			ignitionThreshold = typeMap.get("Ignition Threshold").intValue();
-			energyEachStep = typeMap.get("Energy Level").intValue();
+			//energyEachStep = typeMap.get("Energy Level").intValue();
 			clearCost = typeMap.get("Clear Cost").intValue();
 			starting_fuel = typeMap.get("Starting Fuel").intValue();
 			fuel = starting_fuel;

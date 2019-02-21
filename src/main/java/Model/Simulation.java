@@ -19,8 +19,12 @@ public class Simulation extends Observable implements Serializable, Observer{
     private int height;
     private int step_time;
     private int step_size;
-    private int nr_agents;
     private boolean undo_redo;
+
+    // parameters related to agents
+    private int nr_agents;
+    private int energyAgents;
+    private int fitness;
 
     private ParameterManager parameter_manager;
 
@@ -29,6 +33,8 @@ public class Simulation extends Observable implements Serializable, Observer{
 
 	private Random rand; //initializes RNG
     private long randomizer_seed = 0;
+
+
 
 	public Simulation(boolean use_gui)
 	{
@@ -155,7 +161,7 @@ public class Simulation extends Observable implements Serializable, Observer{
         int numberHouses = rand.nextInt((int) (0.05*area));
         cells = new ArrayList<List<Element>>();
         agents = new ArrayList<>();
-
+        fitness = 0;
 
         //
         // GRASS
@@ -556,6 +562,7 @@ public class Simulation extends Observable implements Serializable, Observer{
         width = 50;
         height = 50;
         nr_agents = 3;
+        energyAgents = 20;
         if(use_gui) {
             step_time = 100;
         }else{
@@ -578,6 +585,7 @@ public class Simulation extends Observable implements Serializable, Observer{
         return_map.put("Width", (float) width);
         return_map.put("Height", (float) height);
         return_map.put("Number of Agents", (float) nr_agents);
+        return_map.put("Energy of Agents", (float) energyAgents);
         return_map.put("Step Size", (float) step_size);
         return_map.put("Step Time", (float) step_time);
         return_map.put("Undo/Redo", undo_redo ? 1f : 0f);
@@ -643,6 +651,8 @@ public class Simulation extends Observable implements Serializable, Observer{
                 case "Number of Agents":
                     nr_agents = value.intValue();
                     break;
+                case "Energy of Agents":
+                    energyAgents = value.intValue();
                 default:
                     System.out.println("No action defined in Simulation.update for " + (String) ((Map.Entry) ((Map.Entry) o).getValue()).getKey());
             }
@@ -655,13 +665,6 @@ public class Simulation extends Observable implements Serializable, Observer{
      */
     public ParameterManager getParameter_manager(){
         return parameter_manager;
-    }
-    public Random getRand() {
-        return rand;
-    }
-
-    public void setRand(Random rand) {
-        this.rand = rand;
     }
 
     public int getRandX() {return rand.nextInt(width);}
@@ -681,5 +684,21 @@ public class Simulation extends Observable implements Serializable, Observer{
 
     public void setNr_agents(int nr_agents) {
         this.nr_agents = nr_agents;
+    }
+
+    public int getEnergyAgents() {
+        return energyAgents;
+    }
+
+    public void setEnergyAgents(int energyAgents) {
+        this.energyAgents = energyAgents;
+    }
+
+    public int getFitness() {
+        return fitness;
+    }
+
+    public void setFitness(int fitness) {
+        this.fitness = fitness;
     }
 }
