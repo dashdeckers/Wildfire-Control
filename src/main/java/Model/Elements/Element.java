@@ -40,7 +40,6 @@ import java.util.*;
  */
 
 public abstract class Element implements Serializable, Observer {
-
 	// coordinates
 	int x = 0;
 	int y = 0;
@@ -53,10 +52,10 @@ public abstract class Element implements Serializable, Observer {
 	ParameterManager parameterManager;
 	// state properties
 	boolean isBurnable = false;
-	boolean isBurning = false;
+	private boolean isBurning = false;
 
 	// parameters relevant for fire propagation
-	protected double temperature = 0;
+	private double temperature = 0;
 	int burnIntensity = 0;
 	int ignitionThreshold = 10;
 	int fuel = 0;
@@ -73,9 +72,9 @@ public abstract class Element implements Serializable, Observer {
 	private int height;
 
 	// wind parameters
-	double windSpeed;
-	double wVecX;
-	double wVecY;
+	private double windSpeed;
+	private double wVecX;
+	private double wVecY;
 
 	/**
 	 * TODO: Element parameters
@@ -98,20 +97,14 @@ public abstract class Element implements Serializable, Observer {
 	 */
 	public String timeStep()
 	{
-	    if (isBurnable && !isBurning && temperature > 0) {
-	        temperature -= 0.5;
-        }
-		if (isBurning)
-		{
+		if (isBurning) {
 			fuel -= 1;
-			if (fuel <= 0)
-			{
+			if (fuel <= 0) {
 				isBurning = false;
 				return "Dead";
 			}
 		}
-		else if (temperature > ignitionThreshold)
-		{
+		else if (temperature > ignitionThreshold) {
 			isBurning = true;
 			return "Ignited";
 		}
@@ -131,16 +124,13 @@ public abstract class Element implements Serializable, Observer {
 		//System.out.println("Temperature increase by: " + Math.pow(windSpeed * angle + distance, -1));
 		// doing this check at the start will save some computation, but
 		// it will not guarantee that the temperature is always <= 100
-		if (temperature > 100)
-		{
-			temperature = 100;
-		}
+		if (temperature > 100) {temperature = 100;}
 	}
 
 	/**
 	 *  Returns the pythagorean distance to the given cell
 	 */
-	public double distanceTo(Element cell)
+	private double distanceTo(Element cell)
 	{
 		return Math.sqrt(Math.pow(x - cell.x, 2) + Math.pow(y - cell.y, 2));
 	}
@@ -149,7 +139,7 @@ public abstract class Element implements Serializable, Observer {
 	 *  Returns the angle between the vector that is given between the two cells
 	 *  and the vector that is given via the wind direction
 	 */
-	public double angleToWind(Element cell)
+	private double angleToWind(Element cell)
 	{
 		// vector between this cell and the given cell
 		double cVecX = this.x - cell.x;
@@ -211,50 +201,43 @@ public abstract class Element implements Serializable, Observer {
 	/**
 	 * Checks if the coordinates are within the boundaries of the map.
 	 */
-	public boolean inBounds(int x, int y) {
+	boolean inBounds(int x, int y) {
 		int maxX = width;
 		int maxY = height;
 		return x >= 0 && x < maxX
 				&& y >= 0 && y < maxY;
 	}
 
-	public void setBurning() {
-		isBurning = true;
-	}
+	public void setBurning() {isBurning = true;}
 
-	public boolean isBurning() {
-		return isBurning;
-	}
+	public boolean isBurning() {return isBurning;}
 
-	public boolean isBurnable() { return isBurnable; }
+	public boolean isBurnable() {return isBurnable;}
 
-	public int getX() {
-		return x;
-	}
+	public int getX() {return x;}
 
-	public int getY() {
-		return y;
-	}
+	public int getY() {return y;}
 
 	/**
 	 * Returns the color based on the state. Black if burnt, Red if
-	 * burning, otherwise 3 shades of orange based on temperature
+	 * burning, otherwise 3 shades of orange based on temperature.
+	 * Agents turn magenta when they die, for visibility.
 	 */
 	public Color getColor() {
 		if (fuel <= 0 && isBurnable()) {
-			return Color.BLACK;
-		}
-		else if (isBurning) {
+			if (type.equals("Agent")) {
+				return Color.MAGENTA;
+			} else {
+				return Color.BLACK;
+			}
+		} else if (isBurning) {
 			return new Color(200, 0, 0);
-		}
-		else {
+		} else {
 			if (temperature > ignitionThreshold * 0.75) {
 				return new Color(255, 100, 0);
-			}
-			if (temperature > ignitionThreshold * 0.50)	{
+			} else if (temperature > ignitionThreshold * 0.50)	{
 				return new Color(255, 150, 0);
-			}
-			if (temperature > ignitionThreshold * 0.25) {
+			} else if (temperature > ignitionThreshold * 0.25) {
 				return new Color(255,200,0);
 			}
 		}
@@ -282,8 +265,7 @@ public abstract class Element implements Serializable, Observer {
 		if (getClass() != obj.getClass())
 			return false;
 		Element other = (Element) obj;
-		if (x != other.x
-				|| y != other.y)
+		if (x != other.x || y != other.y)
 			return false;
 		return true;
 	}
@@ -348,7 +330,7 @@ public abstract class Element implements Serializable, Observer {
 	/**
 	 * If the parameterManager holds values that our cell currently doesn't yet pullParameters ensures that we are up-to-date
 	 */
-	public void pullParameters(){
+	void pullParameters(){
 		width = parameterManager.getWidth();
 		height = parameterManager.getHeight();
 		wVecX = parameterManager.getParameterSet("Model").get("Wind x");

@@ -56,13 +56,11 @@ public class Simulation extends Observable implements Serializable, Observer{
         parameter_manager.addObserver(this);
         generator = new Generator(this);
 
-        //This creates an area of trees of x by y, since we don't have the actual map generation yet
-        //tree_grid(width, height);
-        //cells.add(agents);
-        generator.tree_grid(width,height);
+        //Generate a new map to start on
+        generator.regenerate();
         setChanged();
         notifyObservers(cells);
-        notifyObservers(agents);
+        //notifyObservers(agents);
 
         //This gathers the first set of cells to be active
 		findActiveCells();
@@ -110,13 +108,13 @@ public class Simulation extends Observable implements Serializable, Observer{
 
             rand = new Random(randomizer_seed);
             states = new ArrayList<>();
-            generator.tree_grid(width, height);
-            findActiveCells();
 
+            generator.regenerate();
             setChanged();
             notifyObservers(cells);
             notifyObservers(agents);
 
+            findActiveCells();
     }
 
     /**
@@ -189,7 +187,7 @@ public class Simulation extends Observable implements Serializable, Observer{
         }
         setChanged();
         notifyObservers(cells);
-        notifyObservers(agents);
+        //notifyObservers(agents);
     }
 
     /**
