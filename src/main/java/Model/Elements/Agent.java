@@ -18,25 +18,27 @@ public class Agent extends Element
     private double totalCosts;
 
 
-    public Agent(int x, int y, Simulation simulation, ParameterManager parameterManager)
+    public Agent(int x, int y, Simulation simulation, ParameterManager parameterManager, int id)
     {
 
         this.simulation = simulation;
         this.parameterManager = parameterManager;
         initializeParameters();
         pullParameters();
+        this.id=id;
         this.x=x;
         this.y=y;
 
     }
 
-    public Agent(Simulation simulation, ParameterManager parameterManager)
+    public Agent(Simulation simulation, ParameterManager parameterManager, int id)
     {
 
         this.simulation = simulation;
         this.parameterManager = parameterManager;
         initializeParameters();
         pullParameters();
+        this.id = id;
         do {
             this.x = simulation.getRandX();
             this.y = simulation.getRandY();
@@ -88,10 +90,10 @@ public class Agent extends Element
         energyLevel = simulation.getEnergyAgents();
         while(energyLevel>0 && fuel > 0) {
             List<String> actions = possibleActions();
-            System.out.println("action list = " + actions.toString());
+            //System.out.println("action list = " + actions.toString());
             Random r = new Random();
             String currentAction = actions.get(r.nextInt(actions.size()));
-            System.out.println("Decided to do: " + currentAction + ", having energy level: " + energyLevel + " and temperature: " + temperature);
+            //System.out.println("Decided to do: " + currentAction + ", having energy level: " + energyLevel + " and temperature: " + temperature);
             switch (currentAction){
                 case "Cut Tree":
                 case "Cut Grass":
@@ -114,7 +116,7 @@ public class Agent extends Element
                     energyLevel=0;
 
             }
-            System.out.println("energy finish = " + energyLevel);
+            //System.out.println("energy finish = " + energyLevel);
         }
     }
 
@@ -188,7 +190,5 @@ public class Agent extends Element
         energyLevel -= actionCost;
         y++;
     }
-
-
 
 }

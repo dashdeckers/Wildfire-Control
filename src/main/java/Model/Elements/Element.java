@@ -67,14 +67,15 @@ public abstract class Element implements Serializable, Observer {
 	int clearCost = 0;
 	// move speed: 0 is not traversable, 3 is easy to traverse
 	int moveSpeed = 0;
+	int id = 0;
 
 	private int width;
 	private int height;
 
 	// wind parameters
-	double windSpeed = 2;
-	double wVecX = -1;
-	double wVecY = 0;
+	double windSpeed;
+	double wVecX;
+	double wVecY;
 
 	/**
 	 * TODO: Element parameters
@@ -350,6 +351,11 @@ public abstract class Element implements Serializable, Observer {
 	public void pullParameters(){
 		width = parameterManager.getWidth();
 		height = parameterManager.getHeight();
+		wVecX = parameterManager.getParameterSet("Model").get("Wind x");
+		wVecY = parameterManager.getParameterSet("Model").get("Wind y");
+		windSpeed = parameterManager.getParameterSet("Model").get("Wind Speed");
+
+
 		parameterManager.addObserver(this);
 		if(parameterManager.isChanged(this.type)) {
 			Map<String, Float> typeMap = parameterManager.getParameterSet(this.type);
@@ -366,5 +372,9 @@ public abstract class Element implements Serializable, Observer {
 
 	public String getType() {
 		return type;
+	}
+
+	public int getId() {
+		return id;
 	}
 }
