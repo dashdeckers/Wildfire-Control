@@ -61,7 +61,7 @@ public class Agent extends Element
      * New tiles that cannot be transversed by an agent can be easily added to the function
      */
 
-    public boolean checkTile(int x, int y) {
+    private boolean checkTile(int x, int y) {
         if (inBounds(x,y)){
             Element element = simulation.getAllCells().get(x).get(y);
             switch(element.getType()) {
