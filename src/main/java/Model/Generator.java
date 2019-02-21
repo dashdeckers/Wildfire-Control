@@ -201,6 +201,14 @@ class Generator implements Serializable {
         }
 
         //
+        // AGENTS
+        //
+        for (int i = 0; i < nr_agents; i++) {
+            Agent agent = new Agent(model, parameter_manager);
+            agents.add(agent);
+        }
+
+        //
         // FIRE
         //
         boolean fireStarted = false;
@@ -212,14 +220,6 @@ class Generator implements Serializable {
                 cell.setBurning();
                 fireStarted = true;
             }
-        }
-
-        //
-        // AGENTS
-        //
-        for (int i = 0; i < nr_agents; i++) {
-            Agent agent = new Agent(model, parameter_manager);
-            agents.add(agent);
         }
 
         model.setCells(cells);
