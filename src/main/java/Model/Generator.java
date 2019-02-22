@@ -65,6 +65,7 @@ class Generator implements Serializable {
          * 1) Rural : if high then amount of trees higher and amount of houses & roads lower
          * 2) Wetlands: If high then more rivers & lakes, if low then less rivers
          */
+        int numberDirt = rand.nextInt((int) (0.01 * area));
         int numberBushes = rand.nextInt((int) (0.1 * area));
         int numberHouses = rand.nextInt((int) (0.05 * area));
         int numberBridges = rand.nextInt(3);
@@ -84,6 +85,21 @@ class Generator implements Serializable {
                 row.add(new Grass(i, j, parameter_manager));
             }
             cells.add(row);
+        }
+
+        //
+        // DIRT
+        //
+        // Add Dirt at random points
+        for (int i = 0; i < width; i++) {
+            List<Element> row = cells.get(i);
+            for (int j = 0; j < height; j++) {
+                // chance = numberDirt/area that a tree is placed
+                if (rand.nextInt(area) < numberDirt) {
+                    row.set(j, new Dirt(i, j, parameter_manager));
+                    placeBlob(i, j, "Dirt");
+                }
+            }
         }
 
         //
