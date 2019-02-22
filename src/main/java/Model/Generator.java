@@ -67,6 +67,10 @@ class Generator implements Serializable {
          */
         int numberBushes = rand.nextInt((int) (0.1 * area));
         int numberHouses = rand.nextInt((int) (0.05 * area));
+        int numberBridges = rand.nextInt(3);
+        System.out.println("numberBridges = " + numberBridges);
+
+
         cells = new ArrayList<>();
         agents = new ArrayList<>();
 
@@ -92,10 +96,7 @@ class Generator implements Serializable {
                 // chance = numberBushes/area that a tree is placed
                 if (rand.nextInt(area) < numberBushes) {
                     row.set(j, new Tree(i, j, parameter_manager));
-                    //
-                    // Place circles/blobs around the original tree
-                    //
-                    placeBlob(i, j, "Tree"); // implement to define Element
+                    placeBlob(i, j, "Tree");
                 }
             }
         }
@@ -124,7 +125,7 @@ class Generator implements Serializable {
         //
         // Add a meandering river, either starting at the left or at the top
         int chooseXY = rand.nextInt(2);
-        // make vertical river ( I believe this starts at the top)
+        // VERTICAL river
         if (chooseXY == 0) {
             // Ensure the south direction is implemented first
             int riverY = 0;
@@ -149,9 +150,27 @@ class Generator implements Serializable {
                     riverX++;
                 }
             }
-            // TODO: all river tiles in row road
+            // Places a random amount (numberBridges) of bridges over River
+            for (int i = 0; i < numberBridges; i++) // numberBridges determined at top
+            {
+                // Determine random Y at which a bridge is placed over the river
+                int bridgeY = rand.nextInt(height);
+                for (int j = 0; j < width; j++)
+                {
+                    List<Element> row = cells.get(j);
+                    Element cell = cells.get(j).get(bridgeY);
+                    if (cell.getType() == "Water")
+                    {
+                        row.set(bridgeY, new Road(j, bridgeY, parameter_manager));
+                    }
+
+                }
+            }
+
+
+
         } else {
-            // make horizontal river (Starts at the left)
+            // HORIZONTAL river (Starts at the left)
             // Ensure the East direction is implemented first
             int riverY = rand.nextInt(height);
             int riverX = 0;
@@ -176,7 +195,23 @@ class Generator implements Serializable {
                     riverY--;
                 }
             }
-            // TODO: all river tiles in column road
+
+            // Places a random amount (numberBridges) of bridges over River
+            for (int i = 0; i < numberBridges; i++) // numberBridges determined at top
+            {
+                // Determine random X at which a bridge is placed over the river
+                int bridgeX = rand.nextInt(width);
+                for (int j = 0; j < width; j++)
+                {
+                    List<Element> row = cells.get(bridgeX);
+                    Element cell = cells.get(bridgeX).get(j);
+                    if (cell.getType() == "Water")
+                    {
+                        row.set(j, new Road(bridgeX, j, parameter_manager));
+                    }
+
+                }
+            }
         }
 
         //
