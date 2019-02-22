@@ -99,7 +99,7 @@ class Generator implements Serializable {
                 // chance = numberDirt/area that a tree is placed
                 if (rand.nextInt(area) < numberDirt) {
                     row.set(j, new Dirt(i, j, parameter_manager));
-                    placeBlob(i, j, "Dirt");
+                    placeBlob(i, j, "Dirt", 75);
                 }
             }
         }
@@ -114,7 +114,7 @@ class Generator implements Serializable {
                 // chance = numberBushes/area that a tree is placed
                 if (rand.nextInt(area) < numberBushes) {
                     row.set(j, new Tree(i, j, parameter_manager));
-                    placeBlob(i, j, "Tree");
+                    placeBlob(i, j, "Tree", 75);
                 }
             }
         }
@@ -157,7 +157,7 @@ class Generator implements Serializable {
                     row.set(riverY, new Water(riverX, riverY, parameter_manager));
                     // Small chance (2/width) that a lake is placed
                     if (rand.nextInt(width) < 2) {
-                        placeBlob(riverX, riverY, "Water");
+                        placeBlob(riverX, riverY, "Water", 80);
                     }
 
                     int directionRiver = rand.nextInt(4);
@@ -199,7 +199,7 @@ class Generator implements Serializable {
                     row.set(riverY, new Water(riverX, riverY, parameter_manager));
                     // Small chance (2/height) that a lake is placed
                     if (rand.nextInt(height) < 2) {
-                        placeBlob(riverX, riverY, "Water");
+                        placeBlob(riverX, riverY, "Water", 85);
                     }
 
                     int directionRiver = rand.nextInt(4);
@@ -242,7 +242,7 @@ class Generator implements Serializable {
                 // chance = numberDirt/area that a tree is placed
                 if (rand.nextInt(area) < numberLakes) {
                     row.set(j, new Water(i, j, parameter_manager));
-                    placeBlob(i, j, "Water");
+                    placeBlob(i, j, "Water", 90);
                 }
             }
         }
@@ -301,7 +301,7 @@ class Generator implements Serializable {
     /**
      * Places tiles in a circle with a random radius around a XY-coordinate
      */
-    private void placeBlob(int originX, int originY, String element) {
+    private void placeBlob(int originX, int originY, String element, int chancePlacement) {
         int radius = rand.nextInt(5);
         for (int x = 0; x <= radius; x++) {
             for (int y = 0; y + x <= radius; y++) {
@@ -309,17 +309,18 @@ class Generator implements Serializable {
                 if (x == 0 && y == 0) {
                     continue;
                 }
+                // 75 % chance of placement to create a naturalistic feel map
                 if (inBounds(originX + x, originY + y)) {
-                    placeElementBlob((originX + x), (originY + y), element);
+                    if(rand.nextInt(100) < chancePlacement) { placeElementBlob((originX + x), (originY + y), element); }
                 }
                 if (inBounds(originX + x, originY - y)) {
-                    placeElementBlob((originX + x), (originY - y), element);
+                    if(rand.nextInt(100) < chancePlacement) { placeElementBlob((originX + x), (originY - y), element); }
                 }
                 if (inBounds(originX - x, originY + y)) {
-                    placeElementBlob((originX - x), (originY + y), element);
+                    if(rand.nextInt(100) < chancePlacement) { placeElementBlob((originX - x), (originY + y), element); }
                 }
                 if (inBounds(originX - x, originY - y)) {
-                    placeElementBlob((originX - x), (originY - y), element);
+                    if(rand.nextInt(100) < chancePlacement) { placeElementBlob((originX - x), (originY - y), element); }
                 }
             }
         }
