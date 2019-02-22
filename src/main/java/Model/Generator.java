@@ -65,6 +65,20 @@ class Generator implements Serializable {
          * 1) Rural : if high then amount of trees higher and amount of houses & roads lower
          * 2) Wetlands: If high then more rivers & lakes, if low then less rivers
          */
+        int wetlands = 5; // Variable (1-10) that influences dirt (dry) and rivers/lakes (wet)
+        int urban = 5; // Variable (1-10) that influences bushes/grass (rural) and houses/roads (urban)
+
+        // (added zero before everything to test parameters wetlands/urban)
+        int numberDirt = rand.nextInt((int) (0.01 * area)) * (10-wetlands);
+        int numberBushes = rand.nextInt((int) (0.01 * area)) * (10-urban);
+        int numberHouses = rand.nextInt((int) (0.02 * area)) * urban;
+        int numberRivers = 1 * (wetlands / 2);
+        int numberBridges = rand.nextInt(3);
+        int numberLakes = rand.nextInt((int) (0.002 * area)) * (wetlands / 2);
+        int numberRoads = 1 * (urban/2);
+
+
+        /* OLD SETTINGS :
         int numberDirt = rand.nextInt((int) (0.01 * area));
         int numberBushes = rand.nextInt((int) (0.1 * area));
         int numberHouses = rand.nextInt((int) (0.05 * area));
@@ -72,6 +86,7 @@ class Generator implements Serializable {
         int numberBridges = rand.nextInt(3);
         int numberLakes = rand.nextInt((int) (0.002 * area));
         int numberRoads = 1;
+         */
 
 
         cells = new ArrayList<>();
