@@ -52,18 +52,13 @@ class Generator implements Serializable {
             }
             cells.add(col);
         }
-        // Instead of adding individual agents, all agents will be stored in a final ArrayList added to the tree-grid. This way the amount of agents can be modified easily.
-        //This will create one agents which can will be dropped on a random location on the map.
-        for (int i = 0; i < nr_agents; i++) {
-            Agent agent = new Agent(model, parameter_manager, i);
-            agents.add(agent);
-        }
+
     }
 
     /**
      * Creates a randomly generated maps
      */
-    public void regenerate() {
+    void regenerate() {
         int area = width * height;
 
         /**
@@ -71,8 +66,30 @@ class Generator implements Serializable {
          * 1) Rural : if high then amount of trees higher and amount of houses & roads lower
          * 2) Wetlands: If high then more rivers & lakes, if low then less rivers
          */
+        int wetlands = 5; // Variable (1-10) that influences dirt (dry) and rivers/lakes (wet)
+        int urban = 5; // Variable (1-10) that influences bushes/grass (rural) and houses/roads (urban)
+
+        // (added zero before everything to test parameters wetlands/urban)
+        int numberDirt = rand.nextInt((int) (0.01 * area)) * (10-wetlands);
+        int numberBushes = rand.nextInt((int) (0.01 * area)) * (10-urban);
+        int numberHouses = rand.nextInt((int) (0.02 * area)) * urban;
+        int numberRivers = 1 * (wetlands / 2);
+        int numberBridges = rand.nextInt(3);
+        int numberLakes = rand.nextInt((int) (0.002 * area)) * (wetlands / 2);
+        int numberRoads = 1 * (urban/2);
+
+
+        /* OLD SETTINGS :
+        int numberDirt = rand.nextInt((int) (0.01 * area));
         int numberBushes = rand.nextInt((int) (0.1 * area));
         int numberHouses = rand.nextInt((int) (0.05 * area));
+        int numberRivers = 1;
+        int numberBridges = rand.nextInt(3);
+        int numberLakes = rand.nextInt((int) (0.002 * area));
+        int numberRoads = 1;
+         */
+
+
         cells = new ArrayList<>();
         agents = new ArrayList<>();
 
@@ -89,6 +106,21 @@ class Generator implements Serializable {
         }
 
         //
+        // DIRT
+        //
+        // Add Dirt at random points
+        for (int i = 0; i < width; i++) {
+            List<Element> row = cells.get(i);
+            for (int j = 0; j < height; j++) {
+                // chance = numberDirt/area that a tree is placed
+                if (rand.nextInt(area) < numberDirt) {
+                    row.set(j, new Dirt(i, j, parameter_manager));
+                    placeBlob(i, j, "Dirt", 75);
+                }
+            }
+        }
+
+        //
         // TREES
         //
         // Add Trees at random points
@@ -98,10 +130,7 @@ class Generator implements Serializable {
                 // chance = numberBushes/area that a tree is placed
                 if (rand.nextInt(area) < numberBushes) {
                     row.set(j, new Tree(i, j, parameter_manager));
-                    //
-                    // Place circles/blobs around the original tree
-                    //
-                    placeBlob(i, j, "Tree"); // implement to define Element
+                    placeBlob(i, j, "Tree", 75);
                 }
             }
         }
@@ -128,87 +157,134 @@ class Generator implements Serializable {
         //
         // RIVER
         //
-        // Add a meandering river, either starting at the left or at the top
-        int chooseXY = rand.nextInt(2);
+        // Places a random amount (numberBridges) of bridges over River
+        for (int river = 0; river < numberRivers; river++) // numberBridges determined at top
+        {
+            // Add a meandering river, either starting at the left or at the top
+            int chooseXY = rand.nextInt(2);
+            // VERTICAL river
+            if (chooseXY == 0) {
+                // Ensure the south direction is implemented first
+                int riverY = 0;
+                int riverX = rand.nextInt(width);
+                // Then let the river meander with a tendency to go south
+                while (riverX >= 0 && riverX < width && riverY < height) {
+                    List<Element> row = cells.get(riverX);
+                    row.set(riverY, new Water(riverX, riverY, parameter_manager));
+                    // Small chance (2/width) that a lake is placed
+                    if (rand.nextInt(width) < 2) {
+                        placeBlob(riverX, riverY, "Water", 80);
+                    }
 
-        // make vertical river ( I believe this starts at the top)
-        if (chooseXY == 0) {
+                    int directionRiver = rand.nextInt(4);
+                    if (directionRiver == 0) { // West
+                        riverX--;
+                    }
+                    if (directionRiver == 1 || directionRiver == 2) {//|| directionRiver == 3 || directionRiver == 4) { // South, tendency to go south
+                        riverY++;
+                    }
+                    if (directionRiver == 3) { // East
+                        riverX++;
+                    }
+                }
+                // Places a random amount (numberBridges) of bridges over River
+                for (int i = 0; i < numberBridges; i++) // numberBridges determined at top
+                {
+                    // Determine random Y at which a bridge is placed over the river
+                    int bridgeY = rand.nextInt(height);
+                    for (int j = 0; j < width; j++) {
+                        List<Element> row = cells.get(j);
+                        Element cell = cells.get(j).get(bridgeY);
+                        if (cell.getType() == "Water") {
+                            row.set(bridgeY, new Road(j, bridgeY, parameter_manager));
+                        }
 
-            // Ensure the south direction is implemented first
-            int riverY = 0;
-            int riverX = rand.nextInt(width);
-
-            // Then let the river meander with a tendency to go south
-            while (riverX >= 0 && riverX < width && riverY < height) {
-                List<Element> row = cells.get(riverX);
-                row.set(riverY, new Water(riverX, riverY, parameter_manager));
-                // Small chance (2/width) that a lake is placed
-                if (rand.nextInt(width) < 2) {
-                    placeBlob(riverX, riverY, "Water");
+                    }
                 }
 
-                int directionRiver = rand.nextInt(4);
 
-                if (directionRiver == 0) { // West
-                    riverX--;
+            } else {
+                // HORIZONTAL river (Starts at the left)
+                // Ensure the East direction is implemented first
+                int riverY = rand.nextInt(height);
+                int riverX = 0;
+
+                // Then let the river meander with a tendency to go East
+                while (riverX >= 0 && riverX < width && riverY > 0 && riverY < height) {
+                    List<Element> row = cells.get(riverX);
+                    row.set(riverY, new Water(riverX, riverY, parameter_manager));
+                    // Small chance (2/height) that a lake is placed
+                    if (rand.nextInt(height) < 2) {
+                        placeBlob(riverX, riverY, "Water", 85);
+                    }
+
+                    int directionRiver = rand.nextInt(4);
+                    if (directionRiver == 0) { // North
+                        riverY++;
+                    }
+                    if (directionRiver == 1 || directionRiver == 2) {// || directionRiver == 3 || directionRiver == 4) { // East, tendency to go East
+                        riverX++;
+                    }
+                    if (directionRiver == 3) { // South
+                        riverY--;
+                    }
                 }
-                if (directionRiver == 1 || directionRiver == 2) {//|| directionRiver == 3 || directionRiver == 4) { // South, tendency to go south
-                    riverY++;
-                }
-                if (directionRiver == 3) { // East
-                    riverX++;
+
+                // Places a random amount (numberBridges) of bridges over River
+                for (int i = 0; i < numberBridges; i++) // numberBridges determined at top
+                {
+                    // Determine random X at which a bridge is placed over the river
+                    int bridgeX = rand.nextInt(width);
+                    for (int j = 0; j < width; j++) {
+                        List<Element> row = cells.get(bridgeX);
+                        Element cell = cells.get(bridgeX).get(j);
+                        if (cell.getType() == "Water") {
+                            row.set(j, new Road(bridgeX, j, parameter_manager));
+                        }
+
+                    }
                 }
             }
-            // TODO: all river tiles in row road
-        } else {
+        }
 
-            // make horizontal river (Starts at the left)
-            // Ensure the East direction is implemented first
-            int riverY = rand.nextInt(height);
-            int riverX = 0;
 
-            // Then let the river meander with a tendency to go East
-            while (riverX >= 0 && riverX < width && riverY > 0 && riverY < height) {
-                List<Element> row = cells.get(riverX);
-                row.set(riverY, new Water(riverX, riverY, parameter_manager));
-                // Small chance (2/height) that a lake is placed
-                if (rand.nextInt(height) < 2) {
-                    placeBlob(riverX, riverY, "Water");
-                }
-                int directionRiver = rand.nextInt(4);
-
-                if (directionRiver == 0) { // North
-                    riverY++;
-                }
-                if (directionRiver == 1 || directionRiver == 2) {// || directionRiver == 3 || directionRiver == 4) { // East, tendency to go East
-                    riverX++;
-                }
-                if (directionRiver == 3) { // South
-                    riverY--;
+        //
+        // Lakes
+        //
+        // Add Lakes at random points
+        for (int i = 0; i < width; i++) {
+            List<Element> row = cells.get(i);
+            for (int j = 0; j < height; j++) {
+                // chance = numberDirt/area that a tree is placed
+                if (rand.nextInt(area) < numberLakes) {
+                    row.set(j, new Water(i, j, parameter_manager));
+                    placeBlob(i, j, "Water", 90);
                 }
             }
-            // TODO: all river tiles in column road
         }
 
         //
         // ROAD
         //
-        // Add either a vertical or a horizontal road
-        chooseXY = rand.nextInt(2);
-        // Make vertical road (Starts at the top)
-        if (chooseXY == 0) {
-            int randomX = rand.nextInt(width);
-            List<Element> row = cells.get(randomX);
-            for (int i = 0; i < height; i++) {
-                row.set(i, new Road(randomX, i, parameter_manager));
-            }
-
-        // Make horizontal road (Starts at the left)
-        } else {
-            int randomY = rand.nextInt(height);
-            for (int i = 0; i < width; i++) {
-                List<Element> row = cells.get(i);
-                row.set(randomY, new Road(i, randomY, parameter_manager));
+        // Places a random amount (numberBridges) of bridges over River
+        for (int roads = 0; roads < numberRoads; roads++) // numberBridges determined at top
+        {
+            // Add either a vertical or a horizontal road
+            int chooseXY = rand.nextInt(2);
+            // Make vertical road (Starts at the top)
+            if (chooseXY == 0) {
+                int randomX = rand.nextInt(width);
+                List<Element> row = cells.get(randomX);
+                for (int i = 0; i < height; i++) {
+                    row.set(i, new Road(randomX, i, parameter_manager));
+                }
+                // Make horizontal road (Starts at the left)
+            } else {
+                int randomY = rand.nextInt(height);
+                for (int i = 0; i < width; i++) {
+                    List<Element> row = cells.get(i);
+                    row.set(randomY, new Road(i, randomY, parameter_manager));
+                }
             }
         }
 
@@ -241,26 +317,26 @@ class Generator implements Serializable {
     /**
      * Places tiles in a circle with a random radius around a XY-coordinate
      */
-    private void placeBlob(int originX, int originY, String element) {
+    private void placeBlob(int originX, int originY, String element, int chancePlacement) {
         int radius = rand.nextInt(5);
-
         for (int x = 0; x <= radius; x++) {
             for (int y = 0; y + x <= radius; y++) {
 
                 if (x == 0 && y == 0) {
                     continue;
                 }
+                // 75 % chance of placement to create a naturalistic feel map
                 if (inBounds(originX + x, originY + y)) {
-                    placeElementBlob((originX + x), (originY + y), element);
+                    if(rand.nextInt(100) < chancePlacement) { placeElementBlob((originX + x), (originY + y), element); }
                 }
                 if (inBounds(originX + x, originY - y)) {
-                    placeElementBlob((originX + x), (originY - y), element);
+                    if(rand.nextInt(100) < chancePlacement) { placeElementBlob((originX + x), (originY - y), element); }
                 }
                 if (inBounds(originX - x, originY + y)) {
-                    placeElementBlob((originX - x), (originY + y), element);
+                    if(rand.nextInt(100) < chancePlacement) { placeElementBlob((originX - x), (originY + y), element); }
                 }
                 if (inBounds(originX - x, originY - y)) {
-                    placeElementBlob((originX - x), (originY - y), element);
+                    if(rand.nextInt(100) < chancePlacement) { placeElementBlob((originX - x), (originY - y), element); }
                 }
             }
         }
@@ -270,7 +346,6 @@ class Generator implements Serializable {
      * Places tiles in a circle with a random radius around a XY-coordinate
      */
     void placeSquare(int originX, int originY, String element) {
-
         int radius = rand.nextInt(5);
         for (int x = 0; x <= radius; x++) {
             for (int y = 0; y + x <= radius; y++) {

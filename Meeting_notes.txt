@@ -77,3 +77,6 @@ Bugfixing					- Everyone
 
 
 	
+Note from Ivo w.r.t. NN library:
+http://neuroph.sourceforge.net/javadoc/index.html
+http://neuroph.sourceforge.net/javadoc/org/neuroph/core/NeuralNetwork.html#setWeights-double:A- (supports setting weights for CoSyNe)
