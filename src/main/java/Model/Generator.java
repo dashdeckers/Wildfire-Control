@@ -43,8 +43,6 @@ class Generator implements Serializable {
     private void initialize() {
         cells = new ArrayList<>();
         agents = new ArrayList<>();
-        model.setCells(cells);
-        model.setAgents(agents);
         for (int i = 0; i < width; i++) {
             List<Element> col = new ArrayList<>();
             for (int j = 0; j < height; j++) {
@@ -52,7 +50,33 @@ class Generator implements Serializable {
             }
             cells.add(col);
         }
+        model.setCells(cells);
+        model.setAgents(agents);
     }
+
+    void small() {
+        // Initialize grass with a staticfire in the middle
+        cells = new ArrayList<>();
+        agents = new ArrayList<>();
+        for (int x = 0; x < width; x++) {
+            List<Element> col = new ArrayList<>();
+            for (int y = 0; y < height; y++) {
+                col.add(new Grass(x, y, parameter_manager));
+                if(x == (width/2) && y == (height/2)) {
+                    col.add(new StaticFire(x, y, parameter_manager));
+                }
+            }
+            cells.add(col);
+        }
+        // Agent
+        Agent agent = new Agent(width/4,height/2,model, parameter_manager);
+        agents.add(agent);
+        model.setNr_agents(1);      //(prevent out of bounds)
+        //Update
+        model.setCells(cells);
+        model.setAgents(agents);
+    }
+
 
     /**
      * Creates a randomly generated maps

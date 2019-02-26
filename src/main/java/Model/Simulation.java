@@ -53,7 +53,8 @@ public class Simulation extends Observable implements Serializable, Observer{
         generator = new Generator(this);
 
         //Generate a new map to start on
-        generator.regenerate();
+        //generator.regenerate();
+        generator.small();
         setChanged();
         notifyObservers(cells);
         notifyObservers(agents);
@@ -105,7 +106,8 @@ public class Simulation extends Observable implements Serializable, Observer{
             rand = new Random(randomizer_seed);
             states = new ArrayList<>();
 
-            generator.regenerate();
+            //generator.regenerate();
+            generator.small();
             setChanged();
             notifyObservers(cells);
             notifyObservers(agents);
@@ -122,7 +124,8 @@ public class Simulation extends Observable implements Serializable, Observer{
         states.clear();
         activeCells.clear();
 
-        generator.regenerate();
+        //generator.regenerate();
+        generator.small();
         setChanged();
         notifyObservers(cells);
         notifyObservers(agents);
@@ -293,8 +296,8 @@ public class Simulation extends Observable implements Serializable, Observer{
      * If you want to access the value of a parameter do parameters.get("Parameter name").floatValue()
      */
     public void create_parameters() {
-        width = 50;
-        height = 50;
+        width = 11;
+        height = 11;
         nr_agents = 3;
         if(use_gui) {
             step_time = 100;
