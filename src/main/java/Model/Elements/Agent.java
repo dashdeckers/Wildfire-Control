@@ -14,9 +14,6 @@ public class Agent extends Element
 
     private Simulation simulation;
     private int energyLevel;
-    private static final Color BLACK = new Color(0,0,0);
-    private int energyLevel;
-    private double totalCosts;
 
 
     public Agent(int x, int y, Simulation simulation, ParameterManager parameterManager, int id)
