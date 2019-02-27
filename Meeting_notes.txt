@@ -103,4 +103,8 @@ We need to:
 	Fire should always spawn somewhat centrally (Dirk-Jelle)
 	Further bug hunting(?) (Dirk-Jelle)
 
+	Program a way to terminate a simulation after a certain number of actions taken.
+
+Post meeting realisations: Agent not dying (needs to be added to cost)
+
 

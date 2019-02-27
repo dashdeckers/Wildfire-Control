@@ -6,6 +6,7 @@ View/ElementPanel$1.class
 Model/Simulation.class
 Main.class
 Controller/TextFields/ElementTextFieldListener.class
+Model/Elements/StaticFire.class
 Model/Elements/Grass.class
 Controller/TextFields/parameterAction.class
 View/SimulationPanel.class
