@@ -14,7 +14,6 @@ public class Agent extends Element
 
     private Simulation simulation;
     private int energyLevel;
-    private static final Color BLACK = new Color(0,0,0);
 
 
     public Agent(int x, int y, Simulation simulation, ParameterManager parameterManager)
@@ -50,7 +49,7 @@ public class Agent extends Element
         this.r = 1;
         this.isBurnable = true;
         this.color = Color.YELLOW;
-        this.burnIntensity = 2;
+        this.burnIntensity = 1;
         this.ignitionThreshold = 1;
         this.fuel = 1;
         this.moveSpeed = 1;
