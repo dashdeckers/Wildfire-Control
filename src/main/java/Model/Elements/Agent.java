@@ -133,7 +133,7 @@ public class Agent extends Element
         }
     }
 
-    private List<String> possibleActions() {
+    public List<String> possibleActions() {
         List<String> actions = new ArrayList<>();
         Element currentCell = simulation.getAllCells().get(x).get(y);
 
@@ -165,21 +165,10 @@ public class Agent extends Element
     }
 
 
-    /**
-     * All actions related to actual fire control
-     */
-    public void makeDirt() {
-        Element cell = simulation.getAllCells().get(x).get(y);
-        energyLevel-=cell.getParameters().get("Clear Cost");
-        simulation.setFitness(simulation.getFitness() - Math.round(cell.getParameters().get("Clear Cost")));
-        simulation.getAllCells().get(x).set(y, new Dirt(x, y, simulation.getParameter_manager()));
-
-    }
 
 
-    /**
-     * All actions related to the movement of the agent
-     */
+
+
 
 
 
@@ -194,34 +183,67 @@ public class Agent extends Element
         this.controller = controller;
     }
 
-    private void moveRight() {
-        int actionCost = determineMoveCost(simulation.getAllCells().get(x+1).get(y));
-        energyLevel -= actionCost;
-        x++;
+    /**
+     * All actions related to actual fire control
+     */
+    public void makeDirt() {
+        Element cell = simulation.getAllCells().get(x).get(y);
+        if(energyLevel >= cell.getParameters().get("Clear Cost") && cell.getType().equals("Tree")
+                ||energyLevel >= cell.getParameters().get("Clear Cost") && cell.getType().equals("Grass")
+                ) {
+            energyLevel -= cell.getParameters().get("Clear Cost");
+            simulation.setFitness(simulation.getFitness() - Math.round(cell.getParameters().get("Clear Cost")));
+            simulation.getAllCells().get(x).set(y, new Dirt(x, y, simulation.getParameter_manager()));
+        }
+
     }
 
-    private void moveLeft() {
-        int actionCost = determineMoveCost(simulation.getAllCells().get(x-1).get(y));
-        energyLevel -= actionCost;
-        x--;
+    /**
+     * All actions related to the movement of the agent
+     */
+
+    public void moveRight() {
+        Element currentCell = simulation.getAllCells().get(x).get(y);
+        if (checkTile(x + 1, y) && (determineMoveCost(simulation.getAllCells().get(x+1).get(y)))<=energyLevel) {
+            int actionCost = determineMoveCost(simulation.getAllCells().get(x + 1).get(y));
+            energyLevel -= actionCost;
+            x++;
+        }
     }
 
-    private void moveDown() {
-        int actionCost = determineMoveCost(simulation.getAllCells().get(x).get(y-1));
-        energyLevel -= actionCost;
-        y--;
+    public void moveLeft() {
+        Element currentCell = simulation.getAllCells().get(x).get(y);
+        if (checkTile(x - 1, y) && (determineMoveCost(simulation.getAllCells().get(x-1).get(y)))<=energyLevel) {
+            int actionCost = determineMoveCost(simulation.getAllCells().get(x - 1).get(y));
+            energyLevel -= actionCost;
+            x--;
+        }
     }
 
-    private void moveUp() {
-        int actionCost = determineMoveCost(simulation.getAllCells().get(x).get(y+1));
-        energyLevel -= actionCost;
-        y++;
+    public void moveDown() {
+        Element currentCell = simulation.getAllCells().get(x).get(y);
+        if (checkTile(x, y - 1) && (determineMoveCost(simulation.getAllCells().get(x).get(y-1)))<=energyLevel){
+            int actionCost = determineMoveCost(simulation.getAllCells().get(x).get(y - 1));
+            energyLevel -= actionCost;
+            y--;
+        }
+    }
+
+    public void moveUp() {
+        Element currentCell = simulation.getAllCells().get(x).get(y);
+        if (checkTile(x, y + 1) && (determineMoveCost(simulation.getAllCells().get(x).get(y+1)))<=energyLevel) {
+            int actionCost = determineMoveCost(simulation.getAllCells().get(x).get(y + 1));
+            energyLevel -= actionCost;
+            y++;
+        }
     }
 
     public void doNothing(){
         simulation.setFitness(simulation.getFitness()+energyLevel);
         energyLevel=0;
     }
+
+    //TODO!! Add requirements to actions!
 
 
 }

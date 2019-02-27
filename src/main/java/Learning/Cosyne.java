@@ -30,7 +30,7 @@ public class Cosyne implements RLController {
         features = new Features();
 
 
-        //Initialize subpopulation
+        //Initialize subpopulation, takes a while
         for(int i = 0; i<population; i++){
             Map.Entry<MultiLayerPerceptron, Double> entry = new AbstractMap.SimpleEntry<>(new MultiLayerPerceptron(mlpSize),0.0);
             mlpList.add(entry);
@@ -40,8 +40,8 @@ public class Cosyne implements RLController {
         for (Map.Entry entry: mlpList) {
             current_mlp = (MultiLayerPerceptron) entry.getKey();
             current_model = new Simulation(this);
-            entry.setValue(current_model.getCost());
-            System.out.println("Performed simulaiton with cost " + current_model.getCost());
+            entry.setValue((Integer) current_model.getFitness());
+            System.out.println("Performed simulaiton with cost " + current_model.getFitness());
         }
     }
 
@@ -58,7 +58,6 @@ public class Cosyne implements RLController {
                 action = i;
             }
         }
-
         switch (action){
             case 0:
                 a.moveDown();

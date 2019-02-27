@@ -3,7 +3,9 @@ package Model;
 
 import Learning.RLController;
 import Model.Elements.*;
+import View.MainFrame;
 
+import javax.swing.*;
 import java.io.*;
 import java.util.*;
 
@@ -35,7 +37,7 @@ public class Simulation extends Observable implements Serializable, Observer{
     private ParameterManager parameter_manager;
     private Generator generator;
     // Set to true for random maps, false for simple test map
-    private boolean generateRandom = true;
+    private boolean generateRandom = false;
 
     private RLController rlController;
 
@@ -51,7 +53,7 @@ public class Simulation extends Observable implements Serializable, Observer{
 	    this.use_gui = use_gui;
 	    //Initialize these things
         Random seed_gen = new Random();
-        randomizer_seed = seed_gen.nextLong();
+        //randomizer_seed = seed_gen.nextLong();
         rand = new Random(randomizer_seed);
         states = new ArrayList<>();
 
@@ -82,12 +84,23 @@ public class Simulation extends Observable implements Serializable, Observer{
         }
 	}
 
+    /**
+     * Start a simulation if there exists a controller.
+     * Currently this does show a GUI with new MainFrame, but this can be removed for actual learning.
+     * @param controller
+     */
 	public Simulation(RLController controller){
+	    this(true);
+        JFrame f = new MainFrame(this);
+        this.use_gui = false;
         System.out.println("Started a simulation with controller");
         this.rlController = controller;
         for (Agent a: agents) {
             a.setController(rlController);
         }
+        start();
+
+        f.dispose();
     }
 
     /**
@@ -97,7 +110,9 @@ public class Simulation extends Observable implements Serializable, Observer{
      */
     public void start() {
 	    running = true;
-        while(running){
+	    int nsteps = 0;
+        while(running && nsteps < 50){
+            nsteps++;
             if(step_time >=0){
                 stepForward();
             }else{
@@ -478,10 +493,6 @@ public class Simulation extends Observable implements Serializable, Observer{
 
     public void setAgents(List<Agent> agents) {
         this.agents = agents;
-    }
-
-    public double getCost() {
-        return 0;
     }
 
     public int getEnergyAgents() {
