@@ -1,5 +1,6 @@
 package Model.Elements;
 
+import Learning.RLController;
 import Model.ParameterManager;
 import Model.Simulation;
 
@@ -15,6 +16,7 @@ public class Agent extends Element
     private Simulation simulation;
     private int energyLevel;
     private static final Color BLACK = new Color(0,0,0);
+    private RLController controller;
 
 
     public Agent(int x, int y, Simulation simulation, ParameterManager parameterManager)
@@ -86,6 +88,10 @@ public class Agent extends Element
     private void takeActions() {
         energyLevel = energyEachStep;
         while(energyLevel>0 && fuel > 0) {
+            //If an agent controller is assigned, have it make the decision
+            if(controller != null){
+                controller.pickAction(this);
+            }
             List<String> actions = possibleActions();
             //System.out.println("action list = " + actions.toString());
             Random r = new Random();
@@ -152,7 +158,7 @@ public class Agent extends Element
     /**
      * All actions related to actual fire control
      */
-    private void makeDirt() {
+    public void makeDirt() {
         Element cell = simulation.getAllCells().get(x).get(y);
         energyLevel-=cell.getParameters().get("Clear Cost");
         simulation.getAllCells().get(x).set(y, new Dirt(x, y, simulation.getParameter_manager()));
@@ -163,26 +169,37 @@ public class Agent extends Element
     /**
      * All actions related to the movement of the agent
      */
-    private void moveRight() {
+    public void moveRight() {
         energyLevel-= determineMoveCost(simulation.getAllCells().get(x+1).get(y));
         x++;
     }
 
-    private void moveLeft() {
+    public void moveLeft() {
         energyLevel-= determineMoveCost(simulation.getAllCells().get(x-1).get(y));
         x--;
     }
 
-    private void moveDown() {
+    public void moveDown() {
         energyLevel-= determineMoveCost(simulation.getAllCells().get(x).get(y-1));
         y--;
     }
 
-    private void moveUp() {
+    public void moveUp() {
         energyLevel-= determineMoveCost(simulation.getAllCells().get(x).get(y+1));
         y++;
     }
 
 
+    public void doNothing(){
+        energyLevel=0;
+    }
+
+    /**
+     * Assign a controller to pick all actions for this agent
+     * @param controller
+     */
+    public void setController(RLController controller){
+        this.controller = controller;
+    }
 
 }

@@ -1,7 +1,8 @@
 package Model;
 
+
+import Learning.RLController;
 import Model.Elements.*;
-import View.ElementFrame;
 
 import java.io.*;
 import java.util.*;
@@ -28,6 +29,8 @@ public class Simulation extends Observable implements Serializable, Observer{
 
     private ParameterManager parameter_manager;
     private Generator generator;
+
+    private RLController rlController;
 
 	private boolean running;    //Boolean on whether the simulation it performing steps
     private boolean use_gui;
@@ -67,6 +70,14 @@ public class Simulation extends Observable implements Serializable, Observer{
 		    start();
         }
 	}
+
+	public Simulation(RLController controller){
+        System.out.println("Started a simulation with controller");
+        this.rlController = controller;
+        for (Agent a: agents) {
+            a.setController(rlController);
+        }
+    }
 
     /**
      * Start is linked to the start button. It moves one step forward every Step_time in ms.
@@ -441,5 +452,9 @@ public class Simulation extends Observable implements Serializable, Observer{
 
     public void setAgents(List<Agent> agents) {
         this.agents = agents;
+    }
+
+    public double getCost(){
+        return 0;
     }
 }
