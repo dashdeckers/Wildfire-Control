@@ -22,12 +22,13 @@ public class StaticFire extends Element
         this.r = 0;
         this.isBurnable = true;
         this.color = Color.CYAN;
-        this.burnIntensity = 1;
+        this.burnIntensity = 10;
         this.ignitionThreshold = 1;
         this.fuel = starting_fuel = 999999999;
         this.moveSpeed = 1;
         this.clearCost = 1;
         //This makes it burn from the start
+        this.setTemperature(10.0);
         this.setBurning();
     }
 }

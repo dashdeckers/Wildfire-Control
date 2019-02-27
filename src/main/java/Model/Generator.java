@@ -12,19 +12,13 @@ class Generator implements Serializable {
     private List<Agent> agents;
     private ParameterManager parameter_manager;
     private Simulation model;
-    private int width, height, nr_agents;
+    private int width, height, area, nr_agents;
     private Random rand;
 
     Generator(Simulation model) {
-        rand = model.getRand();
-        parameter_manager = model.getParameter_manager();
-        cells = model.getAllCells();
-        agents = model.getAgents();
-        width = parameter_manager.getWidth();
-        height = parameter_manager.getHeight();
-        nr_agents = model.getNr_agents();
         this.model = model;
-        initialize();
+        refreshParameters();
+        initializeMap();
     }
 
     /**
@@ -40,7 +34,8 @@ class Generator implements Serializable {
     /**
      * Initializes everything regenerate() needs by creating a map full of dirt
      */
-    private void initialize() {
+
+    private void initializeMap() {
         cells = new ArrayList<>();
         agents = new ArrayList<>();
         for (int i = 0; i < width; i++) {
@@ -54,52 +49,69 @@ class Generator implements Serializable {
         model.setAgents(agents);
     }
 
+    private void refreshParameters() {
+        rand = model.getRand();
+        parameter_manager = model.getParameter_manager();
+        cells = model.getAllCells();
+        agents = model.getAgents();
+        width = parameter_manager.getWidth();
+        height = parameter_manager.getHeight();
+        area = width * height;
+        nr_agents = model.getNr_agents();
+        model.setAgentsLeft(0);
+    }
+
     void small() {
+        refreshParameters();
+
         // Initialize grass with a staticfire in the middle
         cells = new ArrayList<>();
         agents = new ArrayList<>();
         for (int x = 0; x < width; x++) {
             List<Element> col = new ArrayList<>();
             for (int y = 0; y < height; y++) {
-                col.add(new Grass(x, y, parameter_manager));
                 if(x == (width/2) && y == (height/2)) {
+
                     col.add(new StaticFire(x, y, parameter_manager));
+                }
+                else {
+                    col.add(new Grass(x, y, parameter_manager));
                 }
             }
             cells.add(col);
         }
         // Agent
-        Agent agent = new Agent(width/4,height/2,model, parameter_manager);
+        Agent agent = new Agent(width/4,height/2,model, parameter_manager,0);
         agents.add(agent);
         model.setNr_agents(1);      //(prevent out of bounds)
         //Update
         model.setCells(cells);
+//        model.printCells();
         model.setAgents(agents);
     }
-
 
     /**
      * Creates a randomly generated maps
      */
     void regenerate() {
-        int area = width * height;
+        refreshParameters();
 
         /**
          * make two overarching variables:
          * 1) Rural : if high then amount of trees higher and amount of houses & roads lower
          * 2) Wetlands: If high then more rivers & lakes, if low then less rivers
          */
-        int wetlands = 5; // Variable (1-10) that influences dirt (dry) and rivers/lakes (wet)
-        int urban = 5; // Variable (1-10) that influences bushes/grass (rural) and houses/roads (urban)
+        int wetlands = 1; // Variable (1-10) that influences dirt (dry) and rivers/lakes (wet)
+        int urban = 1; // Variable (1-10) that influences bushes/grass (rural) and houses/roads (urban)
 
         // (added zero before everything to test parameters wetlands/urban)
         int numberDirt = rand.nextInt((int) (0.01 * area)) * (10-wetlands);
         int numberBushes = rand.nextInt((int) (0.01 * area)) * (10-urban);
         int numberHouses = rand.nextInt((int) (0.02 * area)) * urban;
-        int numberRivers = 1 * (wetlands / 2);
+        int numberLakes = rand.nextInt((int) (0.02 * area)) * (wetlands / 2);
         int numberBridges = rand.nextInt(3);
-        int numberLakes = rand.nextInt((int) (0.002 * area)) * (wetlands / 2);
-        int numberRoads = 1 * (urban/2);
+        int numberRivers = wetlands / 2;
+        int numberRoads = urban/2;
 
 
         /* OLD SETTINGS :
@@ -315,21 +327,26 @@ class Generator implements Serializable {
         // AGENTS
         //
         for (int i = 0; i < nr_agents; i++) {
-            Agent agent = new Agent(model, parameter_manager);
+            Agent agent = new Agent(model, parameter_manager, i);
             agents.add(agent);
         }
-
         //
         // FIRE
         //
+        // Imagine the map as a 3x3 grid, the fire will always spawn in this cell:
+        // X X X
+        // X F X
+        // X X X
         boolean fireStarted = false;
         while (!fireStarted) {
             int rand_x = rand.nextInt(width);
             int rand_y = rand.nextInt(height);
-            Element cell = cells.get(rand_x).get(rand_y);
-            if (cell.isBurnable() && !cell.getType().equals("Agent")) {
-                cell.setBurning();
-                fireStarted = true;
+            if (rand_x > width/3 && rand_x < 2*width/3 && rand_y > height/3 && rand_y < 2*height/3) {
+                Element cell = cells.get(rand_x).get(rand_y);
+                if (cell.isBurnable() && !cell.getType().equals("Agent")) {
+                    cell.setBurning();
+                    fireStarted = true;
+                }
             }
         }
 

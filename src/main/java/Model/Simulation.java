@@ -21,14 +21,21 @@ public class Simulation extends Observable implements Serializable, Observer{
     private int height;
     private int step_time;
     private int step_size;
-    private int nr_agents;
     private float wVecX;
     private float wVecY;
     private float windSpeed;
     private boolean undo_redo;
 
+    // parameters related to agents
+    private int nr_agents;
+    private int agentsLeft;
+    private int energyAgents;
+    private int fitness;
+
     private ParameterManager parameter_manager;
     private Generator generator;
+    // Set to true for random maps, false for simple test map
+    private boolean generateRandom = true;
 
     private RLController rlController;
 
@@ -56,11 +63,15 @@ public class Simulation extends Observable implements Serializable, Observer{
         generator = new Generator(this);
 
         //Generate a new map to start on
-        //generator.regenerate();
-        generator.small();
+        agentsLeft =0;
+        if (generateRandom) {
+            generator.regenerate();
+        } else {
+            generator.small();
+        }
         setChanged();
         notifyObservers(cells);
-        notifyObservers(agents);
+        //notifyObservers(agents);
 
         //This gathers the first set of cells to be active
 		findActiveCells();
@@ -117,8 +128,11 @@ public class Simulation extends Observable implements Serializable, Observer{
             rand = new Random(randomizer_seed);
             states = new ArrayList<>();
 
-            //generator.regenerate();
-            generator.small();
+            if(generateRandom) {
+                generator.regenerate();
+            } else {
+                generator.small();
+            }
             setChanged();
             notifyObservers(cells);
             notifyObservers(agents);
@@ -135,8 +149,11 @@ public class Simulation extends Observable implements Serializable, Observer{
         states.clear();
         activeCells.clear();
 
-        //generator.regenerate();
-        generator.small();
+        if(generateRandom) {
+            generator.regenerate();
+        } else {
+            generator.small();
+        }
         setChanged();
         notifyObservers(cells);
         notifyObservers(agents);
@@ -197,7 +214,7 @@ public class Simulation extends Observable implements Serializable, Observer{
         }
         setChanged();
         notifyObservers(cells);
-        notifyObservers(agents);
+        //notifyObservers(agents);
     }
 
     /**
@@ -232,7 +249,8 @@ public class Simulation extends Observable implements Serializable, Observer{
 				}
 			}
 		}
-		if (onlyAgentsLeft)
+        System.out.println("agentsLeft: " +agentsLeft );
+		if (onlyAgentsLeft||agentsLeft<=0)
 		{
 			running = false;
 			System.out.println(activeCells.size() + " VS " + nr_agents);
@@ -247,19 +265,21 @@ public class Simulation extends Observable implements Serializable, Observer{
 		for (Element burningCell : activeCells)
 		{
 			String status = burningCell.timeStep();
+            if (status.equals("Dead"))
+            {
+                toRemove.add(burningCell);
+            }
             if (!burningCell.getType().equals("Agent")) {
-			    if (status.equals("Dead"))
-			    {
-			    	toRemove.add(burningCell);
-			    }
+
 			    if (status.equals("No Change"))
 			    {
 			    	HashSet<Element> neighbours = burningCell.getNeighbours(cells, agents);
+                    for (Element e : neighbours){
+                    }
 			    	for (Element neighbourCell : neighbours)
 			    	{
 			    		if (neighbourCell.isBurnable())
 			    		{
-
                             neighbourCell.getHeatFrom(burningCell);
                             status = neighbourCell.timeStep();
                             if (status.equals("Ignited"))
@@ -298,7 +318,9 @@ public class Simulation extends Observable implements Serializable, Observer{
 		for (int i = 0; i<nr_agents; i++){
             activeCells.add(agents.get(i));
         }
-
+        for (Element e : activeCells){
+            System.out.println("activeCell has type: " + e.getType() + " at temp: " + e.getTemperature());
+        }
 	}
 
     /**
@@ -307,9 +329,10 @@ public class Simulation extends Observable implements Serializable, Observer{
      * If you want to access the value of a parameter do parameters.get("Parameter name").floatValue()
      */
     public void create_parameters() {
-        width = 11;
-        height = 11;
+        width = 20;
+        height = 20;
         nr_agents = 3;
+        energyAgents = 20;
         if(use_gui) {
             step_time = 100;
         }else{
@@ -335,6 +358,7 @@ public class Simulation extends Observable implements Serializable, Observer{
         return_map.put("Width", (float) width);
         return_map.put("Height", (float) height);
         return_map.put("Number of Agents", (float) nr_agents);
+        return_map.put("Energy of Agents", (float) energyAgents);
         return_map.put("Step Size", (float) step_size);
         return_map.put("Step Time", (float) step_time);
         return_map.put("Undo/Redo", undo_redo ? 1f : 0f);
@@ -412,6 +436,8 @@ public class Simulation extends Observable implements Serializable, Observer{
                 case "Wind Speed":
                     windSpeed = value;
                     break;
+                case "Energy of Agents":
+                    energyAgents = value.intValue();
                 default:
                     System.out.println("No action defined in Simulation.update for " + (String) ((Map.Entry) ((Map.Entry) o).getValue()).getKey());
             }
@@ -454,7 +480,41 @@ public class Simulation extends Observable implements Serializable, Observer{
         this.agents = agents;
     }
 
-    public double getCost(){
+    public double getCost() {
         return 0;
+    }
+
+    public int getEnergyAgents() {
+        return energyAgents;
+    }
+
+    public void setEnergyAgents(int energyAgents) {
+        this.energyAgents = energyAgents;
+    }
+
+    public int getFitness() {
+        return fitness;
+    }
+
+    public void setFitness(int fitness) {
+        this.fitness = fitness;
+    }
+
+    public int getAgentsLeft() { return agentsLeft; }
+
+    public void setAgentsLeft(int agentsLeft) { this.agentsLeft = agentsLeft; }
+
+    /**
+     * Debugging function
+     */
+    public void printCells() {
+        for (int i =0; i<cells.get(0).size();i++){
+            for (int j=0; j<cells.size(); j++){
+                Element cell=cells.get(j).get(i);
+                System.out.print(cell.getType() + " x:" + cell.getX() + " y:" + cell.getY() + " - ");
+            }
+            System.out.println();
+
+        }
     }
 }
