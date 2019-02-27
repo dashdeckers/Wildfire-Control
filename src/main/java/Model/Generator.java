@@ -61,19 +61,23 @@ class Generator implements Serializable {
         for (int x = 0; x < width; x++) {
             List<Element> col = new ArrayList<>();
             for (int y = 0; y < height; y++) {
-                col.add(new Grass(x, y, parameter_manager));
                 if(x == (width/2) && y == (height/2)) {
+
                     col.add(new StaticFire(x, y, parameter_manager));
+                }
+                else {
+                    col.add(new Grass(x, y, parameter_manager));
                 }
             }
             cells.add(col);
         }
         // Agent
-        Agent agent = new Agent(width/2,height/2,model, parameter_manager,0);
+        Agent agent = new Agent(width/4,height/2,model, parameter_manager,0);
         agents.add(agent);
         model.setNr_agents(1);      //(prevent out of bounds)
         //Update
         model.setCells(cells);
+//        model.printCells();
         model.setAgents(agents);
     }
 

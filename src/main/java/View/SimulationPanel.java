@@ -1,6 +1,7 @@
 package View;
 
 import Model.Elements.Element;
+import Model.Elements.StaticFire;
 import Model.Simulation;
 
 import javax.swing.*;
@@ -60,6 +61,7 @@ public class SimulationPanel extends JPanel implements Observer, MouseListener {
                     g.setColor(cells.get(j).get(i).getColor());
                     g.fillRect((int) x, (int) y, (int) x_width, (int) y_width);
                     x += x_jump;
+
 
 
                 }
@@ -144,4 +146,5 @@ public class SimulationPanel extends JPanel implements Observer, MouseListener {
     public void mouseExited(MouseEvent mouseEvent) {
 
     }
+
 }

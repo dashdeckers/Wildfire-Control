@@ -474,4 +474,19 @@ public class Simulation extends Observable implements Serializable, Observer{
     public void setFitness(int fitness) {
         this.fitness = fitness;
     }
+
+
+    /**
+     * Debugging function
+     */
+    public void printCells() {
+        for (int i =0; i<cells.get(0).size();i++){
+            for (int j=0; j<cells.size(); j++){
+                Element cell=cells.get(j).get(i);
+                System.out.print(cell.getType() + " x:" + cell.getX() + " y:" + cell.getY() + " - ");
+            }
+            System.out.println();
+
+        }
+    }
 }

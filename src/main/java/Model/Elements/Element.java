@@ -191,7 +191,7 @@ public abstract class Element implements Serializable, Observer {
 			}
 		}
 		for (Agent agent : agents) {
-			System.out.println("OriginX = " + originX + " OriginY = " + originY + " agent x = " + agent.getX() + " agent y = " + agent.getY());
+			//System.out.println("current type = " + getType() + " OriginX = " + originX + " OriginY = " + originY + " agent x = " + agent.getX() + " agent y = " + agent.getY());
 			if (agent.getX() >= originX-r && agent.getX() <= originX+r && agent.getY() >= originY-r && agent.getY() <= originY+r) {
 				neighbours.add(agent);
 			}
