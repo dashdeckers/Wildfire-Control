@@ -240,6 +240,7 @@ public class Simulation extends Observable implements Serializable, Observer{
 		for (Element burningCell : activeCells)
 		{
 			String status = burningCell.timeStep();
+            System.out.println("celltype: " + burningCell.getType() + " status: " + status);
             if (status.equals("Dead"))
             {
                 toRemove.add(burningCell);
@@ -249,6 +250,10 @@ public class Simulation extends Observable implements Serializable, Observer{
 			    if (status.equals("No Change"))
 			    {
 			    	HashSet<Element> neighbours = burningCell.getNeighbours(cells, agents);
+                    System.out.println("size neigbours:" + neighbours.size());
+                    for (Element e : neighbours){
+                        System.out.println("activeCell has type: " + e.getType());
+                    }
 			    	for (Element neighbourCell : neighbours)
 			    	{
 			    		if (neighbourCell.isBurnable())
@@ -292,7 +297,9 @@ public class Simulation extends Observable implements Serializable, Observer{
 		for (int i = 0; i<nr_agents; i++){
             activeCells.add(agents.get(i));
         }
-
+        for (Element e : activeCells){
+            System.out.println("activeCell has type: " + e.getType() + " at temp: " + e.getTemperature());
+        }
 	}
 
     /**

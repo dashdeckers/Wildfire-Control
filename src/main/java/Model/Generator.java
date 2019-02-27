@@ -69,7 +69,7 @@ class Generator implements Serializable {
             cells.add(col);
         }
         // Agent
-        Agent agent = new Agent(width/4,height/2,model, parameter_manager,0);
+        Agent agent = new Agent(width/2,height/2,model, parameter_manager,0);
         agents.add(agent);
         model.setNr_agents(1);      //(prevent out of bounds)
         //Update

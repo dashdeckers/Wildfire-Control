@@ -124,24 +124,24 @@ public class Agent extends Element
         List<String> actions = new ArrayList<>();
         Element currentCell = simulation.getAllCells().get(x).get(y);
 
-        if (energyLevel >= currentCell.getParameters().get("Clear Cost") && currentCell.getType().equals("Tree")){
-            actions.add("Cut Tree");
-        }
-        if (energyLevel >= currentCell.getParameters().get("Clear Cost") && currentCell.getType().equals("Grass")){
-            actions.add("Cut Grass");
-        }
-        if (checkTile(x, y - 1) && (determineMoveCost(simulation.getAllCells().get(x).get(y-1)))<=energyLevel){
-            actions.add("Go Down");
-        }
-        if (checkTile(x, y + 1) && (determineMoveCost(simulation.getAllCells().get(x).get(y+1)))<=energyLevel) {
-            actions.add("Go Up");
-        }
-        if (checkTile(x + 1, y) && (determineMoveCost(simulation.getAllCells().get(x+1).get(y)))<=energyLevel) {
-            actions.add("Go Right");
-        }
-        if (checkTile(x - 1, y) && (determineMoveCost(simulation.getAllCells().get(x-1).get(y)))<=energyLevel) {
-            actions.add("Go Left");
-        }
+//        if (energyLevel >= currentCell.getParameters().get("Clear Cost") && currentCell.getType().equals("Tree")){
+//            actions.add("Cut Tree");
+//        }
+//        if (energyLevel >= currentCell.getParameters().get("Clear Cost") && currentCell.getType().equals("Grass")){
+//            actions.add("Cut Grass");
+//        }
+//        if (checkTile(x, y - 1) && (determineMoveCost(simulation.getAllCells().get(x).get(y-1)))<=energyLevel){
+//            actions.add("Go Down");
+//        }
+//        if (checkTile(x, y + 1) && (determineMoveCost(simulation.getAllCells().get(x).get(y+1)))<=energyLevel) {
+//            actions.add("Go Up");
+//        }
+//        if (checkTile(x + 1, y) && (determineMoveCost(simulation.getAllCells().get(x+1).get(y)))<=energyLevel) {
+//            actions.add("Go Right");
+//        }
+//        if (checkTile(x - 1, y) && (determineMoveCost(simulation.getAllCells().get(x-1).get(y)))<=energyLevel) {
+//            actions.add("Go Left");
+//        }
 
         actions.add("Do Nothing");
         return actions;

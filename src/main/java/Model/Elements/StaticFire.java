@@ -28,6 +28,7 @@ public class StaticFire extends Element
         this.moveSpeed = 1;
         this.clearCost = 1;
         //This makes it burn from the start
+        this.setTemperature(10.0);
         this.setBurning();
     }
 }

@@ -191,7 +191,8 @@ public abstract class Element implements Serializable, Observer {
 			}
 		}
 		for (Agent agent : agents) {
-			if (agent.getX() > originX-r && agent.getX() < originX+r && agent.getY() > originY-r && agent.getY() < originY+r) {
+			System.out.println("OriginX = " + originX + " OriginY = " + originY + " agent x = " + agent.getX() + " agent y = " + agent.getY());
+			if (agent.getX() >= originX-r && agent.getX() <= originX+r && agent.getY() >= originY-r && agent.getY() <= originY+r) {
 				neighbours.add(agent);
 			}
 		}
@@ -358,5 +359,13 @@ public abstract class Element implements Serializable, Observer {
 
 	public int getId() {
 		return id;
+	}
+
+	public double getTemperature() {
+		return temperature;
+	}
+
+	public void setTemperature(double temperature) {
+		this.temperature = temperature;
 	}
 }
