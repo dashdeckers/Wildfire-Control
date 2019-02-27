@@ -13,9 +13,7 @@ public class Agent extends Element
     // the agent up to date, the agent needs access to the entire simulation.
 
     private Simulation simulation;
-    private static final Color BLACK = new Color(0,0,0);
     private int energyLevel;
-    private double totalCosts;
 
 
     public Agent(int x, int y, Simulation simulation, ParameterManager parameterManager, int id)
@@ -53,7 +51,7 @@ public class Agent extends Element
         this.r = 1;
         this.isBurnable = true;
         this.color = Color.YELLOW;
-        this.burnIntensity = 2;
+        this.burnIntensity = 1;
         this.ignitionThreshold = 1;
         this.fuel = 1;
         this.moveSpeed = 1;

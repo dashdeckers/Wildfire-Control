@@ -32,6 +32,8 @@ public class Simulation extends Observable implements Serializable, Observer{
 
     private ParameterManager parameter_manager;
     private Generator generator;
+    // Set to true for random maps, false for simple test map
+    private boolean generateRandom = true;
 
 	private boolean running;    //Boolean on whether the simulation it performing steps
     private boolean use_gui;
@@ -57,8 +59,11 @@ public class Simulation extends Observable implements Serializable, Observer{
         generator = new Generator(this);
 
         //Generate a new map to start on
-        //generator.regenerate();
-        generator.small();
+        if (generateRandom) {
+            generator.regenerate();
+        } else {
+            generator.small();
+        }
         setChanged();
         notifyObservers(cells);
         //notifyObservers(agents);
@@ -110,8 +115,11 @@ public class Simulation extends Observable implements Serializable, Observer{
             rand = new Random(randomizer_seed);
             states = new ArrayList<>();
 
-            //generator.regenerate();
-            generator.small();
+            if(generateRandom) {
+                generator.regenerate();
+            } else {
+                generator.small();
+            }
             setChanged();
             notifyObservers(cells);
             notifyObservers(agents);
@@ -128,8 +136,11 @@ public class Simulation extends Observable implements Serializable, Observer{
         states.clear();
         activeCells.clear();
 
-        //generator.regenerate();
-        generator.small();
+        if(generateRandom) {
+            generator.regenerate();
+        } else {
+            generator.small();
+        }
         setChanged();
         notifyObservers(cells);
         notifyObservers(agents);
@@ -258,7 +269,6 @@ public class Simulation extends Observable implements Serializable, Observer{
 			    	{
 			    		if (neighbourCell.isBurnable())
 			    		{
-
                             neighbourCell.getHeatFrom(burningCell);
                             status = neighbourCell.timeStep();
                             if (status.equals("Ignited"))
@@ -308,8 +318,8 @@ public class Simulation extends Observable implements Serializable, Observer{
      * If you want to access the value of a parameter do parameters.get("Parameter name").floatValue()
      */
     public void create_parameters() {
-        width = 11;
-        height = 11;
+        width = 20;
+        height = 20;
         nr_agents = 3;
         energyAgents = 20;
         if(use_gui) {
