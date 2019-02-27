@@ -80,3 +80,27 @@ Bugfixing					- Everyone
 Note from Ivo w.r.t. NN library:
 http://neuroph.sourceforge.net/javadoc/index.html
 http://neuroph.sourceforge.net/javadoc/org/neuroph/core/NeuralNetwork.html#setWeights-double:A- (supports setting weights for CoSyNe)
+
+Meeting BSc Wildfire control 27-2-2019
+Attending: Traivs, Ivo, Dirk-Jelle, Ritten, Roel
+Not attending: 
+Meeting started at: 13.00
+
+An issue was noted where the reset button would regenerate instead. The issue was assigned to be solved by Dirk-Jelle.
+An issue was noted that agents sometimes spawn on water. The issue was assigned to be solved by Dirk-Jelle.
+
+We need to: 
+	Implement CoSyNe (Ivo)
+
+	Implement A* (Ritten) (to specify, make some function to move an agent from (x,y), to (x',y') according to the fastest route keeping in mind obstacles and movement speed)
+
+	Implement a cost functionfor stationary fire (Travis & Roel)
+		Noteable this cost function should give some measure of how enclosed the fire is at any given time. This can be some ratio where the gap of the encircling is defined as the cost.
+		This is to be combined with a movement and cutting cost (previously implemented by Ritten)
+
+	A feature class is to be defined where noteable features from the simulation are extracted to be used as inputs for RL/evol learing. For the primary implementation a function can be defined which will give a vector of widthxheightxtypes values where each value is a boolean of whether the cell at x,y, holds type t. (Travis(?))
+
+	Fire should always spawn somewhat centrally (Dirk-Jelle)
+	Further bug hunting(?) (Dirk-Jelle)
+
+
