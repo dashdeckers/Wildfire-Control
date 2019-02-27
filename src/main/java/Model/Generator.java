@@ -58,6 +58,7 @@ class Generator implements Serializable {
         height = parameter_manager.getHeight();
         area = width * height;
         nr_agents = model.getNr_agents();
+        model.setAgentsLeft(0);
     }
 
     void small() {
@@ -329,7 +330,6 @@ class Generator implements Serializable {
             Agent agent = new Agent(model, parameter_manager, i);
             agents.add(agent);
         }
-
         //
         // FIRE
         //

@@ -14,6 +14,7 @@ public class Agent extends Element
 
     private Simulation simulation;
     private int energyLevel;
+    private boolean isAlive;
 
 
     public Agent(int x, int y, Simulation simulation, ParameterManager parameterManager, int id)
@@ -41,7 +42,6 @@ public class Agent extends Element
             this.x = simulation.getRandX();
             this.y = simulation.getRandY();
         } while (!checkTile(x,y));
-
     }
 
 
@@ -55,6 +55,8 @@ public class Agent extends Element
         this.ignitionThreshold = 1;
         this.fuel = 1;
         this.moveSpeed = 1;
+        simulation.setAgentsLeft(simulation.getAgentsLeft()+1);
+        this.isAlive=true;
         //this.energyEachStep = 20;
     }
 
@@ -80,8 +82,15 @@ public class Agent extends Element
     @Override
     public String timeStep() {
 
-        takeActions();
-        return super.timeStep();
+        String returnString = super.timeStep();
+        if (returnString.equals("Dead")&&isAlive){
+            System.out.println("Agent " + getId() + " died.");
+            simulation.setAgentsLeft(simulation.getAgentsLeft()-1);
+            isAlive=false;
+        } else if (isAlive){
+            takeActions();
+        }
+        return returnString;
     }
 
     private void takeActions() {

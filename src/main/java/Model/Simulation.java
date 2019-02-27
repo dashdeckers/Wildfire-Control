@@ -27,6 +27,7 @@ public class Simulation extends Observable implements Serializable, Observer{
 
     // parameters related to agents
     private int nr_agents;
+    private int agentsLeft;
     private int energyAgents;
     private int fitness;
 
@@ -59,6 +60,7 @@ public class Simulation extends Observable implements Serializable, Observer{
         generator = new Generator(this);
 
         //Generate a new map to start on
+        agentsLeft =0;
         if (generateRandom) {
             generator.regenerate();
         } else {
@@ -236,7 +238,8 @@ public class Simulation extends Observable implements Serializable, Observer{
 				}
 			}
 		}
-		if (onlyAgentsLeft)
+        System.out.println("agentsLeft: " +agentsLeft );
+		if (onlyAgentsLeft||agentsLeft<=0)
 		{
 			running = false;
 			System.out.println(activeCells.size() + " VS " + nr_agents);
@@ -251,7 +254,6 @@ public class Simulation extends Observable implements Serializable, Observer{
 		for (Element burningCell : activeCells)
 		{
 			String status = burningCell.timeStep();
-            System.out.println("celltype: " + burningCell.getType() + " status: " + status);
             if (status.equals("Dead"))
             {
                 toRemove.add(burningCell);
@@ -261,9 +263,7 @@ public class Simulation extends Observable implements Serializable, Observer{
 			    if (status.equals("No Change"))
 			    {
 			    	HashSet<Element> neighbours = burningCell.getNeighbours(cells, agents);
-                    System.out.println("size neigbours:" + neighbours.size());
                     for (Element e : neighbours){
-                        System.out.println("activeCell has type: " + e.getType());
                     }
 			    	for (Element neighbourCell : neighbours)
 			    	{
@@ -485,6 +485,9 @@ public class Simulation extends Observable implements Serializable, Observer{
         this.fitness = fitness;
     }
 
+    public int getAgentsLeft() { return agentsLeft; }
+
+    public void setAgentsLeft(int agentsLeft) { this.agentsLeft = agentsLeft; }
 
     /**
      * Debugging function
