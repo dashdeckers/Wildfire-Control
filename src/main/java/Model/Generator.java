@@ -77,14 +77,13 @@ class Generator implements Serializable {
             cells.add(col);
         }
         // Agent
-        Agent agent = new Agent(width/4,height/2,model, parameter_manager);
+        Agent agent = new Agent(width/2,height/2,model, parameter_manager,0);
         agents.add(agent);
         model.setNr_agents(1);      //(prevent out of bounds)
         //Update
         model.setCells(cells);
         model.setAgents(agents);
     }
-
 
     /**
      * Creates a randomly generated maps
@@ -323,7 +322,7 @@ class Generator implements Serializable {
         // AGENTS
         //
         for (int i = 0; i < nr_agents; i++) {
-            Agent agent = new Agent(model, parameter_manager);
+            Agent agent = new Agent(model, parameter_manager, i);
             agents.add(agent);
         }
 

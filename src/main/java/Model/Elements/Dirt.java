@@ -19,6 +19,6 @@ public class Dirt extends Element {
     {
         this.type = "Dirt";
         this.color = LIGHT_BROWN;
-        this.moveSpeed = 20;
+        this.moveSpeed = 10;
     }
 }

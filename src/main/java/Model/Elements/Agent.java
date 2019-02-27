@@ -14,27 +14,32 @@ public class Agent extends Element
 
     private Simulation simulation;
     private int energyLevel;
+    private static final Color BLACK = new Color(0,0,0);
+    private int energyLevel;
+    private double totalCosts;
 
 
-    public Agent(int x, int y, Simulation simulation, ParameterManager parameterManager)
+    public Agent(int x, int y, Simulation simulation, ParameterManager parameterManager, int id)
     {
 
         this.simulation = simulation;
         this.parameterManager = parameterManager;
         initializeParameters();
         pullParameters();
+        this.id=id;
         this.x=x;
         this.y=y;
 
     }
 
-    public Agent(Simulation simulation, ParameterManager parameterManager)
+    public Agent(Simulation simulation, ParameterManager parameterManager, int id)
     {
 
         this.simulation = simulation;
         this.parameterManager = parameterManager;
         initializeParameters();
         pullParameters();
+        this.id = id;
         do {
             this.x = simulation.getRandX();
             this.y = simulation.getRandY();
@@ -53,14 +58,14 @@ public class Agent extends Element
         this.ignitionThreshold = 1;
         this.fuel = 1;
         this.moveSpeed = 1;
-        this.energyEachStep = 20;
+        //this.energyEachStep = 20;
     }
 
     /**
      * New tiles that cannot be transversed by an agent can be easily added to the function
      */
 
-    private boolean checkTile(int x, int y) {
+    public boolean checkTile(int x, int y) {
         if (inBounds(x,y)){
             Element element = simulation.getAllCells().get(x).get(y);
             switch(element.getType()) {
@@ -83,7 +88,7 @@ public class Agent extends Element
     }
 
     private void takeActions() {
-        energyLevel = energyEachStep;
+        energyLevel = simulation.getEnergyAgents();
         while(energyLevel>0 && fuel > 0) {
             List<String> actions = possibleActions();
             //System.out.println("action list = " + actions.toString());
@@ -108,6 +113,7 @@ public class Agent extends Element
                     moveLeft();
                     break;
                 default:
+                    simulation.setFitness(simulation.getFitness()+energyLevel);
                     energyLevel=0;
 
             }
@@ -119,32 +125,31 @@ public class Agent extends Element
         List<String> actions = new ArrayList<>();
         Element currentCell = simulation.getAllCells().get(x).get(y);
 
-
-        if (energyLevel >= currentCell.getParameters().get("Clear Cost") && currentCell.getType().equals("Tree")){
-            actions.add("Cut Tree");
-        }
-        if (energyLevel >= currentCell.getParameters().get("Clear Cost") && currentCell.getType().equals("Grass")){
-            actions.add("Cut Grass");
-        }
-        if (checkTile(x, y - 1) && (determineMoveCost(simulation.getAllCells().get(x).get(y-1)))<=energyLevel){
-            actions.add("Go Down");
-        }
-        if (checkTile(x, y + 1) && (determineMoveCost(simulation.getAllCells().get(x).get(y+1)))<=energyLevel) {
-            actions.add("Go Up");
-        }
-        if (checkTile(x + 1, y) && (determineMoveCost(simulation.getAllCells().get(x+1).get(y)))<=energyLevel) {
-            actions.add("Go Right");
-        }
-        if (checkTile(x - 1, y) && (determineMoveCost(simulation.getAllCells().get(x-1).get(y)))<=energyLevel) {
-            actions.add("Go Left");
-        }
+//        if (energyLevel >= currentCell.getParameters().get("Clear Cost") && currentCell.getType().equals("Tree")){
+//            actions.add("Cut Tree");
+//        }
+//        if (energyLevel >= currentCell.getParameters().get("Clear Cost") && currentCell.getType().equals("Grass")){
+//            actions.add("Cut Grass");
+//        }
+//        if (checkTile(x, y - 1) && (determineMoveCost(simulation.getAllCells().get(x).get(y-1)))<=energyLevel){
+//            actions.add("Go Down");
+//        }
+//        if (checkTile(x, y + 1) && (determineMoveCost(simulation.getAllCells().get(x).get(y+1)))<=energyLevel) {
+//            actions.add("Go Up");
+//        }
+//        if (checkTile(x + 1, y) && (determineMoveCost(simulation.getAllCells().get(x+1).get(y)))<=energyLevel) {
+//            actions.add("Go Right");
+//        }
+//        if (checkTile(x - 1, y) && (determineMoveCost(simulation.getAllCells().get(x-1).get(y)))<=energyLevel) {
+//            actions.add("Go Left");
+//        }
 
         actions.add("Do Nothing");
         return actions;
     }
 
     private int determineMoveCost(Element e){
-        return (int) ((double)energyEachStep/(double)e.getParameters().get("Move Speed"));
+        return (int) ((double)simulation.getEnergyAgents()/(double)e.getParameters().get("Move Speed"));
     }
 
 
@@ -154,6 +159,7 @@ public class Agent extends Element
     private void makeDirt() {
         Element cell = simulation.getAllCells().get(x).get(y);
         energyLevel-=cell.getParameters().get("Clear Cost");
+        simulation.setFitness(simulation.getFitness() - Math.round(cell.getParameters().get("Clear Cost")));
         simulation.getAllCells().get(x).set(y, new Dirt(x, y, simulation.getParameter_manager()));
 
     }
@@ -163,25 +169,27 @@ public class Agent extends Element
      * All actions related to the movement of the agent
      */
     private void moveRight() {
-        energyLevel-= determineMoveCost(simulation.getAllCells().get(x+1).get(y));
+        int actionCost = determineMoveCost(simulation.getAllCells().get(x+1).get(y));
+        energyLevel -= actionCost;
         x++;
     }
 
     private void moveLeft() {
-        energyLevel-= determineMoveCost(simulation.getAllCells().get(x-1).get(y));
+        int actionCost = determineMoveCost(simulation.getAllCells().get(x-1).get(y));
+        energyLevel -= actionCost;
         x--;
     }
 
     private void moveDown() {
-        energyLevel-= determineMoveCost(simulation.getAllCells().get(x).get(y-1));
+        int actionCost = determineMoveCost(simulation.getAllCells().get(x).get(y-1));
+        energyLevel -= actionCost;
         y--;
     }
 
     private void moveUp() {
-        energyLevel-= determineMoveCost(simulation.getAllCells().get(x).get(y+1));
+        int actionCost = determineMoveCost(simulation.getAllCells().get(x).get(y+1));
+        energyLevel -= actionCost;
         y++;
     }
-
-
 
 }
