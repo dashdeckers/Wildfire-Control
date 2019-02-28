@@ -15,14 +15,11 @@ public class Agent extends Element
 
     private Simulation simulation;
     private int energyLevel;
-    private static final Color BLACK = new Color(0,0,0);
     private RLController controller;
     private boolean isAlive;
 
-
     public Agent(int x, int y, Simulation simulation, ParameterManager parameterManager, int id)
     {
-
         this.simulation = simulation;
         this.parameterManager = parameterManager;
         initializeParameters();
@@ -30,12 +27,10 @@ public class Agent extends Element
         this.id=id;
         this.x=x;
         this.y=y;
-
     }
 
     public Agent(Simulation simulation, ParameterManager parameterManager, int id)
     {
-
         this.simulation = simulation;
         this.parameterManager = parameterManager;
         initializeParameters();

@@ -324,13 +324,6 @@ class Generator implements Serializable {
         }
 
         //
-        // AGENTS
-        //
-        for (int i = 0; i < nr_agents; i++) {
-            Agent agent = new Agent(model, parameter_manager, i);
-            agents.add(agent);
-        }
-        //
         // FIRE
         //
         // Imagine the map as a 3x3 grid, the fire will always spawn in this cell:
@@ -343,9 +336,28 @@ class Generator implements Serializable {
             int rand_y = rand.nextInt(height);
             if (rand_x > width/3 && rand_x < 2*width/3 && rand_y > height/3 && rand_y < 2*height/3) {
                 Element cell = cells.get(rand_x).get(rand_y);
-                if (cell.isBurnable() && !cell.getType().equals("Agent")) {
+                if (cell.isBurnable()) {
                     cell.setBurning();
                     fireStarted = true;
+                }
+            }
+        }
+
+        //
+        // AGENTS
+        //
+        // This function manually makes sure agents can only spawn on grass or tree tiles
+        // that are not on fire.
+        for (int i = 0; i < nr_agents; i++) {
+            boolean agentPlaced = false;
+            while (!agentPlaced) {
+                int rand_x = rand.nextInt(width);
+                int rand_y = rand.nextInt(height);
+                Element cell = cells.get(rand_x).get(rand_y);
+                if ((cell.getType().equals("Grass") || cell.getType().equals("Tree")) && !cell.isBurning()) {
+                    Agent agent = new Agent(rand_x, rand_y, model, parameter_manager, i);
+                    agents.add(agent);
+                    agentPlaced = true;
                 }
             }
         }

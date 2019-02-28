@@ -65,7 +65,7 @@ public class Simulation extends Observable implements Serializable, Observer{
         generator = new Generator(this);
 
         //Generate a new map to start on
-        agentsLeft =0;
+        agentsLeft = 0;
         if (generateRandom) {
             generator.regenerate();
         } else {
@@ -264,14 +264,14 @@ public class Simulation extends Observable implements Serializable, Observer{
 				}
 			}
 		}
-        System.out.println("agentsLeft: " +agentsLeft );
+        //System.out.println("agentsLeft: " +agentsLeft );
 		if (onlyAgentsLeft||agentsLeft<=0)
 		{
 			running = false;
 			System.out.println(activeCells.size() + " VS " + nr_agents);
 			for (Element e : activeCells)
 			{
-				System.out.println("Element " + e.getType() + ", at (" + e.getX() + "," + e.getY() + ")");
+				//System.out.println("Element " + e.getType() + ", at (" + e.getX() + "," + e.getY() + ")");
 			}
 			System.out.println("STOPPED");
 		}
@@ -334,7 +334,7 @@ public class Simulation extends Observable implements Serializable, Observer{
             activeCells.add(agents.get(i));
         }
         for (Element e : activeCells){
-            System.out.println("activeCell has type: " + e.getType() + " at temp: " + e.getTemperature());
+            //System.out.println("activeCell has type: " + e.getType() + " at temp: " + e.getTemperature());
         }
 	}
 
@@ -466,10 +466,10 @@ public class Simulation extends Observable implements Serializable, Observer{
     public ParameterManager getParameter_manager(){
         return parameter_manager;
     }
+
     public Random getRand() {
         return rand;
     }
-
     public void setRand(Random rand) {
         this.rand = rand;
     }
