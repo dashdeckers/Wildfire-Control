@@ -36,22 +36,22 @@ public class Simulation extends Observable implements Serializable, Observer{
 
     private ParameterManager parameter_manager;
     private Generator generator;
-    // Set to true for random maps, false for simple test map
-    private boolean generateRandom = true;
 
     private RLController rlController;
 
-	private boolean running;    //Boolean on whether the simulation it performing steps
-    private boolean use_gui;
+	private boolean running;                        //Boolean on whether the simulation it performing steps
+    private boolean use_gui;                        //Set to false to run headless
+    private boolean generateRandom = false;         //Set to true for random maps, false for simple test map
 
-	private Random rand; //initializes RNG
+	private Random rand;                            //Initializes RNG
     private long randomizer_seed = 0;
 
 	public Simulation(boolean use_gui)
 	{
         System.out.println("use_gui= " + use_gui );
 	    this.use_gui = use_gui;
-	    //Initialize these things
+
+	    //Randomization initialization
         Random seed_gen = new Random();
         //randomizer_seed = seed_gen.nextLong();
         rand = new Random(randomizer_seed);
@@ -66,18 +66,16 @@ public class Simulation extends Observable implements Serializable, Observer{
 
         //Generate a new map to start on
         if (generateRandom) {
-            generator.regenerate();
+            generator.randomMap();
         } else {
-            generator.small();
+            generator.plainMap();
         }
         setChanged();
         notifyObservers(cells);
         notifyObservers(agents);
 		findActiveCells();
         agentsLeft = 0;
-
-        //This adds the initial state to the states list
-		states.add((Simulation) deepCopy(this));
+		states.add((Simulation) deepCopy(this));    //Save the new state so it can be reset to
 
 		if(!use_gui){
 		    start();
@@ -140,8 +138,7 @@ public class Simulation extends Observable implements Serializable, Observer{
     public void reset(){
 	        stop();
 
-            // Revert to the first state that was saved during generation
-            if (states.size() > 0) {
+            if (states.size() > 0) {                            //Revert to the first state that was saved during generation
                 Simulation rewind = states.get(0);
                 states.remove(0);
                 this.cells = rewind.cells;
@@ -149,13 +146,12 @@ public class Simulation extends Observable implements Serializable, Observer{
                 this.activeCells = rewind.activeCells;
                 this.agentsLeft = rewind.getNr_agents();
             }
-
             setChanged();
             notifyObservers(cells);
             notifyObservers(agents);
             findActiveCells();
 
-            states.add((Simulation) deepCopy(this));
+            states.add((Simulation) deepCopy(this));    //Save the reset state again so we can reset the same map many times
     }
 
     /**
@@ -168,17 +164,16 @@ public class Simulation extends Observable implements Serializable, Observer{
         activeCells.clear();
 
         if(generateRandom) {
-            generator.regenerate();
+            generator.randomMap();
         } else {
-            generator.small();
+            generator.plainMap();
         }
-
         setChanged();
         notifyObservers(cells);
         notifyObservers(agents);
         findActiveCells();
 
-        states.add((Simulation) deepCopy(this));
+        states.add((Simulation) deepCopy(this));    //Save for reset
     }
 
 
@@ -348,8 +343,8 @@ public class Simulation extends Observable implements Serializable, Observer{
      * If you want to access the value of a parameter do parameters.get("Parameter name").floatValue()
      */
     public void create_parameters() {
-        width = 20;
-        height = 20;
+        width = 21;
+        height = 21;
         nr_agents = 3;
         energyAgents = 20;
         if(use_gui) {

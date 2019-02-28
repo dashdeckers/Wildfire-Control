@@ -18,8 +18,7 @@ public class Agent extends Element
     private RLController controller;
     private boolean isAlive;
 
-    public Agent(int x, int y, Simulation simulation, ParameterManager parameterManager, int id)
-    {
+    public Agent(int x, int y, Simulation simulation, ParameterManager parameterManager, int id) {
         this.simulation = simulation;
         this.parameterManager = parameterManager;
         initializeParameters();
@@ -29,13 +28,14 @@ public class Agent extends Element
         this.y=y;
     }
 
-    public Agent(Simulation simulation, ParameterManager parameterManager, int id)
-    {
+    public Agent(Simulation simulation, ParameterManager parameterManager, int id) {
         this.simulation = simulation;
         this.parameterManager = parameterManager;
         initializeParameters();
         pullParameters();
         this.id = id;
+        //For some reason this does not work consistently, please use method above
+        //and assign agents some verified coordinates when spawning them.
         do {
             this.x = simulation.getRandX();
             this.y = simulation.getRandY();

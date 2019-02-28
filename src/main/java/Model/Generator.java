@@ -18,37 +18,12 @@ class Generator implements Serializable {
     Generator(Simulation model) {
         this.model = model;
         refreshParameters();
-        initializeMap();
     }
 
     /**
-     * Checks if the coordinates are within the boundaries of the map.
+     * Probably not the prettiest way of doing this, but this makes sure Generator.java always
+     * has access to the latest variables (e.g. when they are changed via UI)
      */
-    private boolean inBounds(int x, int y) {
-        int maxX = width;
-        int maxY = height;
-        return x >= 0 && x < maxX
-                && y >= 0 && y < maxY;
-    }
-
-    /**
-     * Initializes everything regenerate() needs by creating a map full of dirt
-     */
-
-    private void initializeMap() {
-        cells = new ArrayList<>();
-        agents = new ArrayList<>();
-        for (int i = 0; i < width; i++) {
-            List<Element> col = new ArrayList<>();
-            for (int j = 0; j < height; j++) {
-                col.add(new Dirt(i, j, parameter_manager));
-            }
-            cells.add(col);
-        }
-        model.setCells(cells);
-        model.setAgents(agents);
-    }
-
     private void refreshParameters() {
         rand = model.getRand();
         parameter_manager = model.getParameter_manager();
@@ -58,51 +33,52 @@ class Generator implements Serializable {
         height = parameter_manager.getHeight();
         area = width * height;
         nr_agents = model.getNr_agents();
-        model.setAgentsLeft(0);
     }
 
-    void small() {
-        refreshParameters();
-
-        // Initialize grass with a staticfire in the middle
+    /**
+     * Initializes a map of grass so the other generation methods have something to work on.
+     */
+    private void initializeMap() {
         cells = new ArrayList<>();
         agents = new ArrayList<>();
-        for (int x = 0; x < width; x++) {
+        for (int i = 0; i < width; i++) {
             List<Element> col = new ArrayList<>();
-            for (int y = 0; y < height; y++) {
-                if(x == (width/2) && y == (height/2)) {
-
-                    col.add(new StaticFire(x, y, parameter_manager));
-                }
-                else {
-                    col.add(new Grass(x, y, parameter_manager));
-                }
+            for (int j = 0; j < height; j++) {
+                col.add(new Grass(i, j, parameter_manager));
             }
             cells.add(col);
         }
-        // Agent
-        Agent agent = new Agent(width/4,height/2,model, parameter_manager,0);
-        agents.add(agent);
-        model.setNr_agents(1);      //(prevent out of bounds)
-        //Update
         model.setCells(cells);
-//        model.printCells();
         model.setAgents(agents);
     }
 
     /**
-     * Creates a randomly generated maps
+     * Generates a small map with a static fire block in the middle and one agent to the left of it.
+     * No fire spread.
      */
-    void regenerate() {
+    void plainMap() {
         refreshParameters();
+        initializeMap();
+        //Place StaticFire in the middle
+        model.getAllCells().get(width/2).set(height/2, new StaticFire(width/2, height/2, model.getParameter_manager()));
+        //Place Agent to the left of the static fire
+        agents.add(new Agent(width/4,height/2,model, parameter_manager,0));
+        //Update model
+        model.setNr_agents(1);
+        model.setCells(cells);
+        model.setAgents(agents);
+        //model.printCells();
+    }
 
-        /**
-         * make two overarching variables:
-         * 1) Rural : if high then amount of trees higher and amount of houses & roads lower
-         * 2) Wetlands: If high then more rivers & lakes, if low then less rivers
-         */
-        int wetlands = 1; // Variable (1-10) that influences dirt (dry) and rivers/lakes (wet)
-        int urban = 1; // Variable (1-10) that influences bushes/grass (rural) and houses/roads (urban)
+    /**
+     * This is the magical method that generates the oh-so-beautiful maps we don't need.
+     */
+    void randomMap() {
+        refreshParameters();
+        initializeMap();
+
+        int wetlands = 2; // Variable (1-10) that influences dirt (dry) and rivers/lakes (wet)
+        int urban = 2; // Variable (1-10) that influences bushes/grass (rural) and houses/roads (urban)
 
         // (added zero before everything to test parameters wetlands/urban)
         int numberDirt = rand.nextInt((int) (0.01 * area)) * (10-wetlands);
@@ -111,9 +87,7 @@ class Generator implements Serializable {
         int numberLakes = rand.nextInt((int) (0.02 * area)) * (wetlands / 2);
         int numberBridges = rand.nextInt(3);
         int numberRivers = wetlands / 2;
-        int numberRoads = urban/2;
-
-
+        int numberRoads = urban / 2;
         /* OLD SETTINGS :
         int numberDirt = rand.nextInt((int) (0.01 * area));
         int numberBushes = rand.nextInt((int) (0.1 * area));
@@ -121,29 +95,10 @@ class Generator implements Serializable {
         int numberRivers = 1;
         int numberBridges = rand.nextInt(3);
         int numberLakes = rand.nextInt((int) (0.002 * area));
-        int numberRoads = 1;
-         */
+        int numberRoads = 1; */
 
-
-        cells = new ArrayList<>();
-        agents = new ArrayList<>();
-
-        //
-        // GRASS
-        //
-        // First fill with grass
-        for (int i = 0; i < width; i++) {
-            List<Element> row = new ArrayList<Element>();
-            for (int j = 0; j < height; j++) {
-                row.add(new Grass(i, j, parameter_manager));
-            }
-            cells.add(row);
-        }
-
-        //
         // DIRT
-        //
-        // Add Dirt at random points
+        // Add dirt blobs at random points
         for (int i = 0; i < width; i++) {
             List<Element> row = cells.get(i);
             for (int j = 0; j < height; j++) {
@@ -155,10 +110,8 @@ class Generator implements Serializable {
             }
         }
 
-        //
         // TREES
-        //
-        // Add Trees at random points
+        // Add tree blobs at random points
         for (int i = 0; i < width; i++) {
             List<Element> row = cells.get(i);
             for (int j = 0; j < height; j++) {
@@ -170,10 +123,8 @@ class Generator implements Serializable {
             }
         }
 
-        //
         // HOUSES
-        //
-        // Add HOUSES at random points
+        // Add houses at random points
         for (int i = 0; i < width; i++) {
             List<Element> row = cells.get(i);
             for (int j = 0; j < height; j++) {
@@ -189,9 +140,7 @@ class Generator implements Serializable {
             }
         }
 
-        //
         // RIVER
-        //
         // Places a random amount (numberBridges) of bridges over River
         for (int river = 0; river < numberRivers; river++) // numberBridges determined at top
         {
@@ -237,7 +186,6 @@ class Generator implements Serializable {
                     }
                 }
 
-
             } else {
                 // HORIZONTAL river (Starts at the left)
                 // Ensure the East direction is implemented first
@@ -276,17 +224,13 @@ class Generator implements Serializable {
                         if (cell.getType() == "Water") {
                             row.set(j, new Road(bridgeX, j, parameter_manager));
                         }
-
                     }
                 }
             }
         }
 
-
-        //
         // Lakes
-        //
-        // Add Lakes at random points
+        // Add lakes at random points in the rivers
         for (int i = 0; i < width; i++) {
             List<Element> row = cells.get(i);
             for (int j = 0; j < height; j++) {
@@ -298,9 +242,7 @@ class Generator implements Serializable {
             }
         }
 
-        //
         // ROAD
-        //
         // Places a random amount (numberBridges) of bridges over River
         for (int roads = 0; roads < numberRoads; roads++) // numberBridges determined at top
         {
@@ -323,9 +265,7 @@ class Generator implements Serializable {
             }
         }
 
-        //
         // FIRE
-        //
         // Imagine the map as a 3x3 grid, the fire will always spawn in this cell:
         // X X X
         // X F X
@@ -343,11 +283,8 @@ class Generator implements Serializable {
             }
         }
 
-        //
         // AGENTS
-        //
-        // This function manually makes sure agents can only spawn on grass or tree tiles
-        // that are not on fire.
+        // This function manually makes sure agents can only spawn on grass or tree tiles that are not on fire.
         for (int i = 0; i < nr_agents; i++) {
             boolean agentPlaced = false;
             while (!agentPlaced) {
@@ -450,7 +387,14 @@ class Generator implements Serializable {
                 break;
         }
     }
+
+    /**
+     * Checks if the coordinates are within the boundaries of the map.
+     */
+    private boolean inBounds(int x, int y) {
+        int maxX = width;
+        int maxY = height;
+        return x >= 0 && x < maxX
+                && y >= 0 && y < maxY;
+    }
 }
-
-
-
