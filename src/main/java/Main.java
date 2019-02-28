@@ -1,6 +1,7 @@
-import Model.Elements.Agent;
+
 import Model.Simulation;
 import View.MainFrame;
+import Learning.Cosyne;
 
 public class Main
 {
@@ -14,10 +15,14 @@ public class Main
 			new Simulation(use_gui);
 			final long endTime = System.currentTimeMillis();
 			System.out.println("Total execution time: " + (endTime - startTime));
+		}else if(args.length > 0 && args[0].equals("cosyne_gui")) {
+			System.out.println("Cosyne gui");
+			new Cosyne();
+
 		}else {
-			use_gui = true;
-			Simulation model = new Simulation(use_gui);
-			new MainFrame(model);
+				use_gui = true;
+				Simulation model = new Simulation(use_gui);
+				new MainFrame(model);
 		}
 	}
 }

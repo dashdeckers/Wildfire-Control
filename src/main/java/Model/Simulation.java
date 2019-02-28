@@ -1,8 +1,11 @@
 package Model;
 
-import Model.Elements.*;
-import View.ElementFrame;
 
+import Learning.RLController;
+import Model.Elements.*;
+import View.MainFrame;
+
+import javax.swing.*;
 import java.io.*;
 import java.util.*;
 
@@ -33,22 +36,24 @@ public class Simulation extends Observable implements Serializable, Observer{
 
     private ParameterManager parameter_manager;
     private Generator generator;
-    // Set to true for random maps, false for simple test map
-    private boolean generateRandom = true;
 
-	private boolean running;    //Boolean on whether the simulation it performing steps
-    private boolean use_gui;
+    private RLController rlController;
 
-	private Random rand; //initializes RNG
+	private boolean running;                        //Boolean on whether the simulation it performing steps
+    private boolean use_gui;                        //Set to false to run headless
+    private boolean generateRandom = false;         //Set to true for random maps, false for simple test map
+
+	private Random rand;                            //Initializes RNG
     private long randomizer_seed = 0;
 
 	public Simulation(boolean use_gui)
 	{
         System.out.println("use_gui= " + use_gui );
 	    this.use_gui = use_gui;
-	    //Initialize these things
+
+	    //Randomization initialization
         Random seed_gen = new Random();
-        randomizer_seed = seed_gen.nextLong();
+        //randomizer_seed = seed_gen.nextLong();
         rand = new Random(randomizer_seed);
         states = new ArrayList<>();
 
@@ -60,24 +65,41 @@ public class Simulation extends Observable implements Serializable, Observer{
         generator = new Generator(this);
 
         //Generate a new map to start on
-        agentsLeft =0;
         if (generateRandom) {
-            generator.regenerate();
+            generator.randomMap();
         } else {
-            generator.small();
+            generator.plainMap();
         }
         setChanged();
         notifyObservers(cells);
-        //notifyObservers(agents);
-
-        //This gathers the first set of cells to be active
+        notifyObservers(agents);
 		findActiveCells();
-        //This adds the initial state to the states list
-		//states.add((Simulation) deepCopy(this));
+        agentsLeft = 0;
+		states.add((Simulation) deepCopy(this));    //Save the new state so it can be reset to
+
 		if(!use_gui){
 		    start();
         }
 	}
+
+    /**
+     * Start a simulation if there exists a controller.
+     * Currently this does show a GUI with new MainFrame, but this can be removed for actual learning.
+     * @param controller
+     */
+	public Simulation(RLController controller){
+	    this(true);
+        JFrame f = new MainFrame(this);
+        this.use_gui = false;
+        System.out.println("Started a simulation with controller");
+        this.rlController = controller;
+        for (Agent a: agents) {
+            a.setController(rlController);
+        }
+        start();
+
+        f.dispose();
+    }
 
     /**
      * Start is linked to the start button. It moves one step forward every Step_time in ms.
@@ -86,7 +108,9 @@ public class Simulation extends Observable implements Serializable, Observer{
      */
     public void start() {
 	    running = true;
-        while(running){
+	    int nsteps = 0;
+        while(running && nsteps < 50){
+            nsteps++;
             if(step_time >=0){
                 stepForward();
             }else{
@@ -114,19 +138,20 @@ public class Simulation extends Observable implements Serializable, Observer{
     public void reset(){
 	        stop();
 
-            rand = new Random(randomizer_seed);
-            states = new ArrayList<>();
-
-            if(generateRandom) {
-                generator.regenerate();
-            } else {
-                generator.small();
+            if (states.size() > 0) {                            //Revert to the first state that was saved during generation
+                Simulation rewind = states.get(0);
+                states.remove(0);
+                this.cells = rewind.cells;
+                this.agents = rewind.agents;
+                this.activeCells = rewind.activeCells;
+                this.agentsLeft = rewind.getNr_agents();
             }
             setChanged();
             notifyObservers(cells);
             notifyObservers(agents);
-
             findActiveCells();
+
+            states.add((Simulation) deepCopy(this));    //Save the reset state again so we can reset the same map many times
     }
 
     /**
@@ -139,16 +164,16 @@ public class Simulation extends Observable implements Serializable, Observer{
         activeCells.clear();
 
         if(generateRandom) {
-            generator.regenerate();
+            generator.randomMap();
         } else {
-            generator.small();
+            generator.plainMap();
         }
         setChanged();
         notifyObservers(cells);
         notifyObservers(agents);
-
         findActiveCells();
-        states.add((Simulation) deepCopy(this));
+
+        states.add((Simulation) deepCopy(this));    //Save for reset
     }
 
 
@@ -243,14 +268,14 @@ public class Simulation extends Observable implements Serializable, Observer{
 				}
 			}
 		}
-        System.out.println("agentsLeft: " +agentsLeft );
+        //System.out.println("agentsLeft: " +agentsLeft );
 		if (onlyAgentsLeft||agentsLeft<=0)
 		{
 			running = false;
 			System.out.println(activeCells.size() + " VS " + nr_agents);
 			for (Element e : activeCells)
 			{
-				System.out.println("Element " + e.getType() + ", at (" + e.getX() + "," + e.getY() + ")");
+				//System.out.println("Element " + e.getType() + ", at (" + e.getX() + "," + e.getY() + ")");
 			}
 			System.out.println("STOPPED");
 		}
@@ -313,7 +338,7 @@ public class Simulation extends Observable implements Serializable, Observer{
             activeCells.add(agents.get(i));
         }
         for (Element e : activeCells){
-            System.out.println("activeCell has type: " + e.getType() + " at temp: " + e.getTemperature());
+            //System.out.println("activeCell has type: " + e.getType() + " at temp: " + e.getTemperature());
         }
 	}
 
@@ -323,8 +348,8 @@ public class Simulation extends Observable implements Serializable, Observer{
      * If you want to access the value of a parameter do parameters.get("Parameter name").floatValue()
      */
     public void create_parameters() {
-        width = 20;
-        height = 20;
+        width = 21;
+        height = 21;
         nr_agents = 3;
         energyAgents = 20;
         if(use_gui) {
@@ -445,10 +470,10 @@ public class Simulation extends Observable implements Serializable, Observer{
     public ParameterManager getParameter_manager(){
         return parameter_manager;
     }
+
     public Random getRand() {
         return rand;
     }
-
     public void setRand(Random rand) {
         this.rand = rand;
     }

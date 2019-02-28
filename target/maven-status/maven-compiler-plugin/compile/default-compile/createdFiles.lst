@@ -1,3 +1,4 @@
+Learning/Cosyne.class
 Controller/Buttons/ControlAction$1.class
 Model/Generator.class
 View/ElementPanel$SquarePanel.class
@@ -12,9 +13,11 @@ Controller/TextFields/parameterAction.class
 View/SimulationPanel.class
 Model/Elements/Dirt.class
 View/ElementFrame.class
+Learning/Features.class
 Model/Elements/House.class
 Controller/Buttons/RadioListener.class
 Controller/Buttons/ControlAction.class
+Learning/RLController.class
 Controller/Buttons/ControlButton.class
 Model/Elements/Tree.class
 Model/Elements/Element.class

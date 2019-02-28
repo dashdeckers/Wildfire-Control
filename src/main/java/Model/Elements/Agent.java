@@ -1,5 +1,6 @@
 package Model.Elements;
 
+import Learning.RLController;
 import Model.ParameterManager;
 import Model.Simulation;
 
@@ -14,12 +15,10 @@ public class Agent extends Element
 
     private Simulation simulation;
     private int energyLevel;
+    private RLController controller;
     private boolean isAlive;
 
-
-    public Agent(int x, int y, Simulation simulation, ParameterManager parameterManager, int id)
-    {
-
+    public Agent(int x, int y, Simulation simulation, ParameterManager parameterManager, int id) {
         this.simulation = simulation;
         this.parameterManager = parameterManager;
         initializeParameters();
@@ -27,17 +26,16 @@ public class Agent extends Element
         this.id=id;
         this.x=x;
         this.y=y;
-
     }
 
-    public Agent(Simulation simulation, ParameterManager parameterManager, int id)
-    {
-
+    public Agent(Simulation simulation, ParameterManager parameterManager, int id) {
         this.simulation = simulation;
         this.parameterManager = parameterManager;
         initializeParameters();
         pullParameters();
         this.id = id;
+        //For some reason this does not work consistently, please use method above
+        //and assign agents some verified coordinates when spawning them.
         do {
             this.x = simulation.getRandX();
             this.y = simulation.getRandY();
@@ -96,6 +94,10 @@ public class Agent extends Element
     private void takeActions() {
         //energyLevel = simulation.getEnergyAgents();
         while(energyLevel>0 && fuel > 0) {
+            //If an agent controller is assigned, have it make the decision
+            if(controller != null){
+                controller.pickAction(this);
+            }
             List<String> actions = possibleActions();
             //System.out.println("action list = " + actions.toString());
             Random r = new Random();
@@ -119,15 +121,14 @@ public class Agent extends Element
                     moveLeft();
                     break;
                 default:
-                    simulation.setFitness(simulation.getFitness()+energyLevel);
-                    energyLevel=0;
+                    doNothing();
 
             }
             //System.out.println("energy finish = " + energyLevel);
         }
     }
 
-    private List<String> possibleActions() {
+    public List<String> possibleActions() {
         List<String> actions = new ArrayList<>();
         Element currentCell = simulation.getAllCells().get(x).get(y);
 
@@ -159,44 +160,86 @@ public class Agent extends Element
     }
 
 
+
+
+
+
+
+
+
+
+
+
+    /**
+     * Assign a controller to pick all actions for this agent
+     * @param controller
+     */
+    public void setController(RLController controller){
+        this.controller = controller;
+    }
+
     /**
      * All actions related to actual fire control
      */
-    private void makeDirt() {
+    public void makeDirt() {
         Element cell = simulation.getAllCells().get(x).get(y);
-        energyLevel-=cell.getParameters().get("Clear Cost");
-        simulation.setFitness(simulation.getFitness() - Math.round(cell.getParameters().get("Clear Cost")));
-        simulation.getAllCells().get(x).set(y, new Dirt(x, y, simulation.getParameter_manager()));
+        if(energyLevel >= cell.getParameters().get("Clear Cost") && cell.getType().equals("Tree")
+                ||energyLevel >= cell.getParameters().get("Clear Cost") && cell.getType().equals("Grass")
+                ) {
+            energyLevel -= cell.getParameters().get("Clear Cost");
+            simulation.setFitness(simulation.getFitness() - Math.round(cell.getParameters().get("Clear Cost")));
+            simulation.getAllCells().get(x).set(y, new Dirt(x, y, simulation.getParameter_manager()));
+        }
 
     }
-
 
     /**
      * All actions related to the movement of the agent
      */
-    private void moveRight() {
-        int actionCost = determineMoveCost(simulation.getAllCells().get(x+1).get(y));
-        energyLevel -= actionCost;
-        x++;
+
+    public void moveRight() {
+        Element currentCell = simulation.getAllCells().get(x).get(y);
+        if (checkTile(x + 1, y) && (determineMoveCost(simulation.getAllCells().get(x+1).get(y)))<=energyLevel) {
+            int actionCost = determineMoveCost(simulation.getAllCells().get(x + 1).get(y));
+            energyLevel -= actionCost;
+            x++;
+        }
     }
 
-    private void moveLeft() {
-        int actionCost = determineMoveCost(simulation.getAllCells().get(x-1).get(y));
-        energyLevel -= actionCost;
-        x--;
+    public void moveLeft() {
+        Element currentCell = simulation.getAllCells().get(x).get(y);
+        if (checkTile(x - 1, y) && (determineMoveCost(simulation.getAllCells().get(x-1).get(y)))<=energyLevel) {
+            int actionCost = determineMoveCost(simulation.getAllCells().get(x - 1).get(y));
+            energyLevel -= actionCost;
+            x--;
+        }
     }
 
-    private void moveDown() {
-        int actionCost = determineMoveCost(simulation.getAllCells().get(x).get(y-1));
-        energyLevel -= actionCost;
-        y--;
+    public void moveDown() {
+        Element currentCell = simulation.getAllCells().get(x).get(y);
+        if (checkTile(x, y - 1) && (determineMoveCost(simulation.getAllCells().get(x).get(y-1)))<=energyLevel){
+            int actionCost = determineMoveCost(simulation.getAllCells().get(x).get(y - 1));
+            energyLevel -= actionCost;
+            y--;
+        }
     }
 
-    private void moveUp() {
-        int actionCost = determineMoveCost(simulation.getAllCells().get(x).get(y+1));
-        energyLevel -= actionCost;
-        y++;
+    public void moveUp() {
+        Element currentCell = simulation.getAllCells().get(x).get(y);
+        if (checkTile(x, y + 1) && (determineMoveCost(simulation.getAllCells().get(x).get(y+1)))<=energyLevel) {
+            int actionCost = determineMoveCost(simulation.getAllCells().get(x).get(y + 1));
+            energyLevel -= actionCost;
+            y++;
+        }
     }
+
+    public void doNothing(){
+        simulation.setFitness(simulation.getFitness()+energyLevel);
+        energyLevel=0;
+    }
+
+    //TODO!! Add requirements to actions!
+
 
     public int getEnergyLevel() {
         return energyLevel;
