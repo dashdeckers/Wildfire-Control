@@ -37,7 +37,7 @@ public class Simulation extends Observable implements Serializable, Observer{
     private ParameterManager parameter_manager;
     private Generator generator;
     // Set to true for random maps, false for simple test map
-    private boolean generateRandom = false;
+    private boolean generateRandom = true;
 
     private RLController rlController;
 
@@ -65,7 +65,6 @@ public class Simulation extends Observable implements Serializable, Observer{
         generator = new Generator(this);
 
         //Generate a new map to start on
-        agentsLeft = 0;
         if (generateRandom) {
             generator.regenerate();
         } else {
@@ -73,12 +72,13 @@ public class Simulation extends Observable implements Serializable, Observer{
         }
         setChanged();
         notifyObservers(cells);
-        //notifyObservers(agents);
-
-        //This gathers the first set of cells to be active
+        notifyObservers(agents);
 		findActiveCells();
+        agentsLeft = 0;
+
         //This adds the initial state to the states list
-		//states.add((Simulation) deepCopy(this));
+		states.add((Simulation) deepCopy(this));
+
 		if(!use_gui){
 		    start();
         }
@@ -140,19 +140,22 @@ public class Simulation extends Observable implements Serializable, Observer{
     public void reset(){
 	        stop();
 
-            rand = new Random(randomizer_seed);
-            states = new ArrayList<>();
-
-            if(generateRandom) {
-                generator.regenerate();
-            } else {
-                generator.small();
+            // Revert to the first state that was saved during generation
+            if (states.size() > 0) {
+                Simulation rewind = states.get(0);
+                states.remove(0);
+                this.cells = rewind.cells;
+                this.agents = rewind.agents;
+                this.activeCells = rewind.activeCells;
+                this.agentsLeft = rewind.getNr_agents();
             }
+
             setChanged();
             notifyObservers(cells);
             notifyObservers(agents);
-
             findActiveCells();
+
+            states.add((Simulation) deepCopy(this));
     }
 
     /**
@@ -169,11 +172,12 @@ public class Simulation extends Observable implements Serializable, Observer{
         } else {
             generator.small();
         }
+
         setChanged();
         notifyObservers(cells);
         notifyObservers(agents);
-
         findActiveCells();
+
         states.add((Simulation) deepCopy(this));
     }
 
