@@ -4,6 +4,7 @@ package Model;
 import Learning.RLController;
 import Model.Elements.*;
 import View.MainFrame;
+import com.sun.xml.internal.bind.v2.TODO;
 
 import javax.swing.*;
 import java.io.*;
@@ -63,7 +64,7 @@ public class Simulation extends Observable implements Serializable, Observer{
         parameter_manager = new ParameterManager(this);
         parameter_manager.addObserver(this);
         generator = new Generator(this);
-
+        agentsLeft = 0;
         //Generate a new map to start on
         if (generateRandom) {
             generator.randomMap();
@@ -74,7 +75,6 @@ public class Simulation extends Observable implements Serializable, Observer{
         notifyObservers(cells);
         notifyObservers(agents);
 		findActiveCells();
-        agentsLeft = 0;
 		states.add((Simulation) deepCopy(this));    //Save the new state so it can be reset to
 
 		if(!use_gui){
@@ -144,7 +144,7 @@ public class Simulation extends Observable implements Serializable, Observer{
                 this.cells = rewind.cells;
                 this.agents = rewind.agents;
                 this.activeCells = rewind.activeCells;
-                this.agentsLeft = rewind.getNr_agents();
+                this.agentsLeft = rewind.getAgentsLeft();
             }
             setChanged();
             notifyObservers(cells);
@@ -172,7 +172,6 @@ public class Simulation extends Observable implements Serializable, Observer{
         notifyObservers(cells);
         notifyObservers(agents);
         findActiveCells();
-
         states.add((Simulation) deepCopy(this));    //Save for reset
     }
 
@@ -268,8 +267,9 @@ public class Simulation extends Observable implements Serializable, Observer{
 				}
 			}
 		}
-        //System.out.println("agentsLeft: " +agentsLeft );
-		if (onlyAgentsLeft||agentsLeft<=0)
+
+        //TODO: Make agentsLeft compatible with having the same agent over multiple runs
+		if (onlyAgentsLeft)//||agentsLeft<=0)
 		{
 			running = false;
 			System.out.println(activeCells.size() + " VS " + nr_agents);

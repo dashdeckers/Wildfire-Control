@@ -54,6 +54,7 @@ public class Agent extends Element
         this.fuel = 1;
         this.moveSpeed = 1;
         simulation.setAgentsLeft(simulation.getAgentsLeft()+1);
+        //System.out.println("agentInitiazed: " + simulation.getAgentsLeft());
         this.isAlive=true;
         //this.energyEachStep = 20;
     }

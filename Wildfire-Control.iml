@@ -12,5 +12,8 @@
     <orderEntry type="library" name="Maven: org.neuroph:neuroph-core:2.8" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.5" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-nop:1.7.6" level="project" />
+    <orderEntry type="library" name="Maven: org.neuroph:neuroph-core:2.8" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.5" level="project" />
+    <orderEntry type="library" name="Maven: org.slf4j:slf4j-nop:1.7.6" level="project" />
   </component>
 </module>
