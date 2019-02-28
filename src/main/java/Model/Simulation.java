@@ -225,6 +225,11 @@ public class Simulation extends Observable implements Serializable, Observer{
 		HashSet<Element> toAdd = new HashSet<>();
 
 		boolean onlyAgentsLeft = false;
+
+        for (Agent a:agents) {
+            a.setEnergyLevel(energyAgents);
+        }
+
 		// should be if activeCells.size() == nr_agents
 		if (true)
 		{

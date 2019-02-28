@@ -94,7 +94,7 @@ public class Agent extends Element
     }
 
     private void takeActions() {
-        energyLevel = simulation.getEnergyAgents();
+        //energyLevel = simulation.getEnergyAgents();
         while(energyLevel>0 && fuel > 0) {
             List<String> actions = possibleActions();
             //System.out.println("action list = " + actions.toString());
@@ -198,4 +198,11 @@ public class Agent extends Element
         y++;
     }
 
+    public int getEnergyLevel() {
+        return energyLevel;
+    }
+
+    public void setEnergyLevel(int energyLevel) {
+        this.energyLevel = energyLevel;
+    }
 }
