@@ -1,5 +1,6 @@
 package Learning;
 
+import Model.Elements.Element;
 import Model.Simulation;
 
 import java.util.ArrayList;
@@ -9,6 +10,12 @@ import java.util.stream.Stream;
 public class Features {
 
     public Features(){
+    }
+
+    public double[] doubleListToArray(List<Double> input){
+        Double[] outputArray = new Double[input.size()];
+        input.toArray(outputArray);
+        return Stream.of(outputArray).mapToDouble(Double::doubleValue).toArray() ;
     }
 
     /**
@@ -24,8 +31,29 @@ public class Features {
 
             output.add(0.0);
         }
-        Double[] outputArray = new Double[output.size()];
-        output.toArray(outputArray);
-        return Stream.of(outputArray).mapToDouble(Double::doubleValue).toArray() ;
+        return doubleListToArray(output);
+    }
+
+    public double[] get200Map(Simulation model){
+        if(model == null){
+            System.out.println("MODEL IS NULL!");
+        }
+        List<List<Element>> cells = model.getAllCells();
+        List<Double> output = new ArrayList<>();
+
+        for(int x = 0; x < cells.size(); x++){
+            for(int y = 0; y < cells.get(x).size(); y++) {
+                output.add(cells.get(x).get(y).isBurning() ? 1.0 : 0.0);
+                output.add(cells.get(x).get(y).isBurnable() ? 1.0 : 0.0);
+                if(model.getAgents().get(0).getX() == x && model.getAgents().get(0).getY() == y){
+                    output.add(1.0);
+                }else{
+                    output.add(0.0);
+                }
+            }
+        }
+
+
+        return doubleListToArray(output);
     }
 }

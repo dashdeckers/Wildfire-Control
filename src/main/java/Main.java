@@ -12,7 +12,7 @@ public class Main
 			final long startTime = System.currentTimeMillis();
 			System.out.println("NO GUI!");
 			use_gui = false;
-			new Simulation(use_gui);
+			new Simulation(use_gui).start();
 			final long endTime = System.currentTimeMillis();
 			System.out.println("Total execution time: " + (endTime - startTime));
 		}else if(args.length > 0 && args[0].equals("cosyne_gui")) {

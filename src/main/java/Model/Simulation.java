@@ -4,7 +4,7 @@ package Model;
 import Learning.RLController;
 import Model.Elements.*;
 import View.MainFrame;
-import com.sun.xml.internal.bind.v2.TODO;
+//import com.sun.xml.internal.bind.v2.TODO;
 
 import javax.swing.*;
 import java.io.*;
@@ -49,7 +49,6 @@ public class Simulation extends Observable implements Serializable, Observer{
 
 	public Simulation(boolean use_gui)
 	{
-        System.out.println("use_gui= " + use_gui );
 	    this.use_gui = use_gui;
 
 	    //Randomization initialization
@@ -76,10 +75,6 @@ public class Simulation extends Observable implements Serializable, Observer{
         notifyObservers(agents);
 		findActiveCells();
 		states.add((Simulation) deepCopy(this));    //Save the new state so it can be reset to
-
-		if(!use_gui){
-		    start();
-        }
 	}
 
     /**
@@ -88,17 +83,12 @@ public class Simulation extends Observable implements Serializable, Observer{
      * @param controller
      */
 	public Simulation(RLController controller){
-	    this(true);
-        JFrame f = new MainFrame(this);
-        this.use_gui = false;
-        System.out.println("Started a simulation with controller");
+	    this(false);
         this.rlController = controller;
         for (Agent a: agents) {
             a.setController(rlController);
         }
-        start();
-
-        f.dispose();
+        parameter_manager.changeParameter("Model", "Step Time", 0f);
     }
 
     /**
@@ -109,7 +99,7 @@ public class Simulation extends Observable implements Serializable, Observer{
     public void start() {
 	    running = true;
 	    int nsteps = 0;
-        while(running && nsteps < 50){
+        while(running && nsteps < 200){
             nsteps++;
             if(step_time >=0){
                 stepForward();
@@ -355,7 +345,7 @@ public class Simulation extends Observable implements Serializable, Observer{
         if(use_gui) {
             step_time = 100;
         }else{
-            step_time = 0;
+            step_time = 10;
         }
         step_size = 1;
         undo_redo = false;

@@ -83,7 +83,7 @@ public class Agent extends Element
 
         String returnString = super.timeStep();
         if (returnString.equals("Dead")&&isAlive){
-            System.out.println("Agent " + getId() + " died.");
+            //System.out.println("Agent " + getId() + " died.");
             simulation.setAgentsLeft(simulation.getAgentsLeft()-1);
             isAlive=false;
         } else if (isAlive){
