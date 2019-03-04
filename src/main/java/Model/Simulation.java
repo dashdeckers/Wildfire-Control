@@ -345,7 +345,7 @@ public class Simulation extends Observable implements Serializable, Observer{
         if(use_gui) {
             step_time = 100;
         }else{
-            step_time = 10;
+            step_time = 0;
         }
         step_size = 1;
         undo_redo = false;
