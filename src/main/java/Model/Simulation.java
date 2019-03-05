@@ -439,39 +439,25 @@ public class Simulation extends Observable implements Serializable, Observer {
 	 * Needed to give controlPanel access to parameterManager
 	 * @return
 	 */
-	public ParameterManager getParameter_manager(){
-		return parameter_manager;
-	}
+	public ParameterManager getParameter_manager() { return parameter_manager; }
 
-	public Random getRand() {
-		return rand;
-	}
+	public Random getRand() { return rand; }
 
-	public void setRand(Random rand) {
-		this.rand = rand;
-	}
+	public void setRand(Random rand) { this.rand = rand; }
 
 	public int getRandX() { return rand.nextInt(width); }
 
 	public int getRandY() { return rand.nextInt(height); }
 
-	public List<Agent> getAgents() {
-		return agents;
-	}
+	public List<Agent> getAgents() { return agents; }
 
-	public int getNr_agents() {
-		return nr_agents;
-	}
+	public int getNr_agents() { return nr_agents; }
 
-	public void setNr_agents(int nr_agents) {
-		this.nr_agents = nr_agents;
-	}
+	public void setNr_agents(int nr_agents) { this.nr_agents = nr_agents; }
 
 	public void setCells(List<List<Element>> cells){ this.cells = cells; }
 
-	public void setAgents(List<Agent> agents) {
-		this.agents = agents;
-	}
+	public void setAgents(List<Agent> agents) { this.agents = agents; }
 
 	public int getEnergyAgents() { return energyAgents; }
 
