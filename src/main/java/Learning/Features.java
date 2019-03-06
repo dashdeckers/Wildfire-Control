@@ -28,16 +28,19 @@ public class Features {
     public double[] getZeroSet(Simulation model){
         List<Double>  output = new ArrayList<>();
         for (int i = 0; i < 400; i++) {
-
             output.add(0.0);
         }
         return doubleListToArray(output);
     }
 
-    public double[] get200Map(Simulation model){
-        if(model == null){
-            System.out.println("MODEL IS NULL!");
-        }
+    /**
+     * This gets a simple array where each entry represent whether a burning, burnable, or agent value.
+     * Each set of three maps to a cell
+     * @param model The model from which to generate a map
+     * @return  A simplified map
+     */
+    public double[] get3Map(Simulation model){
+
         List<List<Element>> cells = model.getAllCells();
         List<Double> output = new ArrayList<>();
 
@@ -52,8 +55,6 @@ public class Features {
                 }
             }
         }
-
-
         return doubleListToArray(output);
     }
 }

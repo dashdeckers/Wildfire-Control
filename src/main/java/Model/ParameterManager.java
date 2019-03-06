@@ -124,11 +124,6 @@ public class ParameterManager extends Observable implements Serializable {
     public Set<String> getTypes(){
         return Parameters_map.keySet();
     }
-    //TODO! Add elements as observers and find some way to update them  DONE
-    //TODO! Ensure that new elements are set according to ParameterManager if ParameterManager exists DONE
-    //TODO! Fetch values from simulation    DONE
-    //TODO! Pass ParameterManager to ControlPanel so that it can send updates to this
     //TODO! Turn float into Integer
-    //TODO! Consider separating Fuel into FUel and Starting_fuel
     //TODO! Fix reset to return to seed
 }

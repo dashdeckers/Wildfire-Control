@@ -19,14 +19,15 @@ public class Cosyne implements RLController {
     MultiLayerPerceptron current_mlp;
     Simulation current_model;
     Features features;
+
     public Cosyne(){
 
         /*Initialize parameters */
-        int population = 100;
+        int population = 20;    //Change this to change number of MLPs
         int inputs = 21*21*3;   //Change this to match input size
         int outputs = 6;
-        int middle_layer = 100;
-        float permutation_chance = 0.01f;
+        int middle_layer = 100; //Change this for number of neurons in middle layer
+        float permutation_chance = 0.01f;   //Chance that a gene is random rather than inhereted
         System.out.println("Inputs = " +inputs);
         System.out.println("Outputs = "+outputs);
         System.out.println("1 middle layer =" +middle_layer);
@@ -48,7 +49,6 @@ public class Cosyne implements RLController {
         }
 
         System.out.println("Initialized MLPs");
-        Random rng = new Random();
         List<Map.Entry<MultiLayerPerceptron, Double>> mlp_children = new ArrayList<>();
         List<Map.Entry<MultiLayerPerceptron, Double>> mlp_parents= new ArrayList<>();
 
@@ -61,15 +61,11 @@ public class Cosyne implements RLController {
             //Run & evaluate the MLPS
             int[] scores = evaluate(mlpList);
             //Identify the cutoff
-<<<<<<< HEAD
-            int decision_fitness = scores[scores.length / 4 * 3 ];
-=======
-            int decision_fitness = scores[scores.length / 4 * 3];
->>>>>>> f85c717f487e2401114e55ed06bded9c6b936125
+            int decision_fitness = scores[scores.length / 4 * 3];   //Theory says 25% lives, so either /4 or /4*3
             //Split the population between parents and children
-            float parent_mean = split(mlp_children, mlp_parents, mlpList, decision_fitness);
+            split(mlp_children, mlp_parents, mlpList, decision_fitness);
             //Print performance measures
-            printPerformance(scores, mlp_parents, parent_mean);
+            printPerformance(scores, mlp_parents);
             //Update the children with the parents genes
             breed(mlp_children, mlp_parents, permutation_chance);
 
@@ -79,38 +75,56 @@ public class Cosyne implements RLController {
 
     }
 
-    private void printPerformance(int[] scores, List<Map.Entry<MultiLayerPerceptron,Double>> mlp_parents, float parent_mean) {
+    /**
+     * Utility to print the performance
+     * @param scores    A sorted array of scores of the MLPs
+     * @param mlp_parents   A list of MLPs which have survived the sorting
+     */
+    private void printPerformance(int[] scores, List<Map.Entry<MultiLayerPerceptron,Double>> mlp_parents) {
         //System.out.println("Min score: " + scores[0]);
         //System.out.println("Median at: " + median);
         //System.out.println("Max score: " + scores[scores.length -1]);
         //System.out.println("Generation "+ generation);
+        float parent_mean = 0;
+        for(Map.Entry entry : mlp_parents){
+            parent_mean += (Integer) entry.getValue();
+        }
+        parent_mean /= mlp_parents.size();
         System.out.println("Mean parent performance " + parent_mean);
     }
 
-    private float split(List<Map.Entry<MultiLayerPerceptron,Double>> mlp_children,
+    /**
+     * Split all the mlps into either parents (survivors) or children (dead).
+     * Because of pass-by-reference an action taken on mlp_children (i.e. breed()) will influence the full mlpList
+     * @param mlp_children  Will hold the list of children which are to be killed
+     * @param mlp_parents   Will hold the list of parents which are to survive
+     * @param mlpList       Needs to hold the full set of MLPs which are to be split
+     * @param decisionFitness   A threshold to determine when MLPs die and when they live
+     */
+    private void split(List<Map.Entry<MultiLayerPerceptron,Double>> mlp_children,
                        List<Map.Entry<MultiLayerPerceptron,Double>> mlp_parents,
                        List<Map.Entry<MultiLayerPerceptron,Double>> mlpList,
                        int decisionFitness) {
         mlp_children.clear();
         mlp_parents.clear();
 
-        float mean_p  = 0;
-        //Sort in winners and losers (50/50 split, with median(s) as winners)
+        //Sort in winners and losers where performance is compared to division fitness
         for (Map.Entry entry : mlpList) {
-            if ((int) entry.getValue() < decisionFitness ) {
+            if ((int) entry.getValue() < decisionFitness ) {    //Change this between >< to switch high/low fitness
                 //Loser, so needs to be changed
                 mlp_children.add(entry);
-                //System.out.println("Killing child at " + entry.getValue());
             }else{
                 mlp_parents.add(entry);
                 //Winner, so gets to reproduce
-                mean_p += (Integer) entry.getValue();
             }
         }
-        mean_p /= mlp_parents.size();
-        return mean_p;
     }
 
+    /**
+     * Have every MLP make and perform a simulation, calculate it fitness and add it to it's list
+     * @param mlpList
+     * @return  A sorted array of performances, so we can easily identify a fitness cutoff
+     */
     private int[] evaluate (List<Map.Entry<MultiLayerPerceptron, Double>> mlpList){
         int[] scores = new int[mlpList.size()];
 
@@ -125,7 +139,6 @@ public class Cosyne implements RLController {
             entry.setValue((Integer) current_model.getFitness());
             scores[i] = current_model.getFitness();
             i++;
-            //System.out.println("Performed simulation with cost " + current_model.getFitness());
         }
         //Sort the fitnesses to calculate the median
         Arrays.sort(scores);
@@ -133,6 +146,12 @@ public class Cosyne implements RLController {
         return scores;
     }
 
+    /**
+     * Updates the children to get crossover genes from random parents
+     * @param mlp_children  The mlps that need to be killed/generated
+     * @param mlp_parents   The mlps which hold good genes
+     * @param permutation_chance Probability of a random new gene not from either parent
+     */
     private void breed( List<Map.Entry<MultiLayerPerceptron, Double>> mlp_children,  List<Map.Entry<MultiLayerPerceptron, Double>> mlp_parents, float permutation_chance){
         Random rng = new Random();
 
@@ -200,14 +219,20 @@ public class Cosyne implements RLController {
         }
     }
 
+    /**
+     * Pick an action for the agent calling this.
+     * At this stage the MLP (which initated the simulation) gets to pick an action for the calling agent
+     * @param a
+     */
     @Override
     public void pickAction(Agent a) {
-
-        current_mlp.setInput(features.get200Map(current_model));
+        //The features are generated with the feature class based on the model
+        current_mlp.setInput(features.get3Map(current_model));
         current_mlp.calculate();
         double[] outputs = current_mlp.getOutput();
         double max_out= 0.0;
         int action = -1;
+        //We simply apply the maximum action, since we already have a doNothing action
         for(int i = 0; i<outputs.length; i++){
             if(action == -1 || outputs[i] > max_out){
                 max_out = outputs[i];
@@ -239,4 +264,3 @@ public class Cosyne implements RLController {
     }
 }
 
-//TODO! Fix IDEA
