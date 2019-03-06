@@ -13,6 +13,10 @@ public class HumanController implements RLController, KeyListener, Serializable 
     public HumanController(){
     }
 
+    /**
+     * When the agent asks us to pick an action we wait till a key has been pressed
+     * @param a
+     */
     @Override
     public void pickAction(Agent a) {
         simulationPanel.requestFocus();
@@ -50,41 +54,6 @@ public class HumanController implements RLController, KeyListener, Serializable 
 
         keyEvent = null;
 
-
-/*
-
-        System.out.println("Which of the actions would you like to do? ");
-        Scanner input_scanner = new Scanner(System.in);
-        String choice = input_scanner.nextLine();
-        for(String s : a.possibleActions()){
-            System.out.println("Choice = " + choice);
-            if(s.equals(choice)){
-                switch(s){
-                    case "Cut Grass":
-                        System.out.println("Cutting grass");
-                        a.makeDirt();
-                        break;
-                    case "Go Down":
-                        a.moveDown();
-                        break;
-                    case "Go Up":
-                        a.moveUp();
-                        break;
-                    case "Go Left":
-                        a.moveLeft();
-                        break;
-                    case "Go Right":
-                        a.moveRight();
-                        break;
-                    case "Do Nothing":
-                        a.doNothing();
-                        default:
-                            a.doNothing();
-                }
-            }
-        }
-        */
-
     }
 
     @Override
@@ -92,9 +61,12 @@ public class HumanController implements RLController, KeyListener, Serializable 
 
     }
 
+    /**
+     * Receive the key pressed and make it available for pickACtion
+     * @param keyEvent
+     */
     @Override
     public void keyPressed(KeyEvent keyEvent) {
-        System.out.println("KEYPRESSED");
         this.keyEvent = keyEvent;
     }
 

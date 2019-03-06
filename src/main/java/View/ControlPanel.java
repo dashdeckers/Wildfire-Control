@@ -20,6 +20,10 @@ public class ControlPanel extends JPanel {
     private ParameterManager parameterManager;
     private ObservableString selected_element = new ObservableString();
 
+    /**
+     * JPanel which holds the control buttons for the simulation
+     * @param model The simualtion to be controlled
+     */
     public ControlPanel(Simulation model){
         this.model = model;
         parameterManager = model.getParameter_manager();
@@ -87,6 +91,11 @@ public class ControlPanel extends JPanel {
         }
     }
 
+    /**
+     * Creates the paramaterers tuneable for each type.
+     * The radiobutton will allow a user to pick a type, the textfields will set the value for these
+     * @param c
+     */
     public void addTypeParameters(GridBagConstraints c){
         Set<JTextField> element_fields = new HashSet<>();
 
@@ -121,6 +130,7 @@ public class ControlPanel extends JPanel {
             c.gridy++;
         }
 
+        //Pull the parameters to be set from the parameterManager
         for (String parameter :parameterManager.getParameterSet("Tree").keySet()){
 
             JTextField t = new JTextField(String.valueOf(parameterManager.getParameter(selected_element.getString(), parameter)));
