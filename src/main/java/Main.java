@@ -1,4 +1,5 @@
 
+import Learning.HumanController;
 import Model.Simulation;
 import View.MainFrame;
 import Learning.Cosyne;
@@ -19,10 +20,18 @@ public class Main
 			System.out.println("Cosyne gui");
 			new Cosyne();
 
+		}else if(args.length > 0 && args[0].equals("human")){
+			HumanController hc = new HumanController();
+			Simulation s = new Simulation(hc);
+			MainFrame f = new MainFrame(s);
+			f.simulationPanel.addKeyListener(hc);
+			hc.simulationPanel = f.simulationPanel;
+
 		}else {
 				use_gui = true;
 				Simulation model = new Simulation(use_gui);
 				new MainFrame(model);
+
 		}
 	}
 }

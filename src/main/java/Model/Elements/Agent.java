@@ -148,7 +148,11 @@ public class Agent extends Element
                         doNothing();
                 }
                 //System.out.println("energy finish = " + energyLevel);
+
             }
+            simulation.applyUpdates();
+
+
         }
     }
 

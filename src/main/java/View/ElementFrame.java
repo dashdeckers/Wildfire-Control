@@ -33,6 +33,9 @@ public class ElementFrame extends JFrame {
     }
 }
 
+/**
+ * Panel to fill the ElementFrame
+ */
 class ElementPanel extends JPanel{
     Element displayElement;
     int square_width, square_height;
@@ -85,7 +88,6 @@ class ElementPanel extends JPanel{
         if(e.isBurning()){
             fireString = "On fire";
         }else{
-
             fireString = "Not on fire";
         }
         JLabel fire = new JLabel(fireString);
@@ -94,12 +96,22 @@ class ElementPanel extends JPanel{
 
         this.add(fire, c);
 
+        c.gridx = 2;
+        c.gridy = 1;
+        JLabel temperature = new JLabel(Double.toString(e.getTemperature()));
+
+        temperature.setHorizontalAlignment(JLabel.CENTER);
+        temperature.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
 
 
 
 
     }
 
+    /**
+     * Just a panel to show the color of the element
+     */
     private class SquarePanel extends JPanel {
 
         @Override
