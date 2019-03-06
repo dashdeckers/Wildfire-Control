@@ -9,10 +9,9 @@ import java.util.stream.Stream;
 
 public class Features {
 
-    public Features(){
-    }
+    public Features(){}
 
-    public double[] doubleListToArray(List<Double> input){
+    public double[] doubleListToArray(List<Double> input) {
         Double[] outputArray = new Double[input.size()];
         input.toArray(outputArray);
         return Stream.of(outputArray).mapToDouble(Double::doubleValue).toArray() ;
@@ -25,7 +24,7 @@ public class Features {
      * @param model
      * @return
      */
-    public double[] getZeroSet(Simulation model){
+    public double[] getZeroSet(Simulation model) {
         List<Double>  output = new ArrayList<>();
         for (int i = 0; i < 400; i++) {
             output.add(0.0);
@@ -44,17 +43,29 @@ public class Features {
         List<List<Element>> cells = model.getAllCells();
         List<Double> output = new ArrayList<>();
 
-        for(int x = 0; x < cells.size(); x++){
-            for(int y = 0; y < cells.get(x).size(); y++) {
+        for (int x = 0; x < cells.size(); x++) {
+            for (int y = 0; y < cells.get(x).size(); y++) {
                 output.add(cells.get(x).get(y).isBurning() ? 1.0 : 0.0);
                 output.add(cells.get(x).get(y).isBurnable() ? 1.0 : 0.0);
-                if(model.getAgents().get(0).getX() == x && model.getAgents().get(0).getY() == y){
+                if (model.getAgents().get(0).getX() == x && model.getAgents().get(0).getY() == y) {
                     output.add(1.0);
-                }else{
+                } else {
                     output.add(0.0);
                 }
             }
         }
+        return doubleListToArray(output);
+    }
+
+    public double[] downSampledFuelMap(Simulation model) {
+        if (! (model.getParameter_manager().getWidth() % 3 == 0
+            && model.getParameter_manager().getHeight() % 3 == 0) ) {
+            System.out.println("Map dimensions ");
+        }
+        List<Double> output = new ArrayList<>();
+
+
+
         return doubleListToArray(output);
     }
 }

@@ -8,6 +8,10 @@ import java.awt.*;
 public class ElementFrame extends JFrame {
     Element e;
 
+    /**
+     * Simple frame to float on the top-left to show some inforamtion about an element
+     * @param e The element for which this frame is spawned.
+     */
     public ElementFrame (Element e){
         this.e = e;
 
@@ -33,6 +37,9 @@ public class ElementFrame extends JFrame {
     }
 }
 
+/**
+ * Panel to fill the ElementFrame
+ */
 class ElementPanel extends JPanel{
     Element displayElement;
     int square_width, square_height;
@@ -85,7 +92,6 @@ class ElementPanel extends JPanel{
         if(e.isBurning()){
             fireString = "On fire";
         }else{
-
             fireString = "Not on fire";
         }
         JLabel fire = new JLabel(fireString);
@@ -94,12 +100,32 @@ class ElementPanel extends JPanel{
 
         this.add(fire, c);
 
+        c.gridx = 2;
+        c.gridy = 1;
+        JLabel temperature = new JLabel("Temperature: " + Double.toString(e.getTemperature()));
+
+        temperature.setHorizontalAlignment(JLabel.CENTER);
+        temperature.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+        this.add(temperature,c);
+
+        c.gridy = 0;
+        c.gridx = 2;
+
+        JLabel fuel = new JLabel("Fuel: " + Integer.toString(e.getFuel()));
+
+        fuel.setHorizontalAlignment(JLabel.CENTER);
+        fuel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
 
+        this.add(fuel, c);
 
 
     }
 
+    /**
+     * Just a panel to show the color of the element
+     */
     private class SquarePanel extends JPanel {
 
         @Override

@@ -46,8 +46,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private Generator generator;
 	private RLController rlController;
 
-	public Simulation(boolean use_gui)
-	{
+	public Simulation(boolean use_gui) {
 		this.use_gui = use_gui;
 
 		// Randomization initialization
@@ -113,7 +112,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 		undo_redo = false;
 		wVecX = -1;
 		wVecY = 0;
-		windSpeed = 2;
+		windSpeed = 1;
 	}
 
 
@@ -125,7 +124,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public void start() {
 		running = true;
 		int nsteps = 0;
-		while (running && nsteps < 200) {
+		while (running && nsteps < 500) {
 			nsteps++;
 			if (step_time >=0) {
 				stepForward();
@@ -168,6 +167,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 		findActiveCells();
 
 		// Save the reset state again so we can reset the same map many times
+		states.add((Simulation) deepCopy(this));
 		states.add((Simulation) deepCopy(this));
 	}
 
@@ -278,21 +278,12 @@ public class Simulation extends Observable implements Serializable, Observer {
 			if (status.equals("Dead")) {
 				toRemove.add(burningCell);
 			}
-
-//
-//			for (Agent a: agents){
-//				HashSet<Element> neighbours = a.getNeighbours(cells,agents);
-//
-//			}
-
 			// if it is still burning, apply heat to neighbouring cells
 			if (status.equals("No Change")) {
 				HashSet<Element> neighbours = burningCell.getNeighbours(cells, agents);
 				for (Element neighbourCell : neighbours) {
 					if (neighbourCell.isBurnable()) {
-						// TODO: get status from getHeatFrom(), to avoid updating neighbouring cells more often than others
-						neighbourCell.getHeatFrom(burningCell);
-						status = neighbourCell.timeStep();
+						status = neighbourCell.getHeatFrom(burningCell);
 						// if it ignited, add it to activeCells
 						if (status.equals("Ignited")) {
 							toAdd.add(neighbourCell);
@@ -466,5 +457,10 @@ public class Simulation extends Observable implements Serializable, Observer {
 			}
 			System.out.println();
 		}
+	}
+
+	public void applyUpdates(){
+		setChanged();
+		notifyObservers(cells);
 	}
 }

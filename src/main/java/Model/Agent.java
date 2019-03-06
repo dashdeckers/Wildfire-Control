@@ -16,6 +16,7 @@ public class Agent implements Serializable{
     // the agent up to date, the agent needs access to the entire simulation.
 
     private Simulation simulation;
+    private int energyLevel;
     private RLController controller;
     private ParameterManager parameterManager;
 
@@ -151,6 +152,9 @@ public class Agent implements Serializable{
                     isAlive=false;
                 }
             }
+            simulation.applyUpdates();
+
+
         }
     }
 
@@ -275,7 +279,7 @@ public class Agent implements Serializable{
         simulation.setFitness(simulation.getFitness()+energyLevel);
         energyLevel=0;
     }
-
+    
 
 
     public int getId() {
