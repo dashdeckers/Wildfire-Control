@@ -66,6 +66,8 @@ public class Simulation extends Observable implements Serializable, Observer {
 		if (generateRandom) {
 			generator.randomMap();
 		} else {
+			parameter_manager.changeParameter("Model", "Width", 21f);
+			parameter_manager.changeParameter("Model", "Height", 21f);
 			generator.plainMap();
 		}
 		setChanged();
@@ -166,6 +168,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 
 		// Save the reset state again so we can reset the same map many times
 		states.add((Simulation) deepCopy(this));
+		states.add((Simulation) deepCopy(this));
 	}
 
 	/**
@@ -201,18 +204,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public void stepBack() {
 		if (undo_redo) {
 			for (int i = 0; i< step_size; i++) {
-				if (steps_taken > 0) {
-					reset();
-					for (int j= 0; j < steps_taken; j++) {
-						stepForward();
-						setChanged();
-						notifyObservers(cells);
-					}
 
-				} else {
-					running = false;
-				}
-                /*
                 if (states.size() > 0) {
                     Simulation rewind = states.get(states.size() - 1);
                     states.remove(states.size() - 1);
@@ -223,7 +215,6 @@ public class Simulation extends Observable implements Serializable, Observer {
                 } else {
                     running = false;
                 }
-                */
 			}
 		}
 	}
@@ -353,7 +344,6 @@ public class Simulation extends Observable implements Serializable, Observer {
 	 * This makes a full copy of any Serializable object, including it's children.
 	 * This is needed for being able to revert to previous states and circumventing Java's pass-by-reference
 	 * It's probably best to just leave this code as is unless you understand what is going on here.
-	 *
 	 */
 	private static Object deepCopy(Object object) {
 		try {
@@ -470,5 +460,10 @@ public class Simulation extends Observable implements Serializable, Observer {
 			}
 			System.out.println();
 		}
+	}
+
+	public void applyUpdates(){
+		setChanged();
+		notifyObservers(cells);
 	}
 }

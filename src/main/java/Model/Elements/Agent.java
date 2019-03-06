@@ -18,16 +18,25 @@ public class Agent extends Element
     private RLController controller;
     private boolean isAlive;
 
+    /**
+     * Create an agent at X,Y with a certain id.
+     * @param x
+     * @param y
+     * @param simulation
+     * @param parameterManager
+     * @param id
+     */
     public Agent(int x, int y, Simulation simulation, ParameterManager parameterManager, int id) {
         this.simulation = simulation;
         this.parameterManager = parameterManager;
         initializeParameters();
         pullParameters();
-        this.id=id;
+        this.id=id; //TODO! Do we need the ID or is that only for debugging?
         this.x=x;
         this.y=y;
     }
 
+    //TODO! If it doesn't work, can we remove it then?
     public Agent(Simulation simulation, ParameterManager parameterManager, int id) {
         this.simulation = simulation;
         this.parameterManager = parameterManager;
@@ -43,6 +52,9 @@ public class Agent extends Element
     }
 
 
+    /**
+     * Initializes the parameters specific to the agent
+     */
     public void initializeParameters()
     {
         this.type = "Agent";
@@ -54,18 +66,21 @@ public class Agent extends Element
         this.fuel = 1;
         this.moveSpeed = 1;
         simulation.setAgentsLeft(simulation.getAgentsLeft()+1);
-        //System.out.println("agentInitiazed: " + simulation.getAgentsLeft());
         this.isAlive=true;
         //this.energyEachStep = 20;
     }
 
     /**
-     * New tiles that cannot be transversed by an agent can be easily added to the function
+     * Checks whether the agent can move over the tile at x,y.
+     * If new elements which can't be traversed are made, they can be added here
+     * @param x
+     * @param y
+     * @return
      */
-
     public boolean checkTile(int x, int y) {
         if (inBounds(x,y)){
             Element element = simulation.getAllCells().get(x).get(y);
+            //TODO! Can't we use the Element.moveSpeed == 0 as defined around Element ~68
             switch(element.getType()) {
                 case "Water":
                     return false;
@@ -78,12 +93,17 @@ public class Agent extends Element
 
     }
 
+    /**
+     * Perform a timeStep as called by the Simulation
+     * @return
+     */
     @Override
     public String timeStep() {
 
         String returnString = super.timeStep();
+
+        //TODO! Wouldn't it be nicer to kick a dead agent from the activeCells in simulation?
         if (returnString.equals("Dead")&&isAlive){
-            //System.out.println("Agent " + getId() + " died.");
             simulation.setAgentsLeft(simulation.getAgentsLeft()-1);
             isAlive=false;
         } else if (isAlive){
@@ -92,43 +112,54 @@ public class Agent extends Element
         return returnString;
     }
 
+    /**
+     * Makes the agent perform an action, either by some controller, or simply at random
+     */
     private void takeActions() {
         //energyLevel = simulation.getEnergyAgents();
         while(energyLevel>0 && fuel > 0) {
             //If an agent controller is assigned, have it make the decision
             if(controller != null){
                 controller.pickAction(this);
-            }
-            List<String> actions = possibleActions();
-            //System.out.println("action list = " + actions.toString());
-            Random r = new Random();
-            String currentAction = actions.get(r.nextInt(actions.size()));
-            //System.out.println("Decided to do: " + currentAction + ", having energy level: " + energyLevel + " and temperature: " + temperature);
-            switch (currentAction){
-                case "Cut Tree":
-                case "Cut Grass":
-                    makeDirt();
-                    break;
-                case "Go Down":
-                    moveDown();
-                    break;
-                case "Go Up":
-                    moveUp();
-                    break;
-                case "Go Right":
-                    moveRight();
-                    break;
-                case "Go Left":
-                    moveLeft();
-                    break;
-                default:
-                    doNothing();
+            }else {
+                List<String> actions = possibleActions();
+                //System.out.println("action list = " + actions.toString());
+                Random r = new Random();
+                String currentAction = actions.get(r.nextInt(actions.size()));
+                //System.out.println("Decided to do: " + currentAction + ", having energy level: " + energyLevel + " and temperature: " + temperature);
+                switch (currentAction) {
+                    case "Cut Tree":
+                    case "Cut Grass":
+                        makeDirt();
+                        break;
+                    case "Go Down":
+                        moveDown();
+                        break;
+                    case "Go Up":
+                        moveUp();
+                        break;
+                    case "Go Right":
+                        moveRight();
+                        break;
+                    case "Go Left":
+                        moveLeft();
+                        break;
+                    default:
+                        doNothing();
+                }
+                //System.out.println("energy finish = " + energyLevel);
 
             }
-            //System.out.println("energy finish = " + energyLevel);
+            simulation.applyUpdates();
+
+
         }
     }
 
+    /**
+     * Returns a list of valid action which can be taken at this time
+     * @return
+     */
     public List<String> possibleActions() {
         List<String> actions = new ArrayList<>();
         Element currentCell = simulation.getAllCells().get(x).get(y);
@@ -161,26 +192,17 @@ public class Agent extends Element
     }
 
 
-
-
-
-
-
-
-
-
-
-
     /**
      * Assign a controller to pick all actions for this agent
-     * @param controller
+     * @param controller    An RLController implementation which picks an action when the agent calls
+     *                      pickAction(Agent this)
      */
     public void setController(RLController controller){
         this.controller = controller;
     }
 
     /**
-     * All actions related to actual fire control
+     * Check whether the tile should be made dirt by this agent. If it should not, call doNothing() and waste the fuel
      */
     public void makeDirt() {
         Element cell = simulation.getAllCells().get(x).get(y);
@@ -190,57 +212,72 @@ public class Agent extends Element
             energyLevel -= cell.getParameters().get("Clear Cost");
             simulation.setFitness(simulation.getFitness() - Math.round(cell.getParameters().get("Clear Cost")));
             simulation.getAllCells().get(x).set(y, new Dirt(x, y, simulation.getParameter_manager()));
+        }else{
+            doNothing();
         }
 
     }
 
     /**
-     * All actions related to the movement of the agent
+     * Check whether the agent can move right. If it can't, call doNothing() and waste the fuel
      */
-
     public void moveRight() {
-        Element currentCell = simulation.getAllCells().get(x).get(y);
         if (checkTile(x + 1, y) && (determineMoveCost(simulation.getAllCells().get(x+1).get(y)))<=energyLevel) {
             int actionCost = determineMoveCost(simulation.getAllCells().get(x + 1).get(y));
             energyLevel -= actionCost;
             x++;
+        }else{
+            doNothing();
         }
     }
 
+    /**
+     * Check whether the agent can move left. If it can't, call doNothing() and waste the fuel
+     */
     public void moveLeft() {
-        Element currentCell = simulation.getAllCells().get(x).get(y);
         if (checkTile(x - 1, y) && (determineMoveCost(simulation.getAllCells().get(x-1).get(y)))<=energyLevel) {
             int actionCost = determineMoveCost(simulation.getAllCells().get(x - 1).get(y));
             energyLevel -= actionCost;
             x--;
+        }else{
+            doNothing();
         }
     }
 
+    /**
+     * Check whether the agent can move down. If it can't, call doNothing() and waste the fuel
+     */
     public void moveDown() {
-        Element currentCell = simulation.getAllCells().get(x).get(y);
         if (checkTile(x, y - 1) && (determineMoveCost(simulation.getAllCells().get(x).get(y-1)))<=energyLevel){
             int actionCost = determineMoveCost(simulation.getAllCells().get(x).get(y - 1));
             energyLevel -= actionCost;
             y--;
+        }else{
+            doNothing();
         }
     }
 
+    /**
+     * Check whether the agent can move up. If it can't, call doNothing() and waste the fuel
+     */
     public void moveUp() {
-        Element currentCell = simulation.getAllCells().get(x).get(y);
         if (checkTile(x, y + 1) && (determineMoveCost(simulation.getAllCells().get(x).get(y+1)))<=energyLevel) {
             int actionCost = determineMoveCost(simulation.getAllCells().get(x).get(y + 1));
             energyLevel -= actionCost;
             y++;
+        }else{
+            doNothing();
         }
     }
 
+    /**
+     * Set the fuel to 0, but increment the fitness with the remaining fuel
+     */
     public void doNothing(){
         simulation.setFitness(simulation.getFitness()+energyLevel);
         energyLevel=0;
     }
-
-    //TODO!! Add requirements to actions!
-
+    
 
     public int getEnergyLevel() {
         return energyLevel;

@@ -375,4 +375,8 @@ public abstract class Element implements Serializable, Observer {
 	public void setTemperature(double temperature) {
 		this.temperature = temperature;
 	}
+
+	public int getFuel(){
+		return fuel;
+	}
 }

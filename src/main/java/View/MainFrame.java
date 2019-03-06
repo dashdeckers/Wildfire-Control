@@ -11,6 +11,7 @@ public class MainFrame extends JFrame {
      * The frame of our simulation including the simulation and controls
      * @param model
      */
+    public JPanel simulationPanel;
     public MainFrame(Simulation model){
         //Use gridbaglayout for lot of control
         GridBagLayout gbl = new GridBagLayout();
@@ -27,8 +28,8 @@ public class MainFrame extends JFrame {
         c.gridx = 0;
         c.gridy = 0;
 
-
-        this.add(new SimulationPanel(model, simulation_size), c);
+        simulationPanel = new SimulationPanel(model, simulation_size);
+        this.add(simulationPanel, c);
 
         c.gridx = 1;
         this.add(new ControlPanel(model), c);
