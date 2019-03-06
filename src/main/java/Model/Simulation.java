@@ -26,7 +26,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private boolean undo_redo;
 	private boolean running;
 	private boolean use_gui;
-	private boolean generateRandom = false;
+	private boolean generateRandom = true;
 	private Random rand;
 	private long randomizer_seed = 0;
 
@@ -255,26 +255,21 @@ public class Simulation extends Observable implements Serializable, Observer {
 		// keep track of element to remove or add, we cant do that while iterating
 		HashSet<Element> toRemove = new HashSet<>();
 		HashSet<Element> toAdd = new HashSet<>();
+		HashSet<Agent> agentsToRemove = new HashSet<>();
 
-		// TODO: why is this here?
-		for (Agent a : agents) {
-			a.setEnergyLevel(energyAgents);
-		}
-
-		// TODO: agents should be held separately from activeCells, this is very inefficient
-		boolean onlyAgentsLeft = true;
-		for (Element agent : activeCells) {
-			if (!agent.getType().equals("Agent")) {
-				onlyAgentsLeft = false;
-				break;
-			}
-		}
-
-		// TODO: Make agentsLeft compatible with having the same agent over multiple runs
-		if (onlyAgentsLeft) {
+		if (agents.size()==0 || activeCells.size()==0) {
 			running = false;
 			System.out.println("STOPPED");
 		}
+
+		for (Agent a : agents){
+			String status=a.timeStep();
+			if (status.equals("Dead")){
+				agentsToRemove.add(a);
+			}
+		}
+
+		agents.removeAll(agentsToRemove);
 
 		// burningCell can also be an agent, they are counted as activeCells
 		for (Element burningCell : activeCells) {
@@ -283,23 +278,29 @@ public class Simulation extends Observable implements Serializable, Observer {
 			if (status.equals("Dead")) {
 				toRemove.add(burningCell);
 			}
-			if (!burningCell.getType().equals("Agent")) {
-				// if it is still burning, apply heat to neighbouring cells
-				if (status.equals("No Change")) {
-					HashSet<Element> neighbours = burningCell.getNeighbours(cells, agents);
-					for (Element neighbourCell : neighbours) {
-						if (neighbourCell.isBurnable()) {
-							// TODO: get status from getHeatFrom(), to avoid updating neighbouring cells more often than others
-							neighbourCell.getHeatFrom(burningCell);
-							status = neighbourCell.timeStep();
-							// if it ignited, add it to activeCells
-							if (status.equals("Ignited")) {
-								toAdd.add(neighbourCell);
-							}
+
+//
+//			for (Agent a: agents){
+//				HashSet<Element> neighbours = a.getNeighbours(cells,agents);
+//
+//			}
+
+			// if it is still burning, apply heat to neighbouring cells
+			if (status.equals("No Change")) {
+				HashSet<Element> neighbours = burningCell.getNeighbours(cells, agents);
+				for (Element neighbourCell : neighbours) {
+					if (neighbourCell.isBurnable()) {
+						// TODO: get status from getHeatFrom(), to avoid updating neighbouring cells more often than others
+						neighbourCell.getHeatFrom(burningCell);
+						status = neighbourCell.timeStep();
+						// if it ignited, add it to activeCells
+						if (status.equals("Ignited")) {
+							toAdd.add(neighbourCell);
 						}
 					}
 				}
 			}
+
 		}
 		activeCells.removeAll(toRemove);
 		activeCells.addAll(toAdd);
@@ -320,10 +321,6 @@ public class Simulation extends Observable implements Serializable, Observer {
 					activeCells.add(cell);
 				}
 			}
-		}
-
-		for (int i = 0; i<nr_agents; i++) {
-			activeCells.add(agents.get(i));
 		}
 	}
 

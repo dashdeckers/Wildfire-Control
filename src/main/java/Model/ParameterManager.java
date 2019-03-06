@@ -40,8 +40,6 @@ public class ParameterManager extends Observable implements Serializable {
         Parameters_map.put("Tree", treeMap);
         Map<String, Float> waterMap = new Water(0,0,this).getParameters();
         Parameters_map.put("Water", waterMap);
-        Map<String, Float> agentMap = new Agent(0, 0, model, this, 0).getParameters();
-        Parameters_map.put("Agent", agentMap);
     }
 
     /**

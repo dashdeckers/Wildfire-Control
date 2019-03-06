@@ -1,5 +1,6 @@
 package Model.actions;
 
+import Model.Agent;
 import Model.Elements.*;
 
 public abstract class Action {

@@ -1,9 +1,7 @@
 package Model.Elements;
 
+import Model.Agent;
 import Model.ParameterManager;
-import Model.Simulation;
-import View.ControlPanel;
-import View.MainFrame;
 
 import java.awt.Color;
 import java.io.Serializable;
@@ -66,7 +64,6 @@ public abstract class Element implements Serializable, Observer {
 	int clearCost = 0;
 	// move speed: 0 is not traversable, 3 is easy to traverse
 	int moveSpeed = 0;
-	int id = 0;
 
 	private int width;
 	private int height;
@@ -190,12 +187,6 @@ public abstract class Element implements Serializable, Observer {
                 }
 			}
 		}
-		for (Agent agent : agents) {
-			//System.out.println("current type = " + getType() + " OriginX = " + originX + " OriginY = " + originY + " agent x = " + agent.getX() + " agent y = " + agent.getY());
-			if (agent.getX() >= originX-r && agent.getX() <= originX+r && agent.getY() >= originY-r && agent.getY() <= originY+r) {
-				neighbours.add(agent);
-			}
-		}
 		return neighbours;
 	}
 
@@ -226,11 +217,7 @@ public abstract class Element implements Serializable, Observer {
 	 */
 	public Color getColor() {
 		if (fuel <= 0 && isBurnable()) {
-			if (type.equals("Agent")) {
-				return Color.MAGENTA;
-			} else {
-				return Color.BLACK;
-			}
+			return Color.BLACK;
 		} else if (isBurning) {
 			return new Color(200, 0, 0);
 		} else {
@@ -357,10 +344,6 @@ public abstract class Element implements Serializable, Observer {
 		return type;
 	}
 
-	public int getId() {
-		return id;
-	}
-
 	public double getTemperature() {
 		return temperature;
 	}
@@ -368,4 +351,6 @@ public abstract class Element implements Serializable, Observer {
 	public void setTemperature(double temperature) {
 		this.temperature = temperature;
 	}
+
+
 }

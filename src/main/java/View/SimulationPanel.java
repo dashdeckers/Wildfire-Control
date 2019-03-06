@@ -68,7 +68,7 @@ public class SimulationPanel extends JPanel implements Observer, MouseListener {
                 y -= y_jump;
                 x = start_x;
             }
-            for (int i=0; i<model.getNr_agents(); i++) {
+            for (int i=0; i<model.getAgents().size(); i++) {
                 g.setColor(model.getAgents().get(i).getColor());
                 g.fillRect((int) (model.getAgents().get(i).getX()*x_jump), (int) ((end_y-y_jump) - (int) model.getAgents().get(i).getY()*y_jump ) , (int) x_width, (int) y_width);
             }
@@ -109,22 +109,22 @@ public class SimulationPanel extends JPanel implements Observer, MouseListener {
 
         Element e = cells.get((int) x_coord).get((int) y_coord);
 
-        if(mouseEvent.getButton() == MouseEvent.BUTTON1) {
-            for (int i = 0; i < model.getNr_agents(); i++) {
-                if (x >= model.getAgents().get(i).getX() * x_jump
-                        && y >= ((end_y - y_jump) - (int) model.getAgents().get(i).getY() * y_jump)
-                        && x <= model.getAgents().get(i).getX() * x_jump + x_jump - 1
-                        && y <= ((end_y - y_jump) - (int) model.getAgents().get(i).getY() * y_jump + y_jump - 1)) {
-                    e = model.getAgents().get(i);
-                }
-            }
-        }
+//        if(mouseEvent.getButton() == MouseEvent.BUTTON1) {
+//            for (int i = 0; i < model.getNr_agents(); i++) {
+//                if (x >= model.getAgents().get(i).getX() * x_jump
+//                        && y >= ((end_y - y_jump) - (int) model.getAgents().get(i).getY() * y_jump)
+//                        && x <= model.getAgents().get(i).getX() * x_jump + x_jump - 1
+//                        && y <= ((end_y - y_jump) - (int) model.getAgents().get(i).getY() * y_jump + y_jump - 1)) {
+//                    e = model.getAgents().get(i);
+//                }
+//            }
+//        }
 
         if(elementFrame != null){
             elementFrame.setVisible(false);
             elementFrame.dispose();
         }
-        elementFrame = new ElementFrame(e);
+//        elementFrame = new ElementFrame(e);
     }
 
     @Override
