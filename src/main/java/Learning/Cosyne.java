@@ -2,13 +2,11 @@ package Learning;
 import Model.Elements.Agent;
 import Model.Simulation;
 import View.MainFrame;
-import com.sun.org.apache.xerces.internal.util.SynchronizedSymbolTable;
 import org.neuroph.core.Connection;
 import org.neuroph.core.Layer;
 import org.neuroph.core.Neuron;
 import org.neuroph.core.Weight;
 import org.neuroph.nnet.MultiLayerPerceptron;
-import org.neuroph.util.TransferFunctionType;
 
 import javax.swing.*;
 import java.lang.reflect.Array;
@@ -21,15 +19,13 @@ public class Cosyne implements RLController {
     MultiLayerPerceptron current_mlp;
     Simulation current_model;
     Features features;
-    List<Double> old_mlp;
     public Cosyne(){
-        old_mlp = new ArrayList();
 
         /*Initialize parameters */
-        int population = 50;
+        int population = 100;
         int inputs = 21*21*3;   //Change this to match input size
         int outputs = 6;
-        int middle_layer = 20;
+        int middle_layer = 100;
         float permutation_chance = 0.01f;
         System.out.println("Inputs = " +inputs);
         System.out.println("Outputs = "+outputs);
@@ -65,7 +61,11 @@ public class Cosyne implements RLController {
             //Run & evaluate the MLPS
             int[] scores = evaluate(mlpList);
             //Identify the cutoff
+<<<<<<< HEAD
             int decision_fitness = scores[scores.length / 4 * 3 ];
+=======
+            int decision_fitness = scores[scores.length / 4 * 3];
+>>>>>>> f85c717f487e2401114e55ed06bded9c6b936125
             //Split the population between parents and children
             float parent_mean = split(mlp_children, mlp_parents, mlpList, decision_fitness);
             //Print performance measures
@@ -95,88 +95,20 @@ public class Cosyne implements RLController {
         mlp_parents.clear();
 
         float mean_p  = 0;
-        //System.out.println("Decision fitness" + decisionFitness);
+        //Sort in winners and losers (50/50 split, with median(s) as winners)
         for (Map.Entry entry : mlpList) {
             if ((int) entry.getValue() < decisionFitness ) {
                 //Loser, so needs to be changed
                 mlp_children.add(entry);
-                //System.out.println("Killing at " + entry.getValue());
                 //System.out.println("Killing child at " + entry.getValue());
             }else{
                 mlp_parents.add(entry);
-                entry.getKey().toString();
                 //Winner, so gets to reproduce
                 mean_p += (Integer) entry.getValue();
             }
         }
         mean_p /= mlp_parents.size();
         return mean_p;
-    }
-
-    private void storeMLP(MultiLayerPerceptron mlp){
-        for(int il = 1; il < mlp.getLayersCount(); il++){
-            //System.out.println("At layer " + il);
-            int neurons = mlp.getLayerAt(il).getNeuronsCount();
-            //For each neuron
-            //System.out.println("N neurons " + neurons);
-            for(int in = 0; in < neurons; in++){
-                int nconnections = mlp.getLayerAt(il).getNeuronAt(in).getInputConnections().length;
-                //For each (inbound) connection to a neuron
-                //System.out.println("N connections " + nconnections);
-                for(int ic = 0; ic < nconnections; ic++){
-                    old_mlp.add(mlp.getLayerAt(il).getNeuronAt(in).getInputConnections()[ic].getWeight().value);
-                }
-                //System.out.print("\n");
-            }
-            //System.out.println("Next layer");
-        }
-    }
-
-    private void printMLP(MultiLayerPerceptron mlp){
-        for(int il = 1; il < mlp.getLayersCount(); il++){
-            //System.out.println("At layer " + il);
-            int neurons = mlp.getLayerAt(il).getNeuronsCount();
-            //For each neuron
-            //System.out.println("N neurons " + neurons);
-            for(int in = 0; in < neurons; in++){
-                int nconnections = mlp.getLayerAt(il).getNeuronAt(in).getInputConnections().length;
-                //For each (inbound) connection to a neuron
-                //System.out.println("N connections " + nconnections);
-                for(int ic = 0; ic < nconnections; ic++){
-                    System.out.print(mlp.getLayerAt(il).getNeuronAt(in).getInputConnections()[ic].getWeight().value + " ");
-                }
-                System.out.print("\n");
-            }
-            System.out.println("Next layer");
-        }
-    }
-
-    /**
-     * DOESNT WORK!!
-     * @param mlp
-     */
-    private void compMLP(MultiLayerPerceptron mlp){
-        for(int il = 1; il < mlp.getLayersCount(); il++){
-            //System.out.println("At layer " + il);
-            int neurons = mlp.getLayerAt(il).getNeuronsCount();
-            //For each neuron
-            //System.out.println("N neurons " + neurons);
-            for(int in = 0; in < neurons; in++){
-                int nconnections = mlp.getLayerAt(il).getNeuronAt(in).getInputConnections().length;
-                //For each (inbound) connection to a neuron
-                //System.out.println("N connections " + nconnections);
-                for(int ic = 0; ic < nconnections; ic++){
-                    if(old_mlp.size() > il+in+ic) {
-                        if (!old_mlp.get(il + in + ic).equals(mlp.getLayerAt(il).getNeuronAt(in).getInputConnections()[ic].getWeight().value)) {
-                            System.out.println("Connection changed");
-                        }
-                    }
-
-                }
-                System.out.print("\n");
-            }
-            System.out.println("Next layer");
-        }
     }
 
     private int[] evaluate (List<Map.Entry<MultiLayerPerceptron, Double>> mlpList){
@@ -217,7 +149,7 @@ public class Cosyne implements RLController {
 
 
             //For each layer
-            for(int il = 1; il < child.getLayersCount(); il++){     //Start breeding at layer 1 because input has no weights
+            for(int il = 0; il < child.getLayersCount(); il++){
 
                 int neurons = child.getLayerAt(il).getNeuronsCount();
                 //For each neuron

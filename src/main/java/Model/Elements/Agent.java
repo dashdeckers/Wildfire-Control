@@ -98,33 +98,32 @@ public class Agent extends Element
             //If an agent controller is assigned, have it make the decision
             if(controller != null){
                 controller.pickAction(this);
-            }else {
-                List<String> actions = possibleActions();
-                //System.out.println("action list = " + actions.toString());
-                Random r = new Random();
-                String currentAction = actions.get(r.nextInt(actions.size()));
-                //System.out.println("Decided to do: " + currentAction + ", having energy level: " + energyLevel + " and temperature: " + temperature);
-                switch (currentAction) {
-                    case "Cut Tree":
-                    case "Cut Grass":
-                        makeDirt();
-                        break;
-                    case "Go Down":
-                        moveDown();
-                        break;
-                    case "Go Up":
-                        moveUp();
-                        break;
-                    case "Go Right":
-                        moveRight();
-                        break;
-                    case "Go Left":
-                        moveLeft();
-                        break;
-                    default:
-                        doNothing();
+            }
+            List<String> actions = possibleActions();
+            //System.out.println("action list = " + actions.toString());
+            Random r = new Random();
+            String currentAction = actions.get(r.nextInt(actions.size()));
+            //System.out.println("Decided to do: " + currentAction + ", having energy level: " + energyLevel + " and temperature: " + temperature);
+            switch (currentAction){
+                case "Cut Tree":
+                case "Cut Grass":
+                    makeDirt();
+                    break;
+                case "Go Down":
+                    moveDown();
+                    break;
+                case "Go Up":
+                    moveUp();
+                    break;
+                case "Go Right":
+                    moveRight();
+                    break;
+                case "Go Left":
+                    moveLeft();
+                    break;
+                default:
+                    doNothing();
 
-                }
             }
             //System.out.println("energy finish = " + energyLevel);
         }
@@ -191,8 +190,6 @@ public class Agent extends Element
             energyLevel -= cell.getParameters().get("Clear Cost");
             simulation.setFitness(simulation.getFitness() - Math.round(cell.getParameters().get("Clear Cost")));
             simulation.getAllCells().get(x).set(y, new Dirt(x, y, simulation.getParameter_manager()));
-        }else{
-            doNothing();
         }
 
     }
@@ -207,8 +204,6 @@ public class Agent extends Element
             int actionCost = determineMoveCost(simulation.getAllCells().get(x + 1).get(y));
             energyLevel -= actionCost;
             x++;
-        }else{
-            doNothing();;
         }
     }
 
@@ -218,8 +213,6 @@ public class Agent extends Element
             int actionCost = determineMoveCost(simulation.getAllCells().get(x - 1).get(y));
             energyLevel -= actionCost;
             x--;
-        }else{
-            doNothing();
         }
     }
 
@@ -229,8 +222,6 @@ public class Agent extends Element
             int actionCost = determineMoveCost(simulation.getAllCells().get(x).get(y - 1));
             energyLevel -= actionCost;
             y--;
-        }else{
-            doNothing();
         }
     }
 
@@ -240,8 +231,6 @@ public class Agent extends Element
             int actionCost = determineMoveCost(simulation.getAllCells().get(x).get(y + 1));
             energyLevel -= actionCost;
             y++;
-        }else{
-            doNothing();
         }
     }
 
