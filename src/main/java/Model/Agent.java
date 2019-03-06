@@ -16,7 +16,6 @@ public class Agent implements Serializable{
     // the agent up to date, the agent needs access to the entire simulation.
 
     private Simulation simulation;
-    private int energyLevel;
     private RLController controller;
     private ParameterManager parameterManager;
 
