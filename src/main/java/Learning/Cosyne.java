@@ -65,7 +65,7 @@ public class Cosyne implements RLController {
             //Run & evaluate the MLPS
             int[] scores = evaluate(mlpList);
             //Identify the cutoff
-            int decision_fitness = scores[scores.length / 4 ];
+            int decision_fitness = scores[scores.length / 4 * 3 ];
             //Split the population between parents and children
             float parent_mean = split(mlp_children, mlp_parents, mlpList, decision_fitness);
             //Print performance measures
@@ -97,7 +97,7 @@ public class Cosyne implements RLController {
         float mean_p  = 0;
         //System.out.println("Decision fitness" + decisionFitness);
         for (Map.Entry entry : mlpList) {
-            if ((int) entry.getValue() >decisionFitness ) {
+            if ((int) entry.getValue() < decisionFitness ) {
                 //Loser, so needs to be changed
                 mlp_children.add(entry);
                 //System.out.println("Killing at " + entry.getValue());
@@ -105,10 +105,6 @@ public class Cosyne implements RLController {
             }else{
                 mlp_parents.add(entry);
                 entry.getKey().toString();
-                //System.out.println("Saving at " + entry.getValue());
-                //compMLP((MultiLayerPerceptron) entry.getKey());
-                //storeMLP((MultiLayerPerceptron) entry.getKey());
-                //printMLP((MultiLayerPerceptron) entry.getKey());
                 //Winner, so gets to reproduce
                 mean_p += (Integer) entry.getValue();
             }
@@ -191,9 +187,9 @@ public class Cosyne implements RLController {
         for (Map.Entry entry : mlpList) {
             current_mlp = (MultiLayerPerceptron) entry.getKey();
             current_model = new Simulation(this);
-            //JFrame f = new MainFrame(current_model);
+            JFrame f = new MainFrame(current_model);
             current_model.start();
-            //f.dispose();
+            f.dispose();
             entry.setValue((Integer) current_model.getFitness());
             scores[i] = current_model.getFitness();
             i++;
