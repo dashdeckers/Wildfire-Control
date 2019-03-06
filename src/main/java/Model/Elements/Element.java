@@ -37,6 +37,12 @@ import java.util.*;
  Ignition Threshold: Some materials need a higher temperature to start burning
  than others. This value should be set with the burn intensity, and fuel
  parameters in mind because they are very co-dependent. Actually, they all are.
+
+ TL;DR:
+ For radius 2, maximum 4 neighbours can give heat to one cell (maximum value = burn intensity)
+ Ignition threshold is the temperature at which which it ignites
+ Fuel is the num of iterations it can burn
+
  */
 
 public abstract class Element implements Serializable, Observer {
@@ -104,10 +110,6 @@ public abstract class Element implements Serializable, Observer {
 				return "Dead";
 			}
 		}
-		else if (temperature > ignitionThreshold) {
-			isBurning = true;
-			return "Ignited";
-		}
 		return "No Change";
 	}
 
@@ -115,16 +117,21 @@ public abstract class Element implements Serializable, Observer {
 	 *  Apply heat from burning cell, taking into account the windspeed,
 	 *  wind direction, and distance to the burning cell.
 	 */
-	public void getHeatFrom(Element burningCell)
+	public String getHeatFrom(Element burningCell)
 	{
 		double distance = distanceTo(burningCell);
 		double angle = angleToWind(burningCell);
 		//System.out.println("cell type: " + this.getType());
 		temperature += burnIntensity * Math.pow(windSpeed * angle + distance, -1);
-		//System.out.println("Temperature increase by: " + Math.pow(windSpeed * angle + distance, -1));
+		//System.out.println("Temperature increase by: BurnIntensity * " + Math.pow(windSpeed * angle + distance, -1));
 		// doing this check at the start will save some computation, but
 		// it will not guarantee that the temperature is always <= 100
 		if (temperature > 100) {temperature = 100;}
+		if (temperature > ignitionThreshold && !isBurning) {
+			isBurning = true;
+			return "Ignited";
+		}
+		return "No Change";
 	}
 
 	/**

@@ -3,26 +3,24 @@ import Model.Simulation;
 import View.MainFrame;
 import Learning.Cosyne;
 
-public class Main
-{
-	public static void main(String[] args)
-	{
+public class Main {
+	public static void main(String[] args) {
 		boolean use_gui;
-		if(args.length > 0 && args[0].equals("no_gui")){
+		if (args.length > 0 && args[0].equals("no_gui")) {
 			final long startTime = System.currentTimeMillis();
 			System.out.println("NO GUI!");
 			use_gui = false;
 			new Simulation(use_gui).start();
 			final long endTime = System.currentTimeMillis();
 			System.out.println("Total execution time: " + (endTime - startTime));
-		}else if(args.length > 0 && args[0].equals("cosyne_gui")) {
+		} else if (args.length > 0 && args[0].equals("cosyne_gui")) {
 			System.out.println("Cosyne gui");
 			new Cosyne();
 
-		}else {
-				use_gui = true;
-				Simulation model = new Simulation(use_gui);
-				new MainFrame(model);
+		} else {
+			use_gui = true;
+			Simulation model = new Simulation(use_gui);
+			new MainFrame(model);
 		}
 	}
 }

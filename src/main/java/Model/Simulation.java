@@ -46,8 +46,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private Generator generator;
 	private RLController rlController;
 
-	public Simulation(boolean use_gui)
-	{
+	public Simulation(boolean use_gui) {
 		this.use_gui = use_gui;
 
 		// Randomization initialization
@@ -111,7 +110,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 		undo_redo = false;
 		wVecX = -1;
 		wVecY = 0;
-		windSpeed = 2;
+		windSpeed = 1;
 	}
 
 
@@ -123,7 +122,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public void start() {
 		running = true;
 		int nsteps = 0;
-		while (running && nsteps < 200) {
+		while (running && nsteps < 500) {
 			nsteps++;
 			if (step_time >=0) {
 				stepForward();
@@ -266,11 +265,6 @@ public class Simulation extends Observable implements Serializable, Observer {
 		HashSet<Element> toRemove = new HashSet<>();
 		HashSet<Element> toAdd = new HashSet<>();
 
-		// TODO: why is this here?
-		for (Agent a : agents) {
-			a.setEnergyLevel(energyAgents);
-		}
-
 		// TODO: agents should be held separately from activeCells, this is very inefficient
 		boolean onlyAgentsLeft = true;
 		for (Element agent : activeCells) {
@@ -279,8 +273,6 @@ public class Simulation extends Observable implements Serializable, Observer {
 				break;
 			}
 		}
-
-		// TODO: Make agentsLeft compatible with having the same agent over multiple runs
 		if (onlyAgentsLeft) {
 			running = false;
 			System.out.println("STOPPED");
@@ -299,9 +291,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 					HashSet<Element> neighbours = burningCell.getNeighbours(cells, agents);
 					for (Element neighbourCell : neighbours) {
 						if (neighbourCell.isBurnable()) {
-							// TODO: get status from getHeatFrom(), to avoid updating neighbouring cells more often than others
-							neighbourCell.getHeatFrom(burningCell);
-							status = neighbourCell.timeStep();
+							status = neighbourCell.getHeatFrom(burningCell);
 							// if it ignited, add it to activeCells
 							if (status.equals("Ignited")) {
 								toAdd.add(neighbourCell);
