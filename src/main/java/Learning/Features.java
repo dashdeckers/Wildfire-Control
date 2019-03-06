@@ -9,8 +9,16 @@ import java.util.stream.Stream;
 
 public class Features {
 
-    public Features(){}
+    public Features() {}
 
+    /**
+     * Helper function to convert a list of doubles into an array of doubles.
+     *
+     * CoSyNe requires arrays of doubles, but if implementations require lists instead it might be nicer to only
+     * convert when using CoSyNe (i.e. have CoSyNe convert it).
+     * @param input
+     * @return
+     */
     public double[] doubleListToArray(List<Double> input) {
         Double[] outputArray = new Double[input.size()];
         input.toArray(outputArray);
@@ -19,8 +27,6 @@ public class Features {
 
     /**
      * This is some default set which just returns 0s. It's simply an example to test things.
-     * CoSyNe requires arrays of doubles, but if implementations require lists instead it might be nicer to only
-     * convert when using CoSyNe (i.e. have CoSyNe convert it).
      * @param model
      * @return
      */
@@ -60,11 +66,11 @@ public class Features {
     public double[] downSampledFuelMap(Simulation model) {
         if (! (model.getParameter_manager().getWidth() % 3 == 0
             && model.getParameter_manager().getHeight() % 3 == 0) ) {
-            System.out.println("Map dimensions ");
+            System.out.println("Map dimensions incompatible with down-sampling (not divisible by 3)");
         }
         List<Double> output = new ArrayList<>();
 
-
+        //TODO: implement downsampling
 
         return doubleListToArray(output);
     }
