@@ -444,12 +444,24 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public Set<Element> getActiveCells() { return activeCells; }
 
 	public boolean isInBounds(int x, int y) {
-		return (   x > 0 && x < width
-				&& y > 0 && y < height);
+		return (   x >= 0 && x < width
+				&& y >= 0 && y < height);
 	}
 
 	public Element getElementAt(int x, int y) {
 		return cells.get(x).get(y);
+	}
+
+	public Element getNearestFireTo(int x, int y) {
+		Element origin = cells.get(x).get(y);
+		Element nearest = null;
+		double minDistance = 10000;
+		for (Element f : activeCells) {
+			if (origin.distanceTo(f) < minDistance) {
+				nearest = f;
+			}
+		}
+		return nearest;
 	}
 
 	public void applyUpdates(){

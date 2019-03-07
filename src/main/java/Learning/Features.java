@@ -1,5 +1,6 @@
 package Learning;
 
+import Model.Agent;
 import Model.Elements.Element;
 import Model.Simulation;
 
@@ -63,6 +64,12 @@ public class Features {
         return doubleListToArray(output);
     }
 
+    /**
+     * Returns a down-sampled version of the fuel values of the map. It combines a 3x3 grid of values into a
+     * single value with no overlap.
+     * @param model The simulation
+     * @return A down sampled map
+     */
     public double[] downSampledFuelMap(Simulation model) {
         if (! (model.getParameter_manager().getWidth() % 3 == 0
             && model.getParameter_manager().getHeight() % 3 == 0) ) {
@@ -72,6 +79,46 @@ public class Features {
 
         //TODO: implement downsampling
 
+        return doubleListToArray(output);
+    }
+
+    /**
+     * Returns an array of doubles containing the distances of each agent to the burning cell nearest to it.
+     * Because the agents container is a list, it should be consistent in the order
+     * @param model The simulation
+     * @return An array of distances to fire for each agent
+     */
+    public double[] distancesToFire(Simulation model) {
+        List<Double> output = new ArrayList<>();
+        for (Agent a : model.getAgents()) {
+            int ax = a.getX();
+            int ay = a.getY();
+            Element nearestFire = model.getNearestFireTo(ax, ay);
+            int fx = nearestFire.getX();
+            int fy = nearestFire.getY();
+            output.add(Math.sqrt(Math.pow(ax - fx, 2) + Math.pow(ay - fy, 2)));
+        }
+        return doubleListToArray(output);
+    }
+
+    /**
+     * Returns an array of doubles containing the angles of each agent to the burning cell nearest to it.
+     * This uses a reference vector (0, 1) as a "compass" and computes the angle between that and the
+     * vector (agent, fire).
+     * Because the agents container is a list, it should be consistent in the order
+     * @param model The simulation
+     * @return An array of angles to fire for each agent
+     */
+    public double[] anglesToFire(Simulation model) {
+        List<Double> output = new ArrayList<>();
+        for (Agent a : model.getAgents()) {
+            int refVecX = 0;
+            int refVecY = 1;
+            Element nearestFire = model.getNearestFireTo(a.getX(), a.getY());
+            int afVecX = a.getX() - nearestFire.getX();
+            int afVecY = a.getY() - nearestFire.getY();
+            output.add(Math.atan2(afVecX*refVecY - afVecY*refVecX, afVecX*refVecX + afVecY*refVecY));
+        }
         return doubleListToArray(output);
     }
 }

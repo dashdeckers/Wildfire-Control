@@ -47,19 +47,19 @@ import java.util.*;
  */
 
 public abstract class Element implements Serializable, Observer {
-	// coordinates
 	int x = 0;
 	int y = 0;
-	// maximal radius of influence, if burning
 	int r = 0;
-	// color
 	Color color = Color.WHITE;
 	protected String type;
-	// parameters passed from simulation
-	ParameterManager parameterManager;
-	// state properties
+
+	private int width;
+	private int height;
+
 	boolean isBurnable = false;
 	private boolean isBurning = false;
+
+	ParameterManager parameterManager;
 
 	// parameters relevant for fire propagation
 	private double temperature = 0;
@@ -74,24 +74,14 @@ public abstract class Element implements Serializable, Observer {
 	// move speed: 0 is not traversable, 3 is easy to traverse
 	int moveSpeed = 0;
 
-	private int width;
-	private int height;
-
 	// wind parameters
 	private double windSpeed;
 	private double wVecX;
 	private double wVecY;
 
 	/**
-	 * TODO: Element parameters
-	 * Tweak the parameters. Currently windSpeed is more of a general hindering factor for
-	 * the fire spread where I actually want it to promote fire spread in the wind direction.
-	 * Element specific parameters need some tuning as well, but that will go hand in hand with
-	 * a more in-depth look into how fire spreads in real life.
-	 *
-	 * Also, the wind parameters need to go in the parameter manager for real-time tuning
+	 *  Every element needs to initialize
 	 */
-
 	public abstract void initializeParameters();
 
 	/**
@@ -137,7 +127,7 @@ public abstract class Element implements Serializable, Observer {
 	/**
 	 *  Returns the pythagorean distance to the given cell
 	 */
-	private double distanceTo(Element cell)
+	public double distanceTo(Element cell)
 	{
 		return Math.sqrt(Math.pow(x - cell.x, 2) + Math.pow(y - cell.y, 2));
 	}
@@ -152,7 +142,7 @@ public abstract class Element implements Serializable, Observer {
 		double cVecX = this.x - cell.x;
 		double cVecY = this.y - cell.y;
 
-		// return angle between that vector and the wind direction (range = [-pi, pi])
+		// return angle between that vector and the wind direction (range = [0, pi])
 		return Math.abs(Math.atan2(wVecX*cVecY - wVecY*cVecX, wVecX*cVecX + wVecY*cVecY));
 	}
 
