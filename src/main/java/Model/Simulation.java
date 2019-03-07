@@ -446,17 +446,15 @@ public class Simulation extends Observable implements Serializable, Observer {
 
 	public void setAgentsLeft(int agentsLeft) { this.agentsLeft = agentsLeft; }
 
-	/**
-	 * Debugging function
-	 */
-	public void printCells() {
-		for (int i =0; i<cells.get(0).size();i++){
-			for (int j=0; j<cells.size(); j++){
-				Element cell=cells.get(j).get(i);
-				System.out.print(cell.getType() + " x:" + cell.getX() + " y:" + cell.getY() + " - ");
-			}
-			System.out.println();
-		}
+	public Set<Element> getActiveCells() { return activeCells; }
+
+	public boolean isInBounds(int x, int y) {
+		return (   x > 0 && x < width
+				&& y > 0 && y < height);
+	}
+
+	public Element getElementAt(int x, int y) {
+		return cells.get(x).get(y);
 	}
 
 	public void applyUpdates(){
