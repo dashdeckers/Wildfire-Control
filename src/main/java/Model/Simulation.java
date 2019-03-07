@@ -26,7 +26,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private boolean undo_redo;
 	private boolean running;
 	private boolean use_gui;
-	private boolean generateRandom = true;
+	private boolean generateRandom = false;
 	private Random rand;
 	private long randomizer_seed = 0;
 
@@ -50,7 +50,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 		this.use_gui = use_gui;
 
 		// Randomization initialization
-		Random seed_gen = new Random();
+		//Random seed_gen = new Random();
 		// randomizer_seed = seed_gen.nextLong();
 		rand = new Random(randomizer_seed);
 		states = new ArrayList<>();

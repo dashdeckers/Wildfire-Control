@@ -3,6 +3,7 @@ package Model.Elements;
 import Learning.RLController;
 import Model.ParameterManager;
 import Model.Simulation;
+import sun.reflect.generics.tree.SimpleClassTypeSignature;
 
 import java.awt.*;
 import java.util.*;
@@ -100,6 +101,7 @@ public class Agent extends Element
     @Override
     public String timeStep() {
 
+
         String returnString = super.timeStep();
 
         //TODO! Wouldn't it be nicer to kick a dead agent from the activeCells in simulation?
@@ -117,9 +119,12 @@ public class Agent extends Element
      */
     private void takeActions() {
         //energyLevel = simulation.getEnergyAgents();
+        System.out.println("Take actions, fuel " + fuel + " energy lvl "+ energyLevel);
         while(energyLevel>0 && fuel > 0) {
             //If an agent controller is assigned, have it make the decision
+            System.out.println("Action created");
             if(controller != null){
+                System.out.println("For controller");
                 controller.pickAction(this);
             }else {
                 List<String> actions = possibleActions();
