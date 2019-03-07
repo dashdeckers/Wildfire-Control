@@ -37,7 +37,6 @@ public class Simulation extends Observable implements Serializable, Observer {
 
 	// parameters related to agents
 	private int nr_agents;
-	private int agentsLeft;
 	private int energyAgents;
 	private int fitness;
 
@@ -61,7 +60,6 @@ public class Simulation extends Observable implements Serializable, Observer {
 		parameter_manager = new ParameterManager(this);
 		parameter_manager.addObserver(this);
 		generator = new Generator(this);
-		agentsLeft = 0;
 		// Generate a new map to start on
 		if (generateRandom) {
 			generator.randomMap();
@@ -159,7 +157,6 @@ public class Simulation extends Observable implements Serializable, Observer {
 			this.cells = rewind.cells;
 			this.agents = rewind.agents;
 			this.activeCells = rewind.activeCells;
-			this.agentsLeft = rewind.getAgentsLeft();
 		}
 		setChanged();
 		notifyObservers(cells);
@@ -263,12 +260,11 @@ public class Simulation extends Observable implements Serializable, Observer {
 		}
 
 		for (Agent a : agents){
-			String status=a.timeStep();
+			String status = a.timeStep();
 			if (status.equals("Dead")){
 				agentsToRemove.add(a);
 			}
 		}
-
 		agents.removeAll(agentsToRemove);
 
 		// burningCell can also be an agent, they are counted as activeCells
@@ -441,10 +437,6 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public int getFitness() { return fitness; }
 
 	public void setFitness(int fitness) { this.fitness = fitness; }
-
-	public int getAgentsLeft() { return agentsLeft; }
-
-	public void setAgentsLeft(int agentsLeft) { this.agentsLeft = agentsLeft; }
 
 	public Set<Element> getActiveCells() { return activeCells; }
 
