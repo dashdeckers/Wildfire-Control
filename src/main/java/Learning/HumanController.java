@@ -19,7 +19,6 @@ public class HumanController implements RLController, KeyListener, Serializable 
      */
     @Override
     public void pickAction(Agent a) {
-        System.out.println("Action!");
         simulationPanel.requestFocus();
         while(keyEvent == null){
             try {

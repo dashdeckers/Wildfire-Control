@@ -1,5 +1,5 @@
 package Learning;
-import Model.Elements.Agent;
+import Model.Agent;
 import Model.Simulation;
 import View.MainFrame;
 import org.neuroph.core.Connection;

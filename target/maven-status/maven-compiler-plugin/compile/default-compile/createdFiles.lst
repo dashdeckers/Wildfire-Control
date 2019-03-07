@@ -2,8 +2,8 @@ Learning/Cosyne.class
 Controller/Buttons/ControlAction$1.class
 Model/Generator.class
 View/ElementPanel$SquarePanel.class
-Model/actions/MoveUp.class
 View/ElementPanel$1.class
+Navigation/DijkstraShortestPath.class
 Model/Simulation.class
 Main.class
 Controller/TextFields/ElementTextFieldListener.class
@@ -11,6 +11,7 @@ Model/Elements/StaticFire.class
 Model/Elements/Grass.class
 Learning/HumanController.class
 Controller/TextFields/parameterAction.class
+Learning/Fitness.class
 View/SimulationPanel.class
 Model/Elements/Dirt.class
 View/ElementFrame.class
@@ -21,8 +22,8 @@ Controller/Buttons/ControlAction.class
 Learning/RLController.class
 Controller/Buttons/ControlButton.class
 Model/Elements/Tree.class
+Model/Agent.class
 Model/Elements/Element.class
-Model/actions/Action.class
 Model/ParameterManager.class
 View/ElementPanel.class
 Model/Elements/Water.class
@@ -30,4 +31,3 @@ Model/Elements/Road.class
 View/ViewUtil/ObservableString.class
 View/MainFrame.class
 View/ControlPanel.class
-Model/Elements/Agent.class

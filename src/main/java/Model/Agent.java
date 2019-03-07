@@ -105,7 +105,6 @@ public class Agent implements Serializable{
         energyLevel=simulation.getEnergyAgents();
         takeActions();
         if (!isAlive){
-            System.out.println("test");
             color=Color.MAGENTA;
             return "Dead";
         }
@@ -121,16 +120,12 @@ public class Agent implements Serializable{
 
         while(energyLevel>0 && isAlive) {
             //If an agent controller is assigned, have it make the decision
-            System.out.println("Action created");
             if(controller != null){
-                System.out.println("For controller");
                 controller.pickAction(this);
             }else {
                 List<String> actions = possibleActions();
-                //System.out.println("action list = " + actions.toString());
                 Random r = new Random();
                 String currentAction = actions.get(r.nextInt(actions.size()));
-                //System.out.println("Decided to do: " + currentAction + ", having energy level: " + energyLevel + " and temperature: " + temperature);
                 switch (currentAction) {
                     case "Cut Tree":
                     case "Cut Grass":
