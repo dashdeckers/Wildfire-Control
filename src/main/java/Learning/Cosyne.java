@@ -24,11 +24,11 @@ public class Cosyne implements RLController {
     public Cosyne(){
 
         /*Initialize parameters */
-        int population = 50;    //Change this to change number of MLPs
+        int population = 100;    //Change this to change number of MLPs
         int inputs = 21*21*3;   //Change this to match input size
         int outputs = 6;
-        int middle_layer = 5; //Change this for number of neurons in middle layer
-        float permutation_chance = 0.01f;   //Chance that a gene is random rather than inhereted
+        int middle_layer = 10; //Change this for number of neurons in middle layer
+        float permutation_chance = 0.5f;   //Chance that a gene is random rather than inhereted
         System.out.println("Inputs = " +inputs);
         System.out.println("Outputs = "+outputs);
         System.out.println("1 middle layer =" +middle_layer);
@@ -45,7 +45,7 @@ public class Cosyne implements RLController {
 
         //Initialize subpopulation, takes a while
         for(int i = 0; i<population; i++){
-            Map.Entry<MultiLayerPerceptron, Double> entry = new AbstractMap.SimpleEntry<>(new MultiLayerPerceptron(mlpSize),0.0);
+            Map.Entry<MultiLayerPerceptron, Double> entry = new AbstractMap.SimpleEntry<MultiLayerPerceptron, Double>(new MultiLayerPerceptron(mlpSize),0.0);
             mlpList.add(entry);
         }
 
@@ -62,7 +62,7 @@ public class Cosyne implements RLController {
             //Run & evaluate the MLPS
             int[] scores = evaluate(mlpList);
             //Identify the cutoff
-            int decision_fitness = scores[scores.length / 4 ];   //Theory says 25% lives, so either /4 or /4*3
+            int decision_fitness = scores[scores.length / 2 ];   //Theory says 25% lives, so either /4 or /4*3
             //Split the population between parents and children
             split(mlp_children, mlp_parents, mlpList,(double) decision_fitness);
             //Print performance measures
@@ -120,13 +120,20 @@ public class Cosyne implements RLController {
             }
         }
 
-        int i = 0;
-        while(mlp_parents.size() < (mlpList.size() / 4)){
-            System.out.println("Current size: " + mlp_parents.size());
-            System.out.println("Target size: " + mlpList.size() / 4);
-            if(decisionFitness == mlpList.get(i).getValue()) {
-                mlp_parents.add(mlpList.get(i));
-            }i++;
+        List<Map.Entry> removeChildren = new ArrayList<>();
+        for(Map.Entry entry: mlp_children){
+            if(mlp_parents.size() < mlpList.size() / 2){
+                if  ( ((Integer) entry.getValue()).doubleValue() == (double) decisionFitness ){
+                    mlp_parents.add(entry);
+                    removeChildren.add(entry);
+                }
+            }else{
+                break;
+            }
+        }
+
+        for(Map.Entry entry: removeChildren){
+            mlp_children.remove(entry);
         }
         System.out.println("Nr children " + mlp_children.size());
         System.out.println("Nr parents " + mlp_parents.size());
