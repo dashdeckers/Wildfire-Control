@@ -3,9 +3,6 @@ package Model;
 import Learning.RLController;
 import Model.Elements.Dirt;
 import Model.Elements.Element;
-import Model.ParameterManager;
-import Model.Simulation;
-import sun.reflect.generics.tree.SimpleClassTypeSignature;
 
 import java.awt.*;
 import java.io.Serializable;
@@ -100,7 +97,6 @@ public class Agent implements Serializable{
      */
     public String timeStep() {
 
-
         //String returnString = super.timeStep();
         energyLevel=simulation.getEnergyAgents();
         takeActions();
@@ -108,7 +104,6 @@ public class Agent implements Serializable{
             color=Color.MAGENTA;
             return "Dead";
         }
-
         return "Alive";
     }
 
@@ -152,8 +147,6 @@ public class Agent implements Serializable{
                 }
             }
             simulation.applyUpdates();
-
-
         }
     }
 
@@ -191,7 +184,6 @@ public class Agent implements Serializable{
     private int determineMoveCost(Element e){
         return (int) ((double)simulation.getEnergyAgents()/(double)e.getParameters().get("Move Speed"));
     }
-
 
     /**
      * Assign a controller to pick all actions for this agent
@@ -278,8 +270,6 @@ public class Agent implements Serializable{
         simulation.setFitness(simulation.getFitness()+energyLevel);
         energyLevel=0;
     }
-    
-
 
     public int getId() {
         return id;
@@ -306,7 +296,6 @@ public class Agent implements Serializable{
         returnMap.put("Energy Level", (float) energyLevel);
         return returnMap;
     }
-
 
     public Color getColor() {
         return color;
