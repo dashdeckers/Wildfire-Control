@@ -5,6 +5,7 @@ import Model.Elements.Dirt;
 import Model.Elements.Element;
 import Model.ParameterManager;
 import Model.Simulation;
+import sun.reflect.generics.tree.SimpleClassTypeSignature;
 
 import java.awt.*;
 import java.io.Serializable;
@@ -99,11 +100,11 @@ public class Agent implements Serializable{
      */
     public String timeStep() {
 
+
         //String returnString = super.timeStep();
         energyLevel=simulation.getEnergyAgents();
         takeActions();
         if (!isAlive){
-            System.out.println("test");
             color=Color.MAGENTA;
             return "Dead";
         }
@@ -116,16 +117,15 @@ public class Agent implements Serializable{
      */
     private void takeActions() {
         //energyLevel = simulation.getEnergyAgents();
+
         while(energyLevel>0 && isAlive) {
             //If an agent controller is assigned, have it make the decision
             if(controller != null){
                 controller.pickAction(this);
             }else {
                 List<String> actions = possibleActions();
-                //System.out.println("action list = " + actions.toString());
                 Random r = new Random();
                 String currentAction = actions.get(r.nextInt(actions.size()));
-                //System.out.println("Decided to do: " + currentAction + ", having energy level: " + energyLevel + " and temperature: " + temperature);
                 switch (currentAction) {
                     case "Cut Tree":
                     case "Cut Grass":
