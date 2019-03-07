@@ -188,7 +188,7 @@ public class Agent implements Serializable{
         return actions;
     }
 
-    private int determineMoveCost(Element e){
+    public int determineMoveCost(Element e){
         return (int) ((double)simulation.getEnergyAgents()/(double)e.getParameters().get("Move Speed"));
     }
 
@@ -211,7 +211,6 @@ public class Agent implements Serializable{
                 ||energyLevel >= cell.getParameters().get("Clear Cost") && cell.getType().equals("Grass")
                 ) {
             energyLevel -= cell.getParameters().get("Clear Cost");
-            simulation.setFitness(simulation.getFitness() - Math.round(cell.getParameters().get("Clear Cost")));
             simulation.getAllCells().get(x).set(y, new Dirt(x, y, simulation.getParameter_manager()));
         }else{
             doNothing();
@@ -275,7 +274,6 @@ public class Agent implements Serializable{
      * Set the fuel to 0, but increment the fitness with the remaining fuel
      */
     public void doNothing(){
-        simulation.setFitness(simulation.getFitness()+energyLevel);
         energyLevel=0;
     }
     

@@ -365,4 +365,10 @@ public abstract class Element implements Serializable, Observer {
 	public int getFuel(){
 		return fuel;
 	}
+
+	// Debugging function for printing coordinates
+	public String toCoordinates() {
+		return "("+this.x+", "+this.y+")";
+	}
+
 }
