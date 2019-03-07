@@ -2,7 +2,7 @@
 import Learning.HumanController;
 import Model.Simulation;
 import View.MainFrame;
-import Learning.Cosyne;
+//import Learning.Cosyne;
 
 public class Main {
 	public static void main(String[] args) {
@@ -16,7 +16,7 @@ public class Main {
 			System.out.println("Total execution time: " + (endTime - startTime));
 		} else if (args.length > 0 && args[0].equals("cosyne_gui")) {
 			System.out.println("Cosyne gui");
-			new Cosyne();
+			//new Cosyne();
 
 		}else if(args.length > 0 && args[0].equals("human")){
 			HumanController hc = new HumanController();

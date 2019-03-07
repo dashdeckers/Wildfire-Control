@@ -1,6 +1,6 @@
 package Learning;
 
-import Model.Elements.Agent;
+import Model.Agent;
 
 public interface RLController {
 

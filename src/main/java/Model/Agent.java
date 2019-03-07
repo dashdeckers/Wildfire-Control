@@ -1,23 +1,32 @@
-package Model.Elements;
+package Model;
 
 import Learning.RLController;
+import Model.Elements.Dirt;
+import Model.Elements.Element;
 import Model.ParameterManager;
 import Model.Simulation;
 import sun.reflect.generics.tree.SimpleClassTypeSignature;
 
 import java.awt.*;
+import java.io.Serializable;
 import java.util.*;
 import java.util.List;
 
-public class Agent extends Element
-{
+public class Agent implements Serializable{
     // The environment is fully observable for the agent, therefore in order to keep the information available to
     // the agent up to date, the agent needs access to the entire simulation.
 
     private Simulation simulation;
-    private int energyLevel;
     private RLController controller;
+    private ParameterManager parameterManager;
+
+    private int x;
+    private int y;
+    private int id;
+    protected String type;
     private boolean isAlive;
+    private int energyLevel;
+    private Color color;
 
     /**
      * Create an agent at X,Y with a certain id.
@@ -31,7 +40,6 @@ public class Agent extends Element
         this.simulation = simulation;
         this.parameterManager = parameterManager;
         initializeParameters();
-        pullParameters();
         this.id=id; //TODO! Do we need the ID or is that only for debugging?
         this.x=x;
         this.y=y;
@@ -42,8 +50,6 @@ public class Agent extends Element
         this.simulation = simulation;
         this.parameterManager = parameterManager;
         initializeParameters();
-        pullParameters();
-        this.id = id;
         //For some reason this does not work consistently, please use method above
         //and assign agents some verified coordinates when spawning them.
         do {
@@ -53,22 +59,9 @@ public class Agent extends Element
     }
 
 
-    /**
-     * Initializes the parameters specific to the agent
-     */
-    public void initializeParameters()
-    {
-        this.type = "Agent";
-        this.r = 1;
-        this.isBurnable = true;
-        this.color = Color.YELLOW;
-        this.burnIntensity = 1;
-        this.ignitionThreshold = 1;
-        this.fuel = 1;
-        this.moveSpeed = 1;
-        simulation.setAgentsLeft(simulation.getAgentsLeft()+1);
+    private void initializeParameters(){
         this.isAlive=true;
-        //this.energyEachStep = 20;
+        this.color=Color.YELLOW;
     }
 
     /**
@@ -94,24 +87,30 @@ public class Agent extends Element
 
     }
 
+    boolean inBounds(int x, int y) {
+        int maxX = parameterManager.getWidth();
+        int maxY = parameterManager.getHeight();
+        return x >= 0 && x < maxX
+                && y >= 0 && y < maxY;
+    }
+
     /**
      * Perform a timeStep as called by the Simulation
      * @return
      */
-    @Override
     public String timeStep() {
 
 
-        String returnString = super.timeStep();
-
-        //TODO! Wouldn't it be nicer to kick a dead agent from the activeCells in simulation?
-        if (returnString.equals("Dead")&&isAlive){
-            simulation.setAgentsLeft(simulation.getAgentsLeft()-1);
-            isAlive=false;
-        } else if (isAlive){
-            takeActions();
+        //String returnString = super.timeStep();
+        energyLevel=simulation.getEnergyAgents();
+        takeActions();
+        if (!isAlive){
+            System.out.println("test");
+            color=Color.MAGENTA;
+            return "Dead";
         }
-        return returnString;
+
+        return "Alive";
     }
 
     /**
@@ -119,8 +118,8 @@ public class Agent extends Element
      */
     private void takeActions() {
         //energyLevel = simulation.getEnergyAgents();
-        System.out.println("Take actions, fuel " + fuel + " energy lvl "+ energyLevel);
-        while(energyLevel>0 && fuel > 0) {
+
+        while(energyLevel>0 && isAlive) {
             //If an agent controller is assigned, have it make the decision
             System.out.println("Action created");
             if(controller != null){
@@ -152,8 +151,10 @@ public class Agent extends Element
                     default:
                         doNothing();
                 }
-                //System.out.println("energy finish = " + energyLevel);
-
+                Element currentCell = simulation.getAllCells().get(x).get(y);
+                if (currentCell.isBurnable() && currentCell.isBurning()){
+                    isAlive=false;
+                }
             }
             simulation.applyUpdates();
 
@@ -284,11 +285,35 @@ public class Agent extends Element
     }
     
 
-    public int getEnergyLevel() {
-        return energyLevel;
+
+    public int getId() {
+        return id;
     }
 
-    public void setEnergyLevel(int energyLevel) {
-        this.energyLevel = energyLevel;
+    public int getX() {
+        return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public Map<String, Float> getParameters(){
+        Map<String, Float> returnMap = new HashMap<>();
+        returnMap.put("Energy Level", (float) energyLevel);
+        return returnMap;
+    }
+
+
+    public Color getColor() {
+        return color;
     }
 }
