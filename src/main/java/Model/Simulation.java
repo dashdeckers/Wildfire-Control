@@ -101,7 +101,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public void create_parameters() {
 		width = 50;
 		height = 50;
-		nr_agents = 3;
+		nr_agents = 1;
 		energyAgents = 20;
 		if (use_gui) {
 			step_time = 100;
@@ -184,6 +184,9 @@ public class Simulation extends Observable implements Serializable, Observer {
 			generator.randomMap();
 		} else {
 			generator.plainMap();
+		}
+		for(Agent a : agents){
+			a.setController(rlController);
 		}
 		setChanged();
 		notifyObservers(cells);

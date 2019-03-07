@@ -15,8 +15,8 @@ public class Fitness {
 	 * @param model
 	 * @return
 	 */
-	public double straightPathsEncirclementMeasure(Simulation model) {
-		double count = 0;
+	public int straightPathsEncirclementMeasure(Simulation model) {
+		int count = 0;
 
 		// TODO: get depth argument, use old dead ends as starting points for looking in (two) new directions again
 		// im leaving it like this for now because that will introduce 2 more loops into this thing
@@ -67,6 +67,8 @@ public class Fitness {
 						} else {
 							deadEnds.add(d);
 						}
+					}else{
+						deadEnds.add(d);
 					}
 				}
 				// if we reach a dead end, we don't need to explore that direction further
