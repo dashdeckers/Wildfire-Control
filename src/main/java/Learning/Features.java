@@ -5,7 +5,9 @@ import Model.Elements.Element;
 import Model.Simulation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
 public class Features {
@@ -120,5 +122,18 @@ public class Features {
             output.add(Math.atan2(afVecX*refVecY - afVecY*refVecX, afVecX*refVecX + afVecY*refVecY));
         }
         return doubleListToArray(output);
+    }
+
+    public double[] appendArrays(double[]... arrays){
+        double[] output = new double[0];
+        for(double[] array : arrays){
+            output = DoubleStream.concat(Arrays.stream(output), Arrays.stream(array)).toArray();
+        }
+
+        return output;
+    }
+
+    public double[] angleAndDistance(Simulation model){
+        return  appendArrays(anglesToFire(model), distancesToFire(model));
     }
 }

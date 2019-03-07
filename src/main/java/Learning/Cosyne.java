@@ -24,10 +24,10 @@ public class Cosyne implements RLController {
     public Cosyne(){
 
         /*Initialize parameters */
-        int population = 100;    //Change this to change number of MLPs
-        int inputs = 21*21*3;   //Change this to match input size
+        int population = 1000;    //Change this to change number of MLPs
+        int inputs = 2;   //Change this to match input size
         int outputs = 6;
-        int middle_layer = 10; //Change this for number of neurons in middle layer
+        int middle_layer = 50; //Change this for number of neurons in middle layer
         float permutation_chance = 0.5f;   //Chance that a gene is random rather than inhereted
         System.out.println("Inputs = " +inputs);
         System.out.println("Outputs = "+outputs);
@@ -56,7 +56,7 @@ public class Cosyne implements RLController {
 
         generation = 0;
         //The learning loop!
-        while(generation < 50) {
+        while(generation < 1000) {
             generation++;
 
             //Run & evaluate the MLPS
@@ -153,7 +153,9 @@ public class Cosyne implements RLController {
         for (Map.Entry entry : mlpList) {
             current_mlp = (MultiLayerPerceptron) entry.getKey();
             current_model = new Simulation(this);
-            if(generation == 1 || generation % 10 == 0){
+            if((generation == 1 || generation % 10 == 0) && i < 10){
+                current_model.getParameter_manager().changeParameter("Model", "Step Time", 1000f);
+
                 JFrame f = new MainFrame(current_model);
                 current_model.start();
                 f.dispose();
@@ -163,7 +165,7 @@ public class Cosyne implements RLController {
 
             entry.setValue(fitness.straightPathsEncirclementMeasure(current_model));
             scores[i] =  fitness.straightPathsEncirclementMeasure(current_model);
-            if(generation == 1 || generation % 10 == 0) {
+            if((generation == 1 || generation % 10 == 0) && i < 10) {
                 System.out.println("Fitness " + scores[i]);
             }
             i++;
@@ -279,7 +281,7 @@ public class Cosyne implements RLController {
     @Override
     public void pickAction(Agent a) {
         //The features are generated with the feature class based on the model
-        current_mlp.setInput(features.get3Map(current_model));
+        current_mlp.setInput(features.angleAndDistance(current_model));
         current_mlp.calculate();
         double[] outputs = current_mlp.getOutput();
         double max_out= 0.0;
