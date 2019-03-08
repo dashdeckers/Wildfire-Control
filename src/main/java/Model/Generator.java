@@ -61,10 +61,10 @@ class Generator implements Serializable {
         initializeMap();
         //Place StaticFire in the middle
         model.getAllCells().get(width/2).set(height/2, new StaticFire(width/2, height/2, model.getParameter_manager()));
-        model.getAllCells().get(width/2 +1).set(height/2, new StaticFire(width/2, height/2, model.getParameter_manager()));
-        model.getAllCells().get(width/2 -1).set(height/2, new StaticFire(width/2, height/2, model.getParameter_manager()));
+        //model.getAllCells().get(width/2 +1).set(height/2, new StaticFire(width/2 +1, height/2, model.getParameter_manager()));
+        //model.getAllCells().get(width/2 -1).set(height/2, new StaticFire(width/2 -1, height/2, model.getParameter_manager()));
 
-        model.getAllCells().get(width/2).set(height/2 + 1, new StaticFire(width/2, height/2, model.getParameter_manager()));
+        //model.getAllCells().get(width/2).set(height/2 + 1, new StaticFire(width/2, height/2 + 1, model.getParameter_manager()));
         //model.getAllCells().get(width/2).set(height/2 -1, new StaticFire(width/2, height/2, model.getParameter_manager()));
 
 

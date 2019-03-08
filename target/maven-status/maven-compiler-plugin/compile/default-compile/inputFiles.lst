@@ -1,5 +1,6 @@
 /home/ivopascal/University/BSc/Wildfire-control/src/main/java/Learning/Fitness.java
 /home/ivopascal/University/BSc/Wildfire-control/src/main/java/View/MainFrame.java
+/home/ivopascal/University/BSc/Wildfire-control/src/main/java/Navigation/NodeComparator.java
 /home/ivopascal/University/BSc/Wildfire-control/src/main/java/View/ElementFrame.java
 /home/ivopascal/University/BSc/Wildfire-control/src/main/java/Model/Elements/House.java
 /home/ivopascal/University/BSc/Wildfire-control/src/main/java/Main.java
@@ -26,3 +27,4 @@
 /home/ivopascal/University/BSc/Wildfire-control/src/main/java/Controller/TextFields/parameterAction.java
 /home/ivopascal/University/BSc/Wildfire-control/src/main/java/Model/Elements/Element.java
 /home/ivopascal/University/BSc/Wildfire-control/src/main/java/Learning/Features.java
+/home/ivopascal/University/BSc/Wildfire-control/src/main/java/Navigation/Node.java

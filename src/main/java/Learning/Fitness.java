@@ -31,6 +31,7 @@ public class Fitness implements Serializable {
 		public int getFitness(int depth) {
 			this.maxDepth = depth;
 			int count = 0;
+			System.out.println("N. fires " + model.getActiveCells().size());
 			for (Element f : model.getActiveCells()) {
 				for (String d : directions) {
 					count += goDownPath(f.getX(), f.getY(), d, 0);
@@ -50,14 +51,16 @@ public class Fitness implements Serializable {
 				// if we have not reached maximum depth, go down the two new paths as well
 				} else {
 					if (direction.equals("N") || direction.equals("S")) {
-						goDownPath(newX, newY, "E", currentDepth + 1);
-						goDownPath(newX, newY, "W", currentDepth + 1);
-						return 100;
+					    int out = 0;
+						out += goDownPath(newX, newY, "E", currentDepth + 1);
+						out += goDownPath(newX, newY, "W", currentDepth + 1);
+						return 100 + out;
 					}
 					if (direction.equals("E") || direction.equals("W")) {
-						goDownPath(newX, newY, "N", currentDepth + 1);
-						goDownPath(newX, newY, "S", currentDepth + 1);
-						return 100;
+					    int out = 0;
+						out += goDownPath(newX, newY, "N", currentDepth + 1);
+						out += goDownPath(newX, newY, "S", currentDepth + 1);
+						return 100 + out;
 					}
 				}
 			}
@@ -67,14 +70,16 @@ public class Fitness implements Serializable {
 					return 0;
 				} else {
 					if (direction.equals("N") || direction.equals("S")) {
-						goDownPath(newX, newY, "E", currentDepth + 1);
-						goDownPath(newX, newY, "W", currentDepth + 1);
-						return 0;
+					    int out = 0;
+						out += goDownPath(newX, newY, "E", currentDepth + 1);
+						out += goDownPath(newX, newY, "W", currentDepth + 1);
+						return out;
 					}
 					if (direction.equals("E") || direction.equals("W")) {
-						goDownPath(newX, newY, "N", currentDepth + 1);
-						goDownPath(newX, newY, "S", currentDepth + 1);
-						return 0;
+					    int out = 0;
+						out += goDownPath(newX, newY, "N", currentDepth + 1);
+						out += goDownPath(newX, newY, "S", currentDepth + 1);
+						return out;
 					}
 				}
 			}

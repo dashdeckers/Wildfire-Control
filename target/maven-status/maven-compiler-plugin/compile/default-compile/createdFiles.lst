@@ -2,6 +2,7 @@ Learning/Cosyne.class
 Controller/Buttons/ControlAction$1.class
 Model/Generator.class
 View/ElementPanel$SquarePanel.class
+Learning/Fitness$SPE_Measure.class
 View/ElementPanel$1.class
 Navigation/DijkstraShortestPath.class
 Model/Simulation.class
