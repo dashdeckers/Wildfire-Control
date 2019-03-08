@@ -2,6 +2,7 @@ package Model;
 
 import Learning.RLController;
 import Model.Elements.*;
+import Navigation.DijkstraShortestPath;
 //import com.sun.xml.internal.bind.v2.TODO;
 
 import java.io.*;
@@ -38,7 +39,6 @@ public class Simulation extends Observable implements Serializable, Observer {
 	// parameters related to agents
 	private int nr_agents;
 	private int energyAgents;
-	private int fitness;
 
 	// other classes
 	private ParameterManager parameter_manager;
@@ -436,10 +436,6 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public void setAgents(List<Agent> agents) { this.agents = agents; }
 
 	public int getEnergyAgents() { return energyAgents; }
-
-	public int getFitness() { return fitness; }
-
-	public void setFitness(int fitness) { this.fitness = fitness; }
 
 	public Set<Element> getActiveCells() { return activeCells; }
 
