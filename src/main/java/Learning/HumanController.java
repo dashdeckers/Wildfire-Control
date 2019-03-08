@@ -23,8 +23,6 @@ public class HumanController implements RLController, KeyListener, Serializable 
     @Override
     public void pickAction(Agent a) {
 
-        System.out.println("test");
-
         simulationPanel.requestFocus();
         while(keyEvent == null){
             try {
@@ -58,9 +56,8 @@ public class HumanController implements RLController, KeyListener, Serializable 
         }
 
         if (model != null) {
-            System.out.println(fitness.straightPathsEncirclementMeasure(model));
-            fitness.createSPE(model);
-            System.out.println(fitness.SPE.getFitness(0));
+            Fitness.SPE_Measure StraightPaths = fitness.new SPE_Measure(model);
+            System.out.println("Fitness: " + StraightPaths.getFitness(1));
         } else {
             System.out.println("Model is null!");
         }
