@@ -46,6 +46,8 @@ public class Fitness implements Serializable {
 			int newY = getNewY(y, direction);
 			// if we are out of bounds (= reached the edge of the map, bad thing), return a high cost
 			if (!model.isInBounds(newX, newY)) {
+				return 100;
+				/*
 				if (currentDepth == maxDepth) {
 					return 100;
 				// if we have not reached maximum depth, go down the two new paths as well
@@ -63,28 +65,32 @@ public class Fitness implements Serializable {
 						return 100 + out;
 					}
 				}
+				*/
 			}
 			// if it is not a burnable (= reached a road or a river, good thing), return 0 cost
 			if (!isBurnable(newX, newY)) {
-				if (currentDepth == maxDepth) {
-					return 0;
-				} else {
-					if (direction.equals("N") || direction.equals("S")) {
-					    int out = 0;
-						out += goDownPath(newX, newY, "E", currentDepth + 1);
-						out += goDownPath(newX, newY, "W", currentDepth + 1);
-						return out;
-					}
-					if (direction.equals("E") || direction.equals("W")) {
-					    int out = 0;
-						out += goDownPath(newX, newY, "N", currentDepth + 1);
-						out += goDownPath(newX, newY, "S", currentDepth + 1);
-						return out;
-					}
+				return 0;
+			}
+
+			if (currentDepth == maxDepth) {
+				return 0;
+			} else {
+				if (direction.equals("N") || direction.equals("S")) {
+					int out = 1 + goDownPath(newX, newY, direction, currentDepth);
+					out += goDownPath(newX, newY, "E", currentDepth + 1);
+					out += goDownPath(newX, newY, "W", currentDepth + 1);
+					return out;
+				}
+				if (direction.equals("E") || direction.equals("W")) {
+					int out = 1 + goDownPath(newX, newY, direction, currentDepth);
+					out += goDownPath(newX, newY, "N", currentDepth + 1);
+					out += goDownPath(newX, newY, "S", currentDepth + 1);
+					return out;
 				}
 			}
 			// otherwise return a cost of one, and continue down the same path/direction
-			return 1 + goDownPath(newX, newY, direction, currentDepth);
+			//return 1 + goDownPath(newX, newY, direction, currentDepth);
+			return -10000000;
 		}
 
 		// updates x if the direction is East or West

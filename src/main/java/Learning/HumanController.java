@@ -57,7 +57,7 @@ public class HumanController implements RLController, KeyListener, Serializable 
 
         if (model != null) {
             Fitness.SPE_Measure StraightPaths = fitness.new SPE_Measure(model);
-            System.out.println("Fitness: " + StraightPaths.getFitness(1));
+            System.out.println("Fitness: " + StraightPaths.getFitness(2));
         } else {
             System.out.println("Model is null!");
         }
