@@ -46,49 +46,36 @@ public class Fitness implements Serializable {
 			// if we are out of bounds (= reached the edge of the map, bad thing), return a high cost
 			if (!model.isInBounds(newX, newY)) {
 				return 100;
-				/*
-				if (currentDepth == maxDepth) {
-					return 100;
-				// if we have not reached maximum depth, go down the two new paths as well
-				} else {
-					if (direction.equals("N") || direction.equals("S")) {
-					    int out = 0;
-						out += goDownPath(newX, newY, "E", currentDepth + 1);
-						out += goDownPath(newX, newY, "W", currentDepth + 1);
-						return 100 + out;
-					}
-					if (direction.equals("E") || direction.equals("W")) {
-					    int out = 0;
-						out += goDownPath(newX, newY, "N", currentDepth + 1);
-						out += goDownPath(newX, newY, "S", currentDepth + 1);
-						return 100 + out;
-					}
-				}
-				*/
 			}
 			// if it is not a burnable (= reached a road or a river, good thing), return 0 cost
 			if (!isBurnable(newX, newY)) {
 				return 0;
 			}
 
+			//Stop when we're at the depth limit
 			if (currentDepth == maxDepth) {
 				return 0;
 			} else {
+				//If we're moving vertically
 				if (direction.equals("N") || direction.equals("S")) {
+					//Take another step in the direction
 					int out = 1 + goDownPath(newX, newY, direction, currentDepth);
+					//And cast out lines in the other directions
 					out += goDownPath(newX, newY, "E", currentDepth + 1);
 					out += goDownPath(newX, newY, "W", currentDepth + 1);
 					return out;
 				}
+				//If we're moving horizontally
 				if (direction.equals("E") || direction.equals("W")) {
+					//Take antoher step in the direction
 					int out = 1 + goDownPath(newX, newY, direction, currentDepth);
+					//And cast out lines in the other directions
 					out += goDownPath(newX, newY, "N", currentDepth + 1);
 					out += goDownPath(newX, newY, "S", currentDepth + 1);
 					return out;
 				}
 			}
-			// otherwise return a cost of one, and continue down the same path/direction
-			//return 1 + goDownPath(newX, newY, direction, currentDepth);
+			//This should never be called, but the IDE and compiler need it
 			return -10000000;
 		}
 

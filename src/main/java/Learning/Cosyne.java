@@ -172,6 +172,7 @@ public class Cosyne implements RLController {
             entry.setValue(StraightPaths.getFitness(2));
             scores[i] = StraightPaths.getFitness(2);
 
+            //If it's a new best run the simulation again and take a screenshot
             if(best != -1 && scores[i] < best){
                 current_mlp = (MultiLayerPerceptron) entry.getKey();
                 current_model = new Simulation(this);
@@ -242,8 +243,9 @@ public class Cosyne implements RLController {
                     int nconnections = child.getLayerAt(il).getNeuronAt(in).getInputConnections().length;
                     //For each (inbound) connection to a neuron
                     for(int ic = 0; ic < nconnections; ic++){
-                        int origin_rate = rng.nextInt(5);
 
+                        int origin_rate = rng.nextInt(5);
+                        //Take some random ratio between the two parents
                         double weight =
                                 parent_1.getLayerAt(il).getNeuronAt(in).getInputConnections()[ic].getWeight().value * origin_rate
                                 + parent_2.getLayerAt(il).getNeuronAt(in).getInputConnections()[ic].getWeight().value * (1-origin_rate);
@@ -298,6 +300,7 @@ public class Cosyne implements RLController {
             }
         }
 
+        //Tell the features what our current action is, so next time it'll know the previous action
         features.previousAction = action;
         switch (action){
             case 0:
