@@ -163,8 +163,9 @@ public class Cosyne implements RLController {
                 current_model.start();
             }
 
-            entry.setValue(fitness.straightPathsEncirclementMeasure(current_model));
-            scores[i] =  fitness.straightPathsEncirclementMeasure(current_model);
+            Fitness.SPE_Measure StraightPaths = fitness.new SPE_Measure(current_model);
+            entry.setValue(StraightPaths.getFitness(0));
+            scores[i] = StraightPaths.getFitness(0);
             if((generation == 1 || generation % 10 == 0) && i < 10) {
                 System.out.println("Fitness " + scores[i]);
             }
