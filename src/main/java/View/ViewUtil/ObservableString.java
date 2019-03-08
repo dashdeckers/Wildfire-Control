@@ -1,8 +1,9 @@
 package View.ViewUtil;
 
+import java.io.Serializable;
 import java.util.Observable;
 
-public class ObservableString extends Observable {
+public class ObservableString extends Observable implements Serializable {
     private String string;
     public ObservableString(){}
 

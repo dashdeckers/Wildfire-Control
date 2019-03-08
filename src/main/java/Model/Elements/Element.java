@@ -47,19 +47,19 @@ import java.util.*;
  */
 
 public abstract class Element implements Serializable, Observer {
-	// coordinates
 	int x = 0;
 	int y = 0;
-	// maximal radius of influence, if burning
 	int r = 0;
-	// color
 	Color color = Color.WHITE;
 	protected String type;
-	// parameters passed from simulation
-	ParameterManager parameterManager;
-	// state properties
+
+	private int width;
+	private int height;
+
 	boolean isBurnable = false;
 	private boolean isBurning = false;
+
+	ParameterManager parameterManager;
 
 	// parameters relevant for fire propagation
 	private double temperature = 0;
@@ -74,24 +74,14 @@ public abstract class Element implements Serializable, Observer {
 	// move speed: 0 is not traversable, 3 is easy to traverse
 	int moveSpeed = 0;
 
-	private int width;
-	private int height;
-
 	// wind parameters
 	private double windSpeed;
 	private double wVecX;
 	private double wVecY;
 
 	/**
-	 * TODO: Element parameters
-	 * Tweak the parameters. Currently windSpeed is more of a general hindering factor for
-	 * the fire spread where I actually want it to promote fire spread in the wind direction.
-	 * Element specific parameters need some tuning as well, but that will go hand in hand with
-	 * a more in-depth look into how fire spreads in real life.
-	 *
-	 * Also, the wind parameters need to go in the parameter manager for real-time tuning
+	 *  Every element needs to initialize
 	 */
-
 	public abstract void initializeParameters();
 
 	/**
@@ -101,8 +91,7 @@ public abstract class Element implements Serializable, Observer {
 	 *  If it is not burning, check if the heat levels are high enough. If they are higher than
 	 *  ignition threshold, return "Ignited", otherwise return "No Change"
 	 */
-	public String timeStep()
-	{
+	public String timeStep() {
 		if (isBurning) {
 			fuel -= 1;
 			if (fuel <= 0) {
@@ -117,16 +106,15 @@ public abstract class Element implements Serializable, Observer {
 	 *  Apply heat from burning cell, taking into account the windspeed,
 	 *  wind direction, and distance to the burning cell.
 	 */
-	public String getHeatFrom(Element burningCell)
-	{
+	public String getHeatFrom(Element burningCell) {
 		double distance = distanceTo(burningCell);
 		double angle = angleToWind(burningCell);
-		//System.out.println("cell type: " + this.getType());
+
 		temperature += burnIntensity * Math.pow(windSpeed * angle + distance, -1);
 		//System.out.println("Temperature increase by: BurnIntensity * " + Math.pow(windSpeed * angle + distance, -1));
-		// doing this check at the start will save some computation, but
-		// it will not guarantee that the temperature is always <= 100
+
 		if (temperature > 100) {temperature = 100;}
+
 		if (temperature > ignitionThreshold && !isBurning) {
 			isBurning = true;
 			return "Ignited";
@@ -137,7 +125,7 @@ public abstract class Element implements Serializable, Observer {
 	/**
 	 *  Returns the pythagorean distance to the given cell
 	 */
-	private double distanceTo(Element cell)
+	public double distanceTo(Element cell)
 	{
 		return Math.sqrt(Math.pow(x - cell.x, 2) + Math.pow(y - cell.y, 2));
 	}
@@ -146,13 +134,12 @@ public abstract class Element implements Serializable, Observer {
 	 *  Returns the angle between the vector that is given between the two cells
 	 *  and the vector that is given via the wind direction
 	 */
-	private double angleToWind(Element cell)
-	{
+	private double angleToWind(Element cell) {
 		// vector between this cell and the given cell
 		double cVecX = this.x - cell.x;
 		double cVecY = this.y - cell.y;
 
-		// return angle between that vector and the wind direction (range = [-pi, pi])
+		// return angle between that vector and the wind direction (range = [0, pi])
 		return Math.abs(Math.atan2(wVecX*cVecY - wVecY*cVecX, wVecX*cVecX + wVecY*cVecY));
 	}
 
@@ -161,8 +148,7 @@ public abstract class Element implements Serializable, Observer {
 	 *  by being the maximal amount of steps you can take from the origin to land on a cell
 	 *  that still counts as being a neighbour. Only burnable neighbours are considered.
 	 */
-	public HashSet<Element> getNeighbours(List<List<Element>> cells, List<Agent> agents)
-	{
+	public HashSet<Element> getNeighbours(List<List<Element>> cells, List<Agent> agents) {
 		HashSet<Element> neighbours = new HashSet<>();
 		int originX = getX();
 		int originY = getY();
@@ -334,7 +320,6 @@ public abstract class Element implements Serializable, Observer {
 		wVecX = parameterManager.getParameterSet("Model").get("Wind x");
 		wVecY = parameterManager.getParameterSet("Model").get("Wind y");
 		windSpeed = parameterManager.getParameterSet("Model").get("Wind Speed");
-
 
 		parameterManager.addObserver(this);
 		if(parameterManager.isChanged(this.type)) {

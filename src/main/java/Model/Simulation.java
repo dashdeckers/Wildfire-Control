@@ -27,7 +27,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private boolean undo_redo;
 	private boolean running;
 	private boolean use_gui;
-	private boolean generateRandom = true;
+	private boolean generateRandom = false;
 	private Random rand;
 	private long randomizer_seed = 0;
 
@@ -38,7 +38,6 @@ public class Simulation extends Observable implements Serializable, Observer {
 
 	// parameters related to agents
 	private int nr_agents;
-	private int agentsLeft;
 	private int energyAgents;
 
 	// other classes
@@ -50,7 +49,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 		this.use_gui = use_gui;
 
 		// Randomization initialization
-		Random seed_gen = new Random();
+		//Random seed_gen = new Random();
 		// randomizer_seed = seed_gen.nextLong();
 		rand = new Random(randomizer_seed);
 		states = new ArrayList<>();
@@ -61,7 +60,6 @@ public class Simulation extends Observable implements Serializable, Observer {
 		parameter_manager = new ParameterManager(this);
 		parameter_manager.addObserver(this);
 		generator = new Generator(this);
-		agentsLeft = 0;
 		// Generate a new map to start on
 		if (generateRandom) {
 			generator.randomMap();
@@ -101,7 +99,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public void create_parameters() {
 		width = 50;
 		height = 50;
-		nr_agents = 3;
+		nr_agents = 1;
 		energyAgents = 20;
 		if (use_gui) {
 			step_time = 100;
@@ -124,8 +122,6 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public void start() {
 		running = true;
 		int nsteps = 0;
-//		DijkstraShortestPath sp = new DijkstraShortestPath(cells,agents.get(0),cells.get(49).get(49));
-//		sp.findPath();
 		while (running && nsteps < 500) {
 			nsteps++;
 			if (step_time >=0) {
@@ -161,7 +157,6 @@ public class Simulation extends Observable implements Serializable, Observer {
 			this.cells = rewind.cells;
 			this.agents = rewind.agents;
 			this.activeCells = rewind.activeCells;
-			this.agentsLeft = rewind.getAgentsLeft();
 		}
 		setChanged();
 		notifyObservers(cells);
@@ -186,6 +181,9 @@ public class Simulation extends Observable implements Serializable, Observer {
 			generator.randomMap();
 		} else {
 			generator.plainMap();
+		}
+		for(Agent a : agents){
+			a.setController(rlController);
 		}
 		setChanged();
 		notifyObservers(cells);
@@ -265,12 +263,11 @@ public class Simulation extends Observable implements Serializable, Observer {
 		}
 
 		for (Agent a : agents){
-			String status=a.timeStep();
+			String status = a.timeStep();
 			if (status.equals("Dead")){
 				agentsToRemove.add(a);
 			}
 		}
-
 		agents.removeAll(agentsToRemove);
 
 		// burningCell can also be an agent, they are counted as activeCells
@@ -440,19 +437,27 @@ public class Simulation extends Observable implements Serializable, Observer {
 
 	public int getEnergyAgents() { return energyAgents; }
 
-	public int getAgentsLeft() { return agentsLeft; }
-
-	public void setAgentsLeft(int agentsLeft) { this.agentsLeft = agentsLeft; }
-
 	public Set<Element> getActiveCells() { return activeCells; }
 
 	public boolean isInBounds(int x, int y) {
-		return (   x > 0 && x < width
-				&& y > 0 && y < height);
+		return (   x >= 0 && x < width
+				&& y >= 0 && y < height);
 	}
 
 	public Element getElementAt(int x, int y) {
 		return cells.get(x).get(y);
+	}
+
+	public Element getNearestFireTo(int x, int y) {
+		Element origin = cells.get(x).get(y);
+		Element nearest = null;
+		double minDistance = 10000;
+		for (Element f : activeCells) {
+			if (origin.distanceTo(f) < minDistance) {
+				nearest = f;
+			}
+		}
+		return nearest;
 	}
 
 	public void applyUpdates(){
