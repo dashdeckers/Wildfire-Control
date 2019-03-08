@@ -110,10 +110,29 @@ public class Fitness implements Serializable {
 		}
 	}
 
+	/**
+	 * This is reward function: larger values are better
+	 *
+	 * Gives a dirt tiles which are at a good distance from the fire a higher reward than
+	 * when they are too close or too far. Must be combined with other measures otherwise
+	 * the agent will just dig everywhere (any dirt tile improves fitness)
+	 *
+	 * @param model
+	 * @return
+	 */
 	public int simpleDistanceFitness(Simulation model) {
+		int distance;
+		int fitness = 0;
 		for (Element e : model.getActiveCells()) {
-			continue;
+			for (Element b : model.getBarriers()) {
+				distance = e.manhattanDistanceTo(b);
+				if (distance < 5 && distance > 2) {
+					fitness += 10;
+				} else {
+					fitness += 1;
+				}
+			}
 		}
-		return 0;
+		return fitness;
 	}
 }

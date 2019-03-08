@@ -15,6 +15,8 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private List<Agent> agents;
 	// This holds all cells which are on fire or near fire (these are the only ones that need to be updated)
 	private Set<Element> activeCells;
+	// This holds all cells which can contain the fire, such as dirt and river cells
+	private Set<Element> barriers;
 	// This holds a list of previous states of the simulation if undo_redo==true, otherwise only the first state for reset
 	private List<Simulation> states;
 
@@ -438,6 +440,12 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public int getEnergyAgents() { return energyAgents; }
 
 	public Set<Element> getActiveCells() { return activeCells; }
+
+	public Set<Element> getBarriers() { return barriers; }
+
+	public void addToBarriers(Element barrier) {
+		barriers.add(barrier);
+	}
 
 	public boolean isInBounds(int x, int y) {
 		return (   x >= 0 && x < width

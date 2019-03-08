@@ -225,7 +225,9 @@ public class Agent implements Serializable{
                 ||energyLevel >= cell.getParameters().get("Clear Cost") && cell.getType().equals("Grass")
                 ) {
             energyLevel -= cell.getParameters().get("Clear Cost");
-            simulation.getAllCells().get(x).set(y, new Dirt(x, y, simulation.getParameter_manager()));
+            Element dirt = new Dirt(x, y, simulation.getParameter_manager());
+            simulation.getAllCells().get(x).set(y, dirt);
+            simulation.addToBarriers(dirt);
         }else{
             doNothing();
         }
