@@ -1,4 +1,5 @@
 
+import Learning.BURLAP;
 import Learning.Cosyne;
 import Learning.HumanController;
 import Model.Simulation;
@@ -17,6 +18,9 @@ public class Main {
 		} else if (args.length > 0 && args[0].equals("cosyne_gui")) {
 			System.out.println("Cosyne gui");
 			new Cosyne();
+		} else if (args.length > 0 && args[0].equals("BURLAP")) {
+			BURLAP test = new BURLAP();
+			test.example();
 		} else if (args.length > 0 && args[0].equals("human")) {
 			HumanController hc = new HumanController();
 			Simulation s = new Simulation(hc);
