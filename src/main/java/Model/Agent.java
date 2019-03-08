@@ -236,57 +236,61 @@ public class Agent implements Serializable{
      * Check whether the agent can move right. If it can't, call doNothing(), waste the fuel and execute action on next timestep()
      */
     public void moveRight() {
-        int actionCost = determineMoveCost(simulation.getAllCells().get(x + 1).get(y));
-        if (checkTile(x + 1, y) && actionCost<=energyLevel) {
-            energyLevel -= actionCost;
-            x++;
-        }else{
-            doNothing();
-            plan.push("Go Right");
+        if(checkTile(x + 1, y)) {
+            int actionCost = determineMoveCost(simulation.getAllCells().get(x + 1).get(y));
+            if (actionCost <= energyLevel) {
+                energyLevel -= actionCost;
+                x++;
+                return;
+            }
         }
+        doNothing();
+
     }
 
     /**
      * Check whether the agent can move left. If it can't, call doNothing(), waste the fuel and execute action on next timestep()
      */
     public void moveLeft() {
-        int actionCost = determineMoveCost(simulation.getAllCells().get(x - 1).get(y));
-        if (checkTile(x - 1, y) && actionCost<=energyLevel) {
-            energyLevel -= actionCost;
-            x--;
-        }else{
-            doNothing();
-            plan.push("Go Left");
+        if(checkTile(x - 1, y)) {
+            int actionCost = determineMoveCost(simulation.getAllCells().get(x - 1).get(y));
+            if (actionCost <= energyLevel) {
+                energyLevel -= actionCost;
+                x--;
+                return;
+            }
         }
+        doNothing();
     }
 
     /**
      * Check whether the agent can move down. If it can't, call doNothing(), waste the fuel and execute action on next timestep()
      */
     public void moveDown() {
-        int actionCost = determineMoveCost(simulation.getAllCells().get(x).get(y - 1));
-        if (checkTile(x, y - 1) && actionCost<=energyLevel){
-
-            energyLevel -= actionCost;
-            y--;
-        }else{
-            doNothing();
-            plan.push("Go Down");
+        if(checkTile(x, y - 1)){
+            int actionCost = determineMoveCost(simulation.getAllCells().get(x).get(y - 1));
+            if (actionCost<=energyLevel){
+                energyLevel -= actionCost;
+                y--;
+                return;
+            }
         }
+        doNothing();
     }
 
     /**
      * Check whether the agent can move up. If it can't, call doNothing(), waste the fuel and execute action on next timestep()
      */
     public void moveUp() {
-        int actionCost = determineMoveCost(simulation.getAllCells().get(x).get(y + 1));
-        if (checkTile(x, y + 1) && actionCost<=energyLevel) {
-            energyLevel -= actionCost;
-            y++;
-        }else{
-            doNothing();
-            plan.push("Go Up");
+        if(checkTile(x, y + 1)){
+            int actionCost = determineMoveCost(simulation.getAllCells().get(x).get(y + 1));
+            if (actionCost<=energyLevel) {
+                energyLevel -= actionCost;
+                y++;
+                return;
+            }
         }
+        doNothing();
     }
 
     /**

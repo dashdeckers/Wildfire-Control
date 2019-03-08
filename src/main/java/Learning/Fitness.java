@@ -31,7 +31,6 @@ public class Fitness implements Serializable {
 		public int getFitness(int depth) {
 			this.maxDepth = depth;
 			int count = 0;
-			System.out.println("N. fires " + model.getActiveCells().size());
 			for (Element f : model.getActiveCells()) {
 				for (String d : directions) {
 					count += goDownPath(f.getX(), f.getY(), d, 0);

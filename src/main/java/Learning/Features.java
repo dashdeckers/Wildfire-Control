@@ -12,6 +12,8 @@ import java.util.stream.Stream;
 
 public class Features {
 
+    public double previousAction = -1;
+
     public Features() {}
 
     /**
@@ -124,6 +126,11 @@ public class Features {
         return doubleListToArray(output);
     }
 
+    public double[] previousAction(){
+        double[] out = {previousAction};
+        return out;
+    }
+
     public double[] appendArrays(double[]... arrays){
         double[] output = new double[0];
         for(double[] array : arrays){
@@ -135,5 +142,9 @@ public class Features {
 
     public double[] angleAndDistance(Simulation model){
         return  appendArrays(anglesToFire(model), distancesToFire(model));
+    }
+
+    public double[] angleDistAct(Simulation model){
+        return  appendArrays(anglesToFire(model), distancesToFire(model), previousAction());
     }
 }

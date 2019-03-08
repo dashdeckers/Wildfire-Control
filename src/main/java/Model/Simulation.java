@@ -122,7 +122,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public void start() {
 		running = true;
 		int nsteps = 0;
-		while (running && nsteps < 500) {
+		while (running && nsteps < 100) {
 			nsteps++;
 			if (step_time >=0) {
 				stepForward();
