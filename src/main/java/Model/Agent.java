@@ -5,6 +5,7 @@ import Model.Elements.Dirt;
 import Model.Elements.Element;
 import Model.ParameterManager;
 import Model.Simulation;
+import Navigation.DijkstraShortestPath;
 
 import java.awt.*;
 import java.io.Serializable;
@@ -26,6 +27,9 @@ public class Agent implements Serializable{
     private boolean isAlive;
     private int energyLevel;
     private Color color;
+
+    //Optimal path found by A* will be stored here
+    private Stack<String> plan;
 
     /**
      * Create an agent at X,Y with a certain id.
@@ -98,12 +102,20 @@ public class Agent implements Serializable{
      * @return
      */
     public String timeStep() {
-
+        /**
+         * TODO: Properly define goal for each agent. If current code is uncommented, all agents will move towards x=0, y=0
+         *
+         *
+         */
+        if (plan==null){
+            DijkstraShortestPath sp = new DijkstraShortestPath(simulation.getAllCells(),this,simulation.getAllCells().get(49).get(49));
+            sp.findPath();
+            plan=sp.getDirections();
+        }
         //String returnString = super.timeStep();
         energyLevel=simulation.getEnergyAgents();
         takeActions();
         if (!isAlive){
-            System.out.println("test");
             color=Color.MAGENTA;
             return "Dead";
         }
@@ -115,17 +127,19 @@ public class Agent implements Serializable{
      * Makes the agent perform an action, either by some controller, or simply at random
      */
     private void takeActions() {
-        //energyLevel = simulation.getEnergyAgents();
+        String currentAction;
+
         while(energyLevel>0 && isAlive) {
-            //If an agent controller is assigned, have it make the decision
             if(controller != null){
                 controller.pickAction(this);
             }else {
-                List<String> actions = possibleActions();
-                //System.out.println("action list = " + actions.toString());
-                Random r = new Random();
-                String currentAction = actions.get(r.nextInt(actions.size()));
-                //System.out.println("Decided to do: " + currentAction + ", having energy level: " + energyLevel + " and temperature: " + temperature);
+                if (plan.empty()) {
+                    List<String> actions = possibleActions();
+                    Random r = new Random();
+                    currentAction = actions.get(r.nextInt(actions.size()));
+                } else {
+                    currentAction = plan.pop();
+                }
                 switch (currentAction) {
                     case "Cut Tree":
                     case "Cut Grass":
@@ -219,54 +233,59 @@ public class Agent implements Serializable{
     }
 
     /**
-     * Check whether the agent can move right. If it can't, call doNothing() and waste the fuel
+     * Check whether the agent can move right. If it can't, call doNothing(), waste the fuel and execute action on next timestep()
      */
     public void moveRight() {
-        if (checkTile(x + 1, y) && (determineMoveCost(simulation.getAllCells().get(x+1).get(y)))<=energyLevel) {
-            int actionCost = determineMoveCost(simulation.getAllCells().get(x + 1).get(y));
+        int actionCost = determineMoveCost(simulation.getAllCells().get(x + 1).get(y));
+        if (checkTile(x + 1, y) && actionCost<=energyLevel) {
             energyLevel -= actionCost;
             x++;
         }else{
             doNothing();
+            plan.push("Go Right");
         }
     }
 
     /**
-     * Check whether the agent can move left. If it can't, call doNothing() and waste the fuel
+     * Check whether the agent can move left. If it can't, call doNothing(), waste the fuel and execute action on next timestep()
      */
     public void moveLeft() {
-        if (checkTile(x - 1, y) && (determineMoveCost(simulation.getAllCells().get(x-1).get(y)))<=energyLevel) {
-            int actionCost = determineMoveCost(simulation.getAllCells().get(x - 1).get(y));
+        int actionCost = determineMoveCost(simulation.getAllCells().get(x - 1).get(y));
+        if (checkTile(x - 1, y) && actionCost<=energyLevel) {
             energyLevel -= actionCost;
             x--;
         }else{
             doNothing();
+            plan.push("Go Left");
         }
     }
 
     /**
-     * Check whether the agent can move down. If it can't, call doNothing() and waste the fuel
+     * Check whether the agent can move down. If it can't, call doNothing(), waste the fuel and execute action on next timestep()
      */
     public void moveDown() {
-        if (checkTile(x, y - 1) && (determineMoveCost(simulation.getAllCells().get(x).get(y-1)))<=energyLevel){
-            int actionCost = determineMoveCost(simulation.getAllCells().get(x).get(y - 1));
+        int actionCost = determineMoveCost(simulation.getAllCells().get(x).get(y - 1));
+        if (checkTile(x, y - 1) && actionCost<=energyLevel){
+
             energyLevel -= actionCost;
             y--;
         }else{
             doNothing();
+            plan.push("Go Down");
         }
     }
 
     /**
-     * Check whether the agent can move up. If it can't, call doNothing() and waste the fuel
+     * Check whether the agent can move up. If it can't, call doNothing(), waste the fuel and execute action on next timestep()
      */
     public void moveUp() {
-        if (checkTile(x, y + 1) && (determineMoveCost(simulation.getAllCells().get(x).get(y+1)))<=energyLevel) {
-            int actionCost = determineMoveCost(simulation.getAllCells().get(x).get(y + 1));
+        int actionCost = determineMoveCost(simulation.getAllCells().get(x).get(y + 1));
+        if (checkTile(x, y + 1) && actionCost<=energyLevel) {
             energyLevel -= actionCost;
             y++;
         }else{
             doNothing();
+            plan.push("Go Up");
         }
     }
 
