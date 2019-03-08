@@ -3,11 +3,12 @@ package Learning;
 import Model.Elements.Element;
 import Model.Simulation;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-public class Fitness {
+public class Fitness implements Serializable {
 	straightPathsEncirclementMeasure SPE;
 
 	/**
@@ -109,6 +110,7 @@ public class Fitness {
 		public int getFitness(int depth) {
 			int count = 0;
 
+			for (startingPoint p : newPoints)
 			// the first loop goes over activeCells (=burning cells)
 			for (Element e : model.getActiveCells()) {
 				ox = e.getX();

@@ -107,11 +107,14 @@ public class Agent implements Serializable{
          *
          *
          */
+        // TODO: This is giving index out-of-bounds errors
+        /*
         if (plan==null){
             DijkstraShortestPath sp = new DijkstraShortestPath(simulation.getAllCells(),this,simulation.getAllCells().get(49).get(49));
             sp.findPath();
             plan=sp.getDirections();
         }
+        */
         //String returnString = super.timeStep();
         energyLevel=simulation.getEnergyAgents();
         takeActions();
