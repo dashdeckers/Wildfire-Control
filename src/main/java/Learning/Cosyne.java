@@ -8,9 +8,14 @@ import org.neuroph.core.Neuron;
 import org.neuroph.core.Weight;
 import org.neuroph.nnet.MultiLayerPerceptron;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.List;
 
 
 public class Cosyne implements RLController {
@@ -56,7 +61,7 @@ public class Cosyne implements RLController {
 
         generation = 0;
         //The learning loop!
-        while(generation < 1000) {
+        while(generation < 100) {
             generation++;
 
             //Run & evaluate the MLPS
@@ -158,6 +163,8 @@ public class Cosyne implements RLController {
 
                 JFrame f = new MainFrame(current_model);
                 current_model.start();
+                screenshot(generation, i);
+
                 f.dispose();
             }else{
                 current_model.start();
@@ -174,6 +181,17 @@ public class Cosyne implements RLController {
         Arrays.sort(scores);
 
         return scores;
+    }
+
+    private void screenshot(int generation, int i){
+        Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
+        try {
+            BufferedImage capture = new Robot().createScreenCapture(screenRect);
+            ImageIO.write(capture, "bmp", new File("./screenshot_g"+ generation+"_i_"+i+".bmp"));
+
+        }catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 
     /**

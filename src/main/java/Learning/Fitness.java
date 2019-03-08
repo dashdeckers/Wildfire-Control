@@ -21,19 +21,27 @@ public class Fitness {
 		// TODO: get depth argument, use old dead ends as starting points for looking in (two) new directions again
 		// im leaving it like this for now because that will introduce 2 more loops into this thing
 
-		HashSet<String> directions = new HashSet<>(Arrays.asList("N", "S", "E", "W"));
 		// for every burning cell
+		int c_check = 0;
+		System.out.println("Number of actvie cells " + model.getActiveCells().size());
+		model.findActiveCells();
+		System.out.println("Number of actvie cells " + model.getActiveCells().size());
+
 		for (Element cell : model.getActiveCells()) {
+			HashSet<String> directions = new HashSet<>(Arrays.asList("N", "S", "E", "W"));
+
 			int ox = cell.getX();
 			int oy = cell.getY();
 			int x = 0;
 			int y = 0;
-
+			c_check++;
+			System.out.println("Checking cell " +c_check);
 			int layer = 0;
 			// loop until no more directions to explore
-			while (true) {
+			boolean busy = true;
+			while (busy) {
 				if (directions.isEmpty()) {
-					break;
+					busy = false;
 				}
 				// increment layer and get coordinates for each direction
 				layer ++;
