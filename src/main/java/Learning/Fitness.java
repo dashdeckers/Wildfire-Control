@@ -109,4 +109,11 @@ public class Fitness implements Serializable {
 					&& !e.isBurning());
 		}
 	}
+
+	public int simpleDistanceFitness(Simulation model) {
+		for (Element e : model.getActiveCells()) {
+			continue;
+		}
+		return 0;
+	}
 }
