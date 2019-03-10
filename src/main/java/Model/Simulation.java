@@ -74,10 +74,11 @@ public class Simulation extends Observable implements Serializable, Observer {
 			parameter_manager.changeParameter("Model", "Height", 50f);
 			generator.plainMap();
 		}
+		findActiveCells();
 		setChanged();
 		notifyObservers(cells);
 		notifyObservers(agents);
-		findActiveCells();
+
 		// Save the state so it can be reset to
 		states.add((Simulation) deepCopy(this));
 	}
@@ -89,6 +90,9 @@ public class Simulation extends Observable implements Serializable, Observer {
 	 */
 	public Simulation(RLController controller) {
 		this(false);
+		if(generateRandom){
+			System.out.println("WARNING! GENERATING RANDOM MIGHT CAUSE NPE");
+		}
 		this.rlController = controller;
 		for (Agent a: agents) {
 			a.setController(rlController);
@@ -265,7 +269,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 
 		if (agents.size()==0 || activeCells.size()==0) {
 			running = false;
-			System.out.println("STOPPED");
+			//System.out.println("STOPPED");
 		}
 
 		for (Agent a : agents){
