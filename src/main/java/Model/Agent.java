@@ -119,8 +119,9 @@ public class Agent implements Serializable{
 
         while(energyLevel>0 && isAlive) {
             //If an agent controller is assigned, have it make the decision
-            if(controller != null){
+            if(controller != null) {
                 controller.pickAction(this);
+            }
 //            }else {
 //                if (plan.empty()) {
 //
