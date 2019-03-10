@@ -107,11 +107,11 @@ public class Agent implements Serializable{
          *
          *
          */
-        if (plan==null){
-            DijkstraShortestPath sp = new DijkstraShortestPath(simulation.getAllCells(),this,simulation.getAllCells().get(49).get(49));
-            sp.findPath();
-            plan=sp.getDirections();
-        }
+//        if (plan==null){
+//            DijkstraShortestPath sp = new DijkstraShortestPath(simulation.getAllCells(),this,simulation.getAllCells().get(49).get(49));
+//            sp.findPath();
+//            plan=sp.getDirections();
+//        }
         //String returnString = super.timeStep();
         energyLevel=simulation.getEnergyAgents();
         takeActions();
@@ -132,14 +132,15 @@ public class Agent implements Serializable{
             //If an agent controller is assigned, have it make the decision
             if(controller != null){
                 controller.pickAction(this);
-            }else {
-                if (plan.empty()) {
-                    List<String> actions = possibleActions();
-                    Random r = new Random();
-                    currentAction = actions.get(r.nextInt(actions.size()));
-                } else {
-                    currentAction = plan.pop();
-                }
+//            }else {
+//                if (plan.empty()) {
+//
+//                } else {
+//                    currentAction = plan.pop();
+//                }
+                List<String> actions = possibleActions();
+                Random r = new Random();
+                currentAction = actions.get(r.nextInt(actions.size()));
                 switch (currentAction) {
                     case "Cut Tree":
                     case "Cut Grass":
@@ -239,7 +240,7 @@ public class Agent implements Serializable{
             x++;
         }else{
             doNothing();
-            plan.push("Go Right");
+            //plan.push("Go Right");
         }
     }
 
@@ -253,7 +254,7 @@ public class Agent implements Serializable{
             x--;
         }else{
             doNothing();
-            plan.push("Go Left");
+            //plan.push("Go Left");
         }
     }
 
@@ -268,7 +269,7 @@ public class Agent implements Serializable{
             y--;
         }else{
             doNothing();
-            plan.push("Go Down");
+            //plan.push("Go Down");
         }
     }
 
@@ -282,7 +283,7 @@ public class Agent implements Serializable{
             y++;
         }else{
             doNothing();
-            plan.push("Go Up");
+            //plan.push("Go Up");
         }
     }
 
