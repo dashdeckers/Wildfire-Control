@@ -135,4 +135,25 @@ public class Fitness implements Serializable {
 		}
 		return fitness;
 	}
+
+	/**
+	 * Returns the amount of fuel that has been burnt up so far. Currently only works
+	 * for the plain map, the generator needs to initialize/update the totalFuel value
+	 * in the simulation.
+	 *
+	 * There's a slight mismatch between totalBurnt and totalFuel after letting the simulation
+	 * run until completely burnt out (53271 burnt, 50000 total) but this is tolerable because
+	 * of the extremely efficient calculation of this number in updateEnvironment
+	 * @param model
+	 * @return
+	 */
+
+	public int totalFuelBurnt(Simulation model) {
+		int value = model.getTotalFuel() - model.getTotalFuelBurnt();
+		if (value > 0) {
+			return value;
+		} else {
+			return 0;
+		}
+	}
 }

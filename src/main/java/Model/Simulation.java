@@ -29,9 +29,13 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private boolean undo_redo;
 	private boolean running;
 	private boolean use_gui;
-	private boolean generateRandom = true;
+	private boolean generateRandom = false;
 	private Random rand;
 	private long randomizer_seed = 0;
+
+	// parameters related to fitness
+	int totalFuel = 0;
+	int totalFuelBurnt = 0;
 
 	// parameters related to wind
 	private float wVecX;
@@ -66,8 +70,8 @@ public class Simulation extends Observable implements Serializable, Observer {
 		if (generateRandom) {
 			generator.randomMap();
 		} else {
-			parameter_manager.changeParameter("Model", "Width", 21f);
-			parameter_manager.changeParameter("Model", "Height", 21f);
+			parameter_manager.changeParameter("Model", "Width", 50f);
+			parameter_manager.changeParameter("Model", "Height", 50f);
 			generator.plainMap();
 		}
 		setChanged();
@@ -112,7 +116,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 		undo_redo = false;
 		wVecX = -1;
 		wVecY = 0;
-		windSpeed = 1;
+		windSpeed = 0;
 	}
 
 
@@ -272,7 +276,10 @@ public class Simulation extends Observable implements Serializable, Observer {
 		}
 		agents.removeAll(agentsToRemove);
 
-		// burningCell can also be an agent, they are counted as activeCells
+		// every burning cell will decrement its fuel level by one in each iteration
+		totalFuelBurnt += activeCells.size();
+
+		// for each burning cell
 		for (Element burningCell : activeCells) {
 			// update the cell and remove if it is burnt out
 			String status = burningCell.timeStep();
@@ -446,6 +453,10 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public void addToBarriers(Element b) {
 		barriers.add(b);
 	}
+
+	public int getTotalFuel() { return totalFuel; }
+
+	public int getTotalFuelBurnt() { return totalFuelBurnt; }
 
 	public boolean isInBounds(int x, int y) {
 		return (   x >= 0 && x < width

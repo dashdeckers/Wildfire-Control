@@ -44,7 +44,9 @@ class Generator implements Serializable {
         for (int i = 0; i < width; i++) {
             List<Element> col = new ArrayList<>();
             for (int j = 0; j < height; j++) {
-                col.add(new Grass(i, j, parameter_manager));
+                Element grass = new Grass(i, j, parameter_manager);
+                col.add(grass);
+                model.totalFuel += grass.getFuel();
             }
             cells.add(col);
         }
@@ -60,13 +62,7 @@ class Generator implements Serializable {
         refreshParameters();
         initializeMap();
         //Place StaticFire in the middle
-        model.getAllCells().get(width/2).set(height/2, new StaticFire(width/2, height/2, model.getParameter_manager()));
-        model.getAllCells().get(width/2 +1).set(height/2, new StaticFire(width/2 +1, height/2, model.getParameter_manager()));
-        model.getAllCells().get(width/2 -1).set(height/2, new StaticFire(width/2 -1, height/2, model.getParameter_manager()));
-
-        model.getAllCells().get(width/2).set(height/2 + 1, new StaticFire(width/2, height/2 + 1, model.getParameter_manager()));
-        model.getAllCells().get(width/2).set(height/2 -1, new StaticFire(width/2, height/2 -1 , model.getParameter_manager()));
-
+        model.getAllCells().get(width/2).get(height/2).setBurning();
 
         //Place Agent to the left of the static fire
         agents.add(new Agent(width/4,height/2,model, parameter_manager,0));
