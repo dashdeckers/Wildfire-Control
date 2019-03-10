@@ -135,7 +135,7 @@ public class Agent implements Serializable{
             //If an agent controller is assigned, have it make the decision
             if(controller != null) {
                 controller.pickAction(this);
-            }
+            }else {
 //            }else {
 //                if (plan.empty()) {
 //
@@ -165,10 +165,13 @@ public class Agent implements Serializable{
                     default:
                         doNothing();
                 }
-                Element currentCell = simulation.getAllCells().get(x).get(y);
-                if (currentCell.isBurnable() && currentCell.isBurning()){
-                    isAlive=false;
-                }
+            }
+
+            }
+            Element currentCell = simulation.getAllCells().get(x).get(y);
+
+            if (currentCell.isBurnable() && currentCell.isBurning()) {
+                isAlive = false;
             }
             simulation.applyUpdates();
     }

@@ -118,7 +118,13 @@ public class Features {
         for (Agent a : model.getAgents()) {
             int refVecX = 0;
             int refVecY = 1;
+            if(a == null){
+                System.out.println("No agnet!");
+            }
             Element nearestFire = model.getNearestFireTo(a.getX(), a.getY());
+            if(nearestFire == null){
+                System.out.println("NO nearest fire");
+            }
             int afVecX = a.getX() - nearestFire.getX();
             int afVecY = a.getY() - nearestFire.getY();
             output.add(Math.atan2(afVecX*refVecY - afVecY*refVecX, afVecX*refVecX + afVecY*refVecY));
