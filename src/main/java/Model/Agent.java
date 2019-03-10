@@ -171,7 +171,6 @@ public class Agent implements Serializable{
                 }
             }
             simulation.applyUpdates();
-        }
     }
 
     /**
