@@ -110,10 +110,50 @@ public class Fitness implements Serializable {
 		}
 	}
 
+	/**
+	 * This is reward function: larger values are better
+	 *
+	 * Gives a dirt tiles which are at a good distance from the fire a higher reward than
+	 * when they are too close or too far. Must be combined with other measures otherwise
+	 * the agent will just dig everywhere (any dirt tile improves fitness)
+	 *
+	 * @param model
+	 * @return
+	 */
 	public int simpleDistanceFitness(Simulation model) {
+		int distance;
+		int fitness = 0;
 		for (Element e : model.getActiveCells()) {
-			continue;
+			for (Element b : model.getBarriers()) {
+				distance = e.manhattanDistanceTo(b);
+				if (distance < 5 && distance > 2) {
+					fitness += 10;
+				} else {
+					fitness += 1;
+				}
+			}
 		}
-		return 0;
+		return fitness;
+	}
+
+	/**
+	 * Returns the amount of fuel that has been burnt up so far. Currently only works
+	 * for the plain map, the generator needs to initialize/update the totalFuel value
+	 * in the simulation.
+	 *
+	 * There's a slight mismatch between totalBurnt and totalFuel after letting the simulation
+	 * run until completely burnt out (53271 burnt, 50000 total) but this is tolerable because
+	 * of the extremely efficient calculation of this number in updateEnvironment
+	 * @param model
+	 * @return
+	 */
+
+	public int totalFuelBurnt(Simulation model) {
+		int value = model.getTotalFuel() - model.getTotalFuelBurnt();
+		if (value > 0) {
+			return value;
+		} else {
+			return 0;
+		}
 	}
 }

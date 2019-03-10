@@ -130,6 +130,9 @@ public abstract class Element implements Serializable, Observer {
 		return Math.sqrt(Math.pow(x - cell.x, 2) + Math.pow(y - cell.y, 2));
 	}
 
+	public int manhattanDistanceTo(Element cell) {
+		return Math.abs(this.getX() - cell.getX() + Math.abs(this.getY() - cell.getY()));
+	}
 	/**
 	 *  Returns the angle between the vector that is given between the two cells
 	 *  and the vector that is given via the wind direction

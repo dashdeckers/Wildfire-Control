@@ -14,7 +14,9 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private List<List<Element>> cells;
 	private List<Agent> agents;
 	// This holds all cells which are on fire or near fire (these are the only ones that need to be updated)
-	private Set<Element> activeCells;
+	private Set<Element> activeCells = new HashSet<>();
+	// This holds all cells which can contain the fire, such as dirt and river cells
+	private Set<Element> barriers = new HashSet<>();
 	// This holds a list of previous states of the simulation if undo_redo==true, otherwise only the first state for reset
 	private List<Simulation> states;
 
@@ -30,6 +32,10 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private boolean generateRandom = false;
 	private Random rand;
 	private long randomizer_seed = 0;
+
+	// parameters related to fitness
+	int totalFuel = 0;
+	int totalFuelBurnt = 0;
 
 	// parameters related to wind
 	private float wVecX;
@@ -64,8 +70,8 @@ public class Simulation extends Observable implements Serializable, Observer {
 		if (generateRandom) {
 			generator.randomMap();
 		} else {
-			parameter_manager.changeParameter("Model", "Width", 21f);
-			parameter_manager.changeParameter("Model", "Height", 21f);
+			parameter_manager.changeParameter("Model", "Width", 50f);
+			parameter_manager.changeParameter("Model", "Height", 50f);
 			generator.plainMap();
 		}
 		findActiveCells();
@@ -114,7 +120,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 		undo_redo = false;
 		wVecX = -1;
 		wVecY = 0;
-		windSpeed = 1;
+		windSpeed = 0;
 	}
 
 
@@ -275,7 +281,10 @@ public class Simulation extends Observable implements Serializable, Observer {
 		}
 		agents.removeAll(agentsToRemove);
 
-		// burningCell can also be an agent, they are counted as activeCells
+		// every burning cell will decrement its fuel level by one in each iteration
+		totalFuelBurnt += activeCells.size();
+
+		// for each burning cell
 		for (Element burningCell : activeCells) {
 			// update the cell and remove if it is burnt out
 			String status = burningCell.timeStep();
@@ -443,6 +452,16 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public int getEnergyAgents() { return energyAgents; }
 
 	public Set<Element> getActiveCells() { return activeCells; }
+
+	public Set<Element> getBarriers() { return barriers; }
+
+	public void addToBarriers(Element b) {
+		barriers.add(b);
+	}
+
+	public int getTotalFuel() { return totalFuel; }
+
+	public int getTotalFuelBurnt() { return totalFuelBurnt; }
 
 	public boolean isInBounds(int x, int y) {
 		return (   x >= 0 && x < width
