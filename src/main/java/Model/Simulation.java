@@ -23,8 +23,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private int height;
 	private int step_time;
 	private int step_size;
-	private int steps_taken = 0;
-	private int step_limit = 500;
+	private int step_limit = 100;
 	private boolean undo_redo;
 	private boolean running;
 	private boolean use_gui;
@@ -101,7 +100,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	 * Due to HashMap restrictions it only works with Strings and Floats, so you should initialize a value with 3f.
 	 * If you want to access the value of a parameter do parameters.get("Parameter name").floatValue()
 	 */
-	public void create_parameters() {
+	private void create_parameters() {
 		width = 50;
 		height = 50;
 		nr_agents = 3;
@@ -130,7 +129,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 		while (running && nsteps < step_limit) {
 			nsteps++;
 			if (nsteps >= step_limit) {		// this makes it more clear when it's out of steps
-				stop();
+				stop("step limit");
 			}
 			if (step_time >=0) {
 				stepForward();
@@ -148,16 +147,16 @@ public class Simulation extends Observable implements Serializable, Observer {
 	/**
 	 * Pauses the simulation, linked to the stop button
 	 */
-	public void stop(){
+	public void stop(String reason){
 		running = false;
-		System.out.println("STOPPED: " + agents.size() + " agents left on " + activeCells.size() + " active cells");
+		System.out.println("STOPPED: " + agents.size() + " agents left on " + activeCells.size() + " active cells " + "(" + reason + ")");
 	}
 
 	/**
 	 * Resets the simulation to the first state since the last regeneration. Linked to the reset button.
 	 */
 	public void reset() {
-		stop();
+		stop("reset");
 
 		// Revert to the first state that was saved during generation
 		if (states.size() > 0) {
@@ -181,7 +180,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	 * Currently this is the tree_grid since we don't have a map generation.
 	 */
 	public void regenerate() {
-		stop();
+		stop("regenerate");
 		states.clear();
 		activeCells.clear();
 
@@ -236,7 +235,6 @@ public class Simulation extends Observable implements Serializable, Observer {
 			if (undo_redo) {
 				System.out.println("Adding undo_copy");
 				states.add((Simulation) deepCopy(this));
-				steps_taken++;
 			}
 			updateEnvironment();
 		}
@@ -259,14 +257,14 @@ public class Simulation extends Observable implements Serializable, Observer {
 	 *
 	 *  This function updates (non-agent) cells
 	 */
-	public void updateEnvironment() {
+	private void updateEnvironment() {
 		// keep track of element to remove or add, we cant do that while iterating
 		HashSet<Element> activesToRemove = new HashSet<>();
 		HashSet<Element> activesToAdd = new HashSet<>();
 		HashSet<Agent> agentsToRemove = new HashSet<>();
 
 		if (agents.isEmpty() && activeCells.isEmpty()) {
-			stop();
+			stop("empty sets");
 		}
 
 		for (Agent a : agents){
@@ -308,7 +306,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	 * 	and adding those and their neighbours
 	 * 	Also adds the agents to activeCells
 	 */
-	public void findActiveCells()
+	private void findActiveCells()
 	{
 		activeCells = new HashSet<>();
 		for (int x = 0; x < width; x++) {

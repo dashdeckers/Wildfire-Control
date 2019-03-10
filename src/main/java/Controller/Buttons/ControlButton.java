@@ -30,7 +30,7 @@ class ControlAction extends AbstractAction{
                 model.reset();
                 break;
             case "Stop":
-                model.stop();
+                model.stop("button press");
                 break;
             case "Regenerate":
                 model.regenerate();
