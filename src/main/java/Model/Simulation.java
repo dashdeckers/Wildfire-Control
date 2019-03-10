@@ -23,7 +23,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private int height;
 	private int step_time;
 	private int step_size;
-	private int steps_taken = 0;
+	private int step_limit = 100;
 	private boolean undo_redo;
 	private boolean running;
 	private boolean use_gui;
@@ -49,7 +49,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 		this.use_gui = use_gui;
 
 		// Randomization initialization
-		//Random seed_gen = new Random();
+		// Random seed_gen = new Random();
 		// randomizer_seed = seed_gen.nextLong();
 		rand = new Random(randomizer_seed);
 		states = new ArrayList<>();
@@ -122,7 +122,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public void start() {
 		running = true;
 		int nsteps = 0;
-		while (running && nsteps < 100) {
+		while (running && nsteps < step_limit) {
 			nsteps++;
 			if (step_time >=0) {
 				stepForward();
@@ -164,7 +164,6 @@ public class Simulation extends Observable implements Serializable, Observer {
 		findActiveCells();
 
 		// Save the reset state again so we can reset the same map many times
-		states.add((Simulation) deepCopy(this));
 		states.add((Simulation) deepCopy(this));
 	}
 
@@ -258,7 +257,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 		HashSet<Agent> agentsToRemove = new HashSet<>();
 
 		if (agents.size()==0 || activeCells.size()==0) {
-			running = false;
+			stop();
 			System.out.println("STOPPED");
 		}
 
