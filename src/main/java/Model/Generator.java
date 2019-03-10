@@ -63,11 +63,8 @@ class Generator implements Serializable {
         model.getAllCells().get(width/2).set(height/2, new StaticFire(width/2, height/2, model.getParameter_manager()));
         model.getAllCells().get(width/2 +1).set(height/2, new StaticFire(width/2 +1, height/2, model.getParameter_manager()));
         model.getAllCells().get(width/2 -1).set(height/2, new StaticFire(width/2 -1, height/2, model.getParameter_manager()));
-
         model.getAllCells().get(width/2).set(height/2 + 1, new StaticFire(width/2, height/2 + 1, model.getParameter_manager()));
         model.getAllCells().get(width/2).set(height/2 -1, new StaticFire(width/2, height/2 -1 , model.getParameter_manager()));
-
-
         //Place Agent to the left of the static fire
         agents.add(new Agent(width/4,height/2,model, parameter_manager,0));
         //Update model
@@ -85,7 +82,7 @@ class Generator implements Serializable {
         initializeMap();
 
         int wetlands = 2; // Variable (1-10) that influences dirt (dry) and rivers/lakes (wet)
-        int urban = 2; // Variable (1-10) that influences bushes/grass (rural) and houses/roads (urban)
+        int urban = 1; // Variable (1-10) that influences bushes/grass (rural) and houses/roads (urban)
 
         // (added zero before everything to test parameters wetlands/urban)
         int numberDirt = rand.nextInt((int) (0.01 * area)) * (10-wetlands);

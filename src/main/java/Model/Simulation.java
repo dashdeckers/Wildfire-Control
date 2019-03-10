@@ -23,7 +23,8 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private int height;
 	private int step_time;
 	private int step_size;
-	private int step_limit = 100;
+	private int steps_taken = 0;
+	private int step_limit = 500;
 	private boolean undo_redo;
 	private boolean running;
 	private boolean use_gui;
@@ -99,7 +100,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public void create_parameters() {
 		width = 50;
 		height = 50;
-		nr_agents = 1;
+		nr_agents = 3;
 		energyAgents = 20;
 		if (use_gui) {
 			step_time = 100;
@@ -124,6 +125,9 @@ public class Simulation extends Observable implements Serializable, Observer {
 		int nsteps = 0;
 		while (running && nsteps < step_limit) {
 			nsteps++;
+			if (nsteps >= step_limit) {		// this makes it more clear when it's out of steps
+				stop();
+			}
 			if (step_time >=0) {
 				stepForward();
 			} else {
@@ -142,6 +146,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	 */
 	public void stop(){
 		running = false;
+		System.out.println("STOPPED: " + agents.size() + " agents left on " + activeCells.size() + " active cells");
 	}
 
 	/**
@@ -252,13 +257,12 @@ public class Simulation extends Observable implements Serializable, Observer {
 	 */
 	public void updateEnvironment() {
 		// keep track of element to remove or add, we cant do that while iterating
-		HashSet<Element> toRemove = new HashSet<>();
-		HashSet<Element> toAdd = new HashSet<>();
+		HashSet<Element> activesToRemove = new HashSet<>();
+		HashSet<Element> activesToAdd = new HashSet<>();
 		HashSet<Agent> agentsToRemove = new HashSet<>();
 
-		if (agents.size()==0 || activeCells.size()==0) {
+		if (agents.isEmpty() && activeCells.isEmpty()) {
 			stop();
-			System.out.println("STOPPED");
 		}
 
 		for (Agent a : agents){
@@ -274,7 +278,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 			// update the cell and remove if it is burnt out
 			String status = burningCell.timeStep();
 			if (status.equals("Dead")) {
-				toRemove.add(burningCell);
+				activesToRemove.add(burningCell);
 			}
 			// if it is still burning, apply heat to neighbouring cells
 			if (status.equals("No Change")) {
@@ -284,15 +288,15 @@ public class Simulation extends Observable implements Serializable, Observer {
 						status = neighbourCell.getHeatFrom(burningCell);
 						// if it ignited, add it to activeCells
 						if (status.equals("Ignited")) {
-							toAdd.add(neighbourCell);
+							activesToAdd.add(neighbourCell);
 						}
 					}
 				}
 			}
 
 		}
-		activeCells.removeAll(toRemove);
-		activeCells.addAll(toAdd);
+		activeCells.removeAll(activesToRemove);
+		activeCells.addAll(activesToAdd);
 	}
 
 	/**
