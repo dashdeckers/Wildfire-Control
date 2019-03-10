@@ -48,20 +48,6 @@ public class Agent implements Serializable{
         this.y=y;
     }
 
-    //TODO! If it doesn't work, can we remove it then?
-    public Agent(Simulation simulation, ParameterManager parameterManager, int id) {
-        this.simulation = simulation;
-        this.parameterManager = parameterManager;
-        initializeParameters();
-        //For some reason this does not work consistently, please use method above
-        //and assign agents some verified coordinates when spawning them.
-        do {
-            this.x = simulation.getRandX();
-            this.y = simulation.getRandY();
-        } while (!checkTile(x,y));
-    }
-
-
     private void initializeParameters(){
         this.isAlive=true;
         this.color=Color.YELLOW;
@@ -135,7 +121,7 @@ public class Agent implements Serializable{
             //If an agent controller is assigned, have it make the decision
             if(controller != null) {
                 controller.pickAction(this);
-            }else {
+            }
 //            }else {
 //                if (plan.empty()) {
 //
@@ -167,12 +153,10 @@ public class Agent implements Serializable{
                 }
             }
 
-            }
+            //Make it so that the agents dies when it lands on a burning cell
             Element currentCell = simulation.getAllCells().get(x).get(y);
+            if (currentCell.isBurning()) {isAlive = false;}
 
-            if (currentCell.isBurnable() && currentCell.isBurning()) {
-                isAlive = false;
-            }
             simulation.applyUpdates();
     }
 

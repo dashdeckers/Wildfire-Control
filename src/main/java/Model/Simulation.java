@@ -25,7 +25,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private int height;
 	private int step_time;
 	private int step_size;
-	private int steps_taken = 0;
+	private int step_limit = 100;
 	private boolean undo_redo;
 	private boolean running;
 	private boolean use_gui;
@@ -55,7 +55,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 		this.use_gui = use_gui;
 
 		// Randomization initialization
-		//Random seed_gen = new Random();
+		// Random seed_gen = new Random();
 		// randomizer_seed = seed_gen.nextLong();
 		rand = new Random(randomizer_seed);
 		states = new ArrayList<>();
@@ -106,10 +106,10 @@ public class Simulation extends Observable implements Serializable, Observer {
 	 * Due to HashMap restrictions it only works with Strings and Floats, so you should initialize a value with 3f.
 	 * If you want to access the value of a parameter do parameters.get("Parameter name").floatValue()
 	 */
-	public void create_parameters() {
+	private void create_parameters() {
 		width = 50;
 		height = 50;
-		nr_agents = 1;
+		nr_agents = 3;
 		energyAgents = 20;
 		if (use_gui) {
 			step_time = 100;
@@ -132,8 +132,11 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public void start() {
 		running = true;
 		int nsteps = 0;
-		while (running && nsteps < 100) {
+		while (running && nsteps < step_limit) {
 			nsteps++;
+			if (nsteps >= step_limit) {		// this makes it more clear when it's out of steps
+				stop("step limit");
+			}
 			if (step_time >=0) {
 				stepForward();
 			} else {
@@ -150,15 +153,16 @@ public class Simulation extends Observable implements Serializable, Observer {
 	/**
 	 * Pauses the simulation, linked to the stop button
 	 */
-	public void stop(){
+	public void stop(String reason){
 		running = false;
+		System.out.println("STOPPED: " + agents.size() + " agents left on " + activeCells.size() + " active cells " + "(" + reason + ")");
 	}
 
 	/**
 	 * Resets the simulation to the first state since the last regeneration. Linked to the reset button.
 	 */
 	public void reset() {
-		stop();
+		stop("reset");
 
 		// Revert to the first state that was saved during generation
 		if (states.size() > 0) {
@@ -175,7 +179,6 @@ public class Simulation extends Observable implements Serializable, Observer {
 
 		// Save the reset state again so we can reset the same map many times
 		states.add((Simulation) deepCopy(this));
-		states.add((Simulation) deepCopy(this));
 	}
 
 	/**
@@ -183,7 +186,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	 * Currently this is the tree_grid since we don't have a map generation.
 	 */
 	public void regenerate() {
-		stop();
+		stop("regenerate");
 		states.clear();
 		activeCells.clear();
 
@@ -238,7 +241,6 @@ public class Simulation extends Observable implements Serializable, Observer {
 			if (undo_redo) {
 				System.out.println("Adding undo_copy");
 				states.add((Simulation) deepCopy(this));
-				steps_taken++;
 			}
 			updateEnvironment();
 		}
@@ -261,15 +263,14 @@ public class Simulation extends Observable implements Serializable, Observer {
 	 *
 	 *  This function updates (non-agent) cells
 	 */
-	public void updateEnvironment() {
+	private void updateEnvironment() {
 		// keep track of element to remove or add, we cant do that while iterating
-		HashSet<Element> toRemove = new HashSet<>();
-		HashSet<Element> toAdd = new HashSet<>();
+		HashSet<Element> activesToRemove = new HashSet<>();
+		HashSet<Element> activesToAdd = new HashSet<>();
 		HashSet<Agent> agentsToRemove = new HashSet<>();
 
-		if (agents.size()==0 || activeCells.size()==0) {
-			running = false;
-			//System.out.println("STOPPED");
+		if (agents.isEmpty() && activeCells.isEmpty()) {
+			stop("empty sets");
 		}
 
 		for (Agent a : agents){
@@ -288,7 +289,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 			// update the cell and remove if it is burnt out
 			String status = burningCell.timeStep();
 			if (status.equals("Dead")) {
-				toRemove.add(burningCell);
+				activesToRemove.add(burningCell);
 			}
 			// if it is still burning, apply heat to neighbouring cells
 			if (status.equals("No Change")) {
@@ -298,15 +299,15 @@ public class Simulation extends Observable implements Serializable, Observer {
 						status = neighbourCell.getHeatFrom(burningCell);
 						// if it ignited, add it to activeCells
 						if (status.equals("Ignited")) {
-							toAdd.add(neighbourCell);
+							activesToAdd.add(neighbourCell);
 						}
 					}
 				}
 			}
 
 		}
-		activeCells.removeAll(toRemove);
-		activeCells.addAll(toAdd);
+		activeCells.removeAll(activesToRemove);
+		activeCells.addAll(activesToAdd);
 	}
 
 	/**
@@ -314,7 +315,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	 * 	and adding those and their neighbours
 	 * 	Also adds the agents to activeCells
 	 */
-	public void findActiveCells()
+	private void findActiveCells()
 	{
 		activeCells = new HashSet<>();
 		for (int x = 0; x < width; x++) {
