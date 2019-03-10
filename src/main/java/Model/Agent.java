@@ -136,6 +136,7 @@ public class Agent implements Serializable{
             if(controller != null){
                 controller.pickAction(this);
             }else {
+                /*
                 if (plan.empty()) {
                     List<String> actions = possibleActions();
                     Random r = new Random();
@@ -143,6 +144,12 @@ public class Agent implements Serializable{
                 } else {
                     currentAction = plan.pop();
                 }
+                */
+
+                List<String> actions = possibleActions();
+                Random r = new Random();
+
+                currentAction = actions.get(r.nextInt(actions.size()));
                 switch (currentAction) {
                     case "Cut Tree":
                     case "Cut Grass":
