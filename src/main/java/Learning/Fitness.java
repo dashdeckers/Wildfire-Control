@@ -3,78 +3,117 @@ package Learning;
 import Model.Elements.Element;
 import Model.Simulation;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashSet;
 
-public class Fitness {
+public class Fitness implements Serializable {
 
 	/**
 	 * Ivo's algorithm for measuring encirclement. It spans out in 4 directions from each burning
 	 * cell and counts the burnable (and not on fire or burnt out) cells until it reaches a
-	 * non-burnable.
-	 * @param model
-	 * @return
+	 * non-burnable. Then, depending on the depth, it might split up and go down two more extra
+	 * paths as well.
+	 *
+	 * Hitting the edge of the map increases cost by 100
+	 * Travelling over a burnable increases cost by 1
+	 *
 	 */
-	public int straightPathsEncirclementMeasure(Simulation model) {
-		int count = 0;
+	public class SPE_Measure {
+		private HashSet<String> directions = new HashSet<>(Arrays.asList("N", "S", "E", "W"));
+		private Simulation model;
+		private int maxDepth;
 
-		// TODO: get depth argument, use old dead ends as starting points for looking in (two) new directions again
-		// im leaving it like this for now because that will introduce 2 more loops into this thing
-
-		HashSet<String> directions = new HashSet<>(Arrays.asList("N", "S", "E", "W"));
-		// for every burning cell
-		for (Element cell : model.getActiveCells()) {
-			int ox = cell.getX();
-			int oy = cell.getY();
-			int x = 0;
-			int y = 0;
-
-			int layer = 0;
-			// loop until no more directions to explore
-			while (true) {
-				if (directions.isEmpty()) {
-					break;
-				}
-				// increment layer and get coordinates for each direction
-				layer ++;
-				HashSet<String> deadEnds = new HashSet<>();
-				for (String d : directions) {
-					switch (d) {
-						case "E":
-							x = ox + layer;
-							y = oy;
-							break;
-						case "W":
-							x = ox - layer;
-							y = oy;
-							break;
-						case "N":
-							x = ox;
-							y = oy + layer;
-							break;
-						case "S":
-							x = ox;
-							y = oy - layer;
-							break;
-					}
-					// check if the element in that direction is burnable and not on fire
-					if (model.isInBounds(x, y)) {
-						Element e = model.getElementAt(x, y);
-						if ( e.getFuel() > 0
-								&& e.isBurnable()
-								&& !e.isBurning()) {
-							count ++;
-						} else {
-							deadEnds.add(d);
-						}
-					}else{
-						deadEnds.add(d);
-					}
-				}
-				// if we reach a dead end, we don't need to explore that direction further
-				directions.removeAll(deadEnds);
-			}
+		SPE_Measure(Simulation model) {
+			this.model = model;
 		}
-		return count;
+
+		public int getFitness(int depth) {
+			this.maxDepth = depth;
+			int count = 0;
+			for (Element f : model.getActiveCells()) {
+				for (String d : directions) {
+					count += goDownPath(f.getX(), f.getY(), d, 0);
+				}
+			}
+			return count;
+		}
+
+		private int goDownPath(int x, int y, String direction, int currentDepth) {
+			// change/update (x, y) according to direction
+			int newX = getNewX(x, direction);
+			int newY = getNewY(y, direction);
+			// if we are out of bounds (= reached the edge of the map, bad thing), return a high cost
+			if (!model.isInBounds(newX, newY)) {
+				return 100;
+			}
+			// if it is not a burnable (= reached a road or a river, good thing), return 0 cost
+			if (!isBurnable(newX, newY)) {
+				return 0;
+			}
+
+			//Stop when we're at the depth limit
+			if (currentDepth == maxDepth) {
+				return 0;
+			} else {
+				//If we're moving vertically
+				if (direction.equals("N") || direction.equals("S")) {
+					//Take another step in the direction
+					int out = 1 + goDownPath(newX, newY, direction, currentDepth);
+					//And cast out lines in the other directions
+					out += goDownPath(newX, newY, "E", currentDepth + 1);
+					out += goDownPath(newX, newY, "W", currentDepth + 1);
+					return out;
+				}
+				//If we're moving horizontally
+				if (direction.equals("E") || direction.equals("W")) {
+					//Take antoher step in the direction
+					int out = 1 + goDownPath(newX, newY, direction, currentDepth);
+					//And cast out lines in the other directions
+					out += goDownPath(newX, newY, "N", currentDepth + 1);
+					out += goDownPath(newX, newY, "S", currentDepth + 1);
+					return out;
+				}
+			}
+			//This should never be called, but the IDE and compiler need it
+			return -10000000;
+		}
+
+		// updates x if the direction is East or West
+		private int getNewX(int x, String direction) {
+			if (direction.equals("E")) {
+				return x + 1;
+			}
+			if (direction.equals("W")) {
+				return x - 1;
+			}
+			return x;
+		}
+
+		// updates y if the direction is North or South
+		private int getNewY(int y, String direction) {
+			if (direction.equals("S")) {
+				return y + 1;
+			}
+			if (direction.equals("N")) {
+				return y - 1;
+			}
+			return y;
+		}
+
+		// returns true if the tile at (x, y) is burnable and not burning or burnt out
+		private boolean isBurnable(int x, int y) {
+			Element e = model.getElementAt(x, y);
+			return (e.getFuel() > 0
+					&& e.isBurnable()
+					&& !e.isBurning());
+		}
+	}
+
+	public int simpleDistanceFitness(Simulation model) {
+		for (Element e : model.getActiveCells()) {
+			continue;
+		}
+		return 0;
 	}
 }

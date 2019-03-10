@@ -122,7 +122,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public void start() {
 		running = true;
 		int nsteps = 0;
-		while (running && nsteps < 500) {
+		while (running && nsteps < 100) {
 			nsteps++;
 			if (step_time >=0) {
 				stepForward();
@@ -301,7 +301,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	 * 	and adding those and their neighbours
 	 * 	Also adds the agents to activeCells
 	 */
-	private void findActiveCells()
+	public void findActiveCells()
 	{
 		activeCells = new HashSet<>();
 		for (int x = 0; x < width; x++) {
