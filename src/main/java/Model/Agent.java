@@ -133,16 +133,18 @@ public class Agent implements Serializable{
 
         while(energyLevel>0 && isAlive) {
             //If an agent controller is assigned, have it make the decision
-            if(controller != null){
+            if(controller != null) {
                 controller.pickAction(this);
-            }else {
-                if (plan.empty()) {
-                    List<String> actions = possibleActions();
-                    Random r = new Random();
-                    currentAction = actions.get(r.nextInt(actions.size()));
-                } else {
-                    currentAction = plan.pop();
-                }
+            }
+//            }else {
+//                if (plan.empty()) {
+//
+//                } else {
+//                    currentAction = plan.pop();
+//                }
+                List<String> actions = possibleActions();
+                Random r = new Random();
+                currentAction = actions.get(r.nextInt(actions.size()));
                 switch (currentAction) {
                     case "Cut Tree":
                     case "Cut Grass":
@@ -169,7 +171,6 @@ public class Agent implements Serializable{
                 }
             }
             simulation.applyUpdates();
-        }
     }
 
     /**
