@@ -35,7 +35,7 @@ public class Cosyne implements RLController {
         int outputs = 6;
         int middle_layer = 50; //Change this for number of neurons in middle layer
         int middle_layer_2 = 20;
-        float permutation_chance = 0.05f;   //Chance that a gene is random rather than inhereted
+        float permutation_chance = 0.01f;   //Chance that a gene is random rather than inhereted
         System.out.println("Inputs = " +inputs);
         System.out.println("Outputs = "+outputs);
         System.out.println("1 middle layer =" +middle_layer);
