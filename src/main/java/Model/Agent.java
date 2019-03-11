@@ -88,19 +88,17 @@ public class Agent implements Serializable{
      * @return
      */
     public String timeStep() {
-        /**
-         * TODO: Properly define goal for each agent. If current code is uncommented, all agents will move towards x=0, y=0
-         *
-         *
-         */
-        // TODO: This is giving index out-of-bounds errors
-        /*
-        if (plan==null){
-            DijkstraShortestPath sp = new DijkstraShortestPath(simulation.getAllCells(),this,simulation.getAllCells().get(49).get(49));
-            sp.findPath();
-            plan=sp.getDirections();
-        }
-        */
+//        /**
+//         * TODO: Properly define goal for each agent. If current code is uncommented, all agents will move towards x=0, y=0
+//         *
+//         *
+//         */
+//        // TODO: This is giving index out-of-bounds errors
+//
+//        if (plan==null){
+//
+//        }
+
         //String returnString = super.timeStep();
         energyLevel=simulation.getEnergyAgents();
         takeActions();
@@ -119,18 +117,17 @@ public class Agent implements Serializable{
 
         while(energyLevel>0 && isAlive) {
             //If an agent controller is assigned, have it make the decision
-            if(controller != null) {
+            if (controller != null) {
                 controller.pickAction(this);
-            }
-//            }else {
-//                if (plan.empty()) {
-//
-//                } else {
-//                    currentAction = plan.pop();
-//                }
-                List<String> actions = possibleActions();
-                Random r = new Random();
-                currentAction = actions.get(r.nextInt(actions.size()));
+            } else {
+                if (plan==null || plan.empty()) {
+                    List<String> actions = possibleActions();
+                    Random r = new Random();
+                    currentAction = actions.get(r.nextInt(actions.size()));
+                } else {
+                    currentAction = plan.pop();
+                }
+
                 switch (currentAction) {
                     case "Cut Tree":
                     case "Cut Grass":
@@ -152,12 +149,12 @@ public class Agent implements Serializable{
                         doNothing();
                 }
             }
+        }
 
-            //Make it so that the agents dies when it lands on a burning cell
-            Element currentCell = simulation.getAllCells().get(x).get(y);
-            if (currentCell.isBurning()) {isAlive = false;}
-
-            simulation.applyUpdates();
+        //Make it so that the agents dies when it lands on a burning cell
+        Element currentCell = simulation.getAllCells().get(x).get(y);
+        if (currentCell.isBurning()) {isAlive = false;}
+        simulation.applyUpdates();
     }
 
     /**
@@ -189,6 +186,10 @@ public class Agent implements Serializable{
 
         actions.add("Do Nothing");
         return actions;
+    }
+
+    public void setPlan(Stack<String> plan) {
+        this.plan = plan;
     }
 
     public int determineMoveCost(Element e){

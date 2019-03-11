@@ -45,6 +45,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	// parameters related to agents
 	private int nr_agents;
 	private int energyAgents;
+	private boolean useDijkstra = false;
 
 	// other classes
 	private ParameterManager parameter_manager;
@@ -66,6 +67,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 		parameter_manager = new ParameterManager(this);
 		parameter_manager.addObserver(this);
 		generator = new Generator(this);
+
 		// Generate a new map to start on
 		if (generateRandom) {
 			generator.randomMap();
@@ -74,6 +76,12 @@ public class Simulation extends Observable implements Serializable, Observer {
 			parameter_manager.changeParameter("Model", "Height", 50f);
 			generator.plainMap();
 		}
+
+		// Generate plan for agent(s)
+		if (useDijkstra){
+			generatePlanAgents();
+		}
+
 		findActiveCells();
 		setChanged();
 		notifyObservers(cells);
@@ -197,6 +205,9 @@ public class Simulation extends Observable implements Serializable, Observer {
 		}
 		for(Agent a : agents){
 			a.setController(rlController);
+		}
+		if (useDijkstra){
+			generatePlanAgents();
 		}
 		setChanged();
 		notifyObservers(cells);
@@ -487,5 +498,17 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public void applyUpdates(){
 		setChanged();
 		notifyObservers(cells);
+	}
+
+	/**
+	 * For now, the sole purpose of this function is to provide some path finding functionality. Once other there is a
+	 * proper use for pathfinding, this function is redundant and can be removed.
+	 */
+	public void generatePlanAgents(){
+		for (Agent a: agents){
+			DijkstraShortestPath sp = new DijkstraShortestPath(cells,a,cells.get(49).get(49));
+			sp.findPath();
+			a.setPlan(sp.getDirections());
+		}
 	}
 }

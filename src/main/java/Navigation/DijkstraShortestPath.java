@@ -10,8 +10,10 @@ public class DijkstraShortestPath {
     public List<List<Element>> cells;
     public Agent agent;
     public Element goal;
-    int dx[]={1,0,-1,0};
-    int dy[]={0,1,0,-1};
+
+    // An efficient way to represent the directions "N", "W", "S", "E"
+    int dx[]={0,-1,0,1};
+    int dy[]={1,0,-1,0};
 
     /**
      * The cost[x][y] matrix will store the how much energy it will cost to go from the current location of the agent
@@ -42,18 +44,9 @@ public class DijkstraShortestPath {
      */
     public void findPath(){
 
-
-//
-//        System.out.println("size x: " + cells.size() + " size y: " + cells.get(0).size());
-//        System.out.println("dist.size x: " + dist.length + " dist.size y: "+ dist[0].length);
-//
-
         PriorityQueue<Node> st = new PriorityQueue<>(1,new NodeComparator());
         int agentX=agent.getX();
         int agentY=agent.getY();
-
-        int goalX=goal.getX();
-        int goalY=goal.getY();
 
         st.add(new Node(cells.get(agentX).get(agentY),0));
 
@@ -99,18 +92,9 @@ public class DijkstraShortestPath {
 
         } while (!e.equals(goal)&&!st.isEmpty());
 
-        if (e.equals(goal)){
-            //printMatrix(cost);
-            //Stack<Element> path=findShortestPath();
-            //printPath(path);
-            //printDirections(getDirections());
-            //System.out.println(path.pop().toCoordinates());
-        } else {
+        if (!e.equals(goal)){
             System.out.println("No path found :(");
         }
-
-
-
     }
 
     /**
@@ -123,20 +107,6 @@ public class DijkstraShortestPath {
         return agent.determineMoveCost(cells.get(x).get(y));
     }
 
-    /**
-     * debugging function the check what values are stored in the matrix
-     * @param m
-     */
-    public void printMatrix(int m[][]){
-        System.out.println("The cost matrix looks as follows:");
-        for (int i=0; i<m[0].length; i++){
-            System.out.print("| ");
-            for (int j=0; j<m.length; j++){
-                System.out.print(m[j][m[0].length-i-1]+" ");
-            }
-            System.out.println("|");
-        }
-    }
 
     /**
      * The difference between the A* algorithm and Dijkstra's Algorithm is the way the expected cost is determined.
@@ -173,7 +143,6 @@ public class DijkstraShortestPath {
         int x=goal.getX();
         int y=goal.getY();
         Stack<String> directions =new Stack<>();
-        //shortestPath.push(goal);
 
         do {
 
@@ -187,21 +156,20 @@ public class DijkstraShortestPath {
                 if (cost[x+dx[i]][y+dy[i]]<costBestMove){
                     switch (i) {
                         case 0:
-                            bestMove="Go Left";
-                            break;
-                        case 1:
                             bestMove="Go Down";
                             break;
-                        case 2:
+                        case 1:
                             bestMove="Go Right";
                             break;
-                        case 3:
+                        case 2:
                             bestMove="Go Up";
+                            break;
+                        case 3:
+                            bestMove="Go Left";
                             break;
                     }
                     newX=x+dx[i];
                     newY=y+dy[i];
-                    //bestMove=cells.get(newX).get(newY);
                     costBestMove = cost[newX][newY];
                 }
             }
@@ -270,5 +238,20 @@ public class DijkstraShortestPath {
         }
     }
 
+
+    /**
+     * debugging function the check what values are stored in the matrix
+     * @param m
+     */
+    public void printMatrix(int m[][]){
+        System.out.println("The cost matrix looks as follows:");
+        for (int i=0; i<m[0].length; i++){
+            System.out.print("| ");
+            for (int j=0; j<m.length; j++){
+                System.out.print(m[j][m[0].length-i-1]+" ");
+            }
+            System.out.println("|");
+        }
+    }
 
 }
