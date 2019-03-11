@@ -88,18 +88,6 @@ public class Agent implements Serializable{
      * @return
      */
     public String timeStep() {
-//        /**
-//         * TODO: Properly define goal for each agent. If current code is uncommented, all agents will move towards x=0, y=0
-//         *
-//         *
-//         */
-//        // TODO: This is giving index out-of-bounds errors
-//
-//        if (plan==null){
-//
-//        }
-
-        //String returnString = super.timeStep();
         energyLevel=simulation.getEnergyAgents();
         takeActions();
         if (!isAlive){
