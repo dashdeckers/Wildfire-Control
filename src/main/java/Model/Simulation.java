@@ -163,7 +163,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	 */
 	public void stop(String reason){
 		running = false;
-		System.out.println("STOPPED: " + agents.size() + " agents left on " + activeCells.size() + " active cells " + "(" + reason + ")");
+		//System.out.println("STOPPED: " + agents.size() + " agents left on " + activeCells.size() + " active cells " + "(" + reason + ")");
 	}
 
 	/**
