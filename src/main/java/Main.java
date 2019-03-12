@@ -5,6 +5,11 @@ import Learning.HumanController;
 import Model.Simulation;
 import View.MainFrame;
 
+// Roel:
+import Learning.Features;
+
+import java.util.Arrays;
+
 public class Main {
 	public static void main(String[] args) {
 		boolean use_gui;
@@ -32,6 +37,16 @@ public class Main {
 			use_gui = true;
 			Simulation model = new Simulation(use_gui);
 			new MainFrame(model);
+
+			/*// Roel:
+			Features features = new Features();
+			features.downSampledFuelMap(model, 3, 3,1);
+			*/
 		}
 	}
+
+
+
 }
+
+
