@@ -198,8 +198,8 @@ public class Features {
     }
 
     private static void printArray(Simulation model, double [] doubleArray) {
-        int width = (int)doubleArray[doubleArray.length-2];
-        int height = (int)doubleArray[doubleArray.length-1];
+        int width = model.getParameter_manager().getWidth();
+        int height = model.getParameter_manager().getHeight();
         int downSampleWidth = width/3;
         int downSampleHeight = height/3;
         if (width % 3 != 0){ downSampleWidth++; }
@@ -217,21 +217,6 @@ public class Features {
         }
         System.out.printf("%n");
         //System.out.println(Arrays.toString(doubleArray));
-    }
-
-    public void flipArrayMinusNinetyDegrees(double[] doubleArray){
-        double width = doubleArray[doubleArray.length-2];
-        double height = doubleArray[doubleArray.length-1];
-        doubleArray = ArrayUtils.removeElement(doubleArray, doubleArray.length-1);
-        doubleArray = ArrayUtils.removeElement(doubleArray, doubleArray.length-1);
-
-        double array2d[][] = new double[(int)width][(int) height];
-
-        for(int i=0; i<10;i++) {
-            for (int j = 0; j < 3; j++) {
-                array2d[i][j] = doubleArray[(j * (int) width) + i];
-            }
-        }
     }
 
     /**
