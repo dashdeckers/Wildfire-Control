@@ -92,7 +92,7 @@ public class Features {
      */
     public double[] downSampledFuelMap(Simulation model, int widthN, int heightN, int print) {
 
-        // Alterations testing: Main and Generator (Plainmap)
+        // Alterations testing: Main
 
         List<List<Element>> cells = model.getAllCells();
         List<Double> output = new ArrayList<>();
@@ -104,45 +104,46 @@ public class Features {
         int downSampleHeight = height/heightN;
 
         int tilesExtraRight = 0;
-        int tilesExtraAbove = 0;
+        int tilesExtraBelow = 0;
         if (width % widthN != 0){ tilesExtraRight = width % widthN; } // Save amount of tiles that don't fit in square on right side map
-        if (height % heightN != 0){ tilesExtraAbove = height % heightN; } // Save amount of tiles that don't fit in square on upper side map
+        if (height % heightN != 0){ tilesExtraBelow = height % heightN; } // Save amount of tiles that don't fit in square on upper side map
 
         int saveJ = 0 ;
 
         /** Go over model in steps of 'widthN-heightN'. The 'checkIfSquareBurnable' function goes over the tiles (in x&y direction)
-         * and returns '0.0' if NOT burnable, '1.0' if burnable, '2.0' if burning, '3.0' if agent is in square
+         * and returns '0.0' if NOT burnable, '1.0' if burnable, '2.0' if burning, '3.0' if agent is in square.
+         * Starts in left upper corner and moves to the right until it hits the edge. Moves down one row after
          */
         for (int i = 0; i < downSampleHeight ; i+= 1){
-            for (int j = 0; j < downSampleHeight; j+=1) {
-                output.add ( checkIfSquareBurnable(widthN, heightN, (i*widthN), (j*heightN), cells, model) );
+            for (int j = 0; j < downSampleWidth; j+=1) {
+                output.add ( checkIfSquareBurnable (widthN, heightN, j*widthN, height-1 -(i*heightN), cells, model) );
                 saveJ = j;
             }
-            /** A column has been checked (bottom->top). If there are extra tiles above that did not fit in a square, a square with
-             * smaller height (=tilesExtraBelow) is evaluated to not go over bounds but still save the info from the map.
+            /** A row has been checked (left->right). If there are extra tiles on the right that did not fit in a square, a square with
+             * smaller width (=tilesExtraRight) is evaluated to not go over bounds but still save the info from the map.
              */
-            if (tilesExtraAbove > 0 ) {
-                output.add ( checkIfSquareBurnable(widthN, tilesExtraAbove, (i * widthN), ( (saveJ+1) * heightN), cells, model) );
+            if (tilesExtraRight > 0 ) {
+                output.add ( checkIfSquareBurnable(tilesExtraRight, height, saveJ * widthN, height-1 -(i*heightN), cells, model) );
             }
         }
-        /** All columns (and possible extra tiles above them) are checked now. It could be that a column with width
-         * < widthN is still unchecked on the right. If so add that column to the list
+        /** All rows (and possible extra tiles on the right) are checked now. It could be that a row with height < heightN
+         *  is still unchecked below. If so add that row to the list
          */
-        if (tilesExtraRight > 0) {
+        if (tilesExtraBelow > 0) {
             for (int i = 0; i < downSampleHeight ; i += 1){
-                output.add ( checkIfSquareBurnable(tilesExtraRight, heightN, (downSampleWidth * widthN), ( i * heightN), cells, model) );
+                output.add ( checkIfSquareBurnable (widthN, tilesExtraBelow, i * widthN,  height - downSampleHeight * heightN, cells, model) );
             }
         }
-        /** Finally it could be the case that all columns (and possible extra tiles above them) + the last column on the
-         * right are checked but there are still unchecked tiles left in the upper right corner. Add those to the list
+        /** Finally it could be the case that all rows (and possible extra tiles to the right of them) + the last row on the
+         * bottom are checked but there are still unchecked tiles left in the lower right corner. Add those to the list
          */
-        if (tilesExtraRight > 0 && tilesExtraAbove > 0) {
-            output.add ( checkIfSquareBurnable(tilesExtraRight, tilesExtraAbove, (downSampleWidth * widthN), (downSampleHeight * heightN), cells, model) );
+        if (tilesExtraRight > 0 && tilesExtraBelow > 0) {
+            output.add ( checkIfSquareBurnable(tilesExtraRight, tilesExtraBelow, downSampleWidth * widthN, height-1 - downSampleHeight * heightN, cells, model) );
         }
 
         // Add the downSampledWidth & downSampledHeight to end of list
         if ( tilesExtraRight > 0){  downSampleWidth++;}
-        if ( tilesExtraAbove > 0){  downSampleHeight++;}
+        if ( tilesExtraBelow > 0){  downSampleHeight++;}
         output.add ( (double)downSampleWidth);
         output.add ( (double)downSampleHeight);
 
@@ -200,13 +201,15 @@ public class Features {
     private static void printArray(Simulation model, double [] doubleArray) {
         int width = model.getParameter_manager().getWidth();
         int height = model.getParameter_manager().getHeight();
+
+
         int downSampleWidth = width/3;
         int downSampleHeight = height/3;
         if (width % 3 != 0){ downSampleWidth++; }
         if (height % 3 != 0){ downSampleHeight++; }
 
         int newline = 0;
-        for(int i=0; i< doubleArray.length-2; i++){
+        for(int i=0; i< doubleArray.length; i++){
             if (newline == downSampleWidth) {
                 System.out.printf("%n");
                 newline = 0;
