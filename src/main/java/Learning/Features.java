@@ -81,11 +81,11 @@ public class Features {
      *
      * Map (width=8, height=8, widthN=3, heightN=3 ) -> downsampled map:
      * grids 1 evaluated in 1st iteration nested for loop
-     * grid 2 evaluated after 1st iteration nested for loop (tilesExtraAbove > 0 )
+     * grid 2 evaluated after 1st iteration nested for loop (tilesExtraRight > 0 )
      * grids 3 evaluated in 2nd iteration nested for loop
-     * grid 4 evaluated after 2nd iteration nested for loop (tilesExtraAbove > 0 )
-     * grids 5 evaluated after double for loop (tilesExtraRight > 0)
-     * grid 6 evaluated at last (tilesExtraRight > 0 && tilesExtraAbove > 0)
+     * grid 4 evaluated after 2nd iteration nested for loop (tilesExtraRight > 0 )
+     * grids 5 evaluated after double for loop (tilesExtraBelow > 0)
+     * grid 6 evaluated at last (tilesExtraRight > 0 && tilesExtraBelow > 0)
      * 1 1 2
      * 3 3 4
      * 5 5 6
@@ -99,7 +99,6 @@ public class Features {
 
         int width = model.getParameter_manager().getWidth();
         int height = model.getParameter_manager().getHeight();
-
         int downSampleWidth = width/widthN;
         int downSampleHeight = height/heightN;
 
@@ -111,7 +110,7 @@ public class Features {
         int saveJ = 0 ;
 
         /** Go over model in steps of 'widthN-heightN'. The 'checkIfSquareBurnable' function goes over the tiles (in x&y direction)
-         * and returns '0.0' if NOT burnable, '1.0' if burnable, '2.0' if burning, '3.0' if agent is in square.
+         * and currently returns '0.0' if NOT burnable, '1.0' if burnable, '2.0' if burning, '3.0' if agent is in square.
          * Starts in left upper corner and moves to the right until it hits the edge. Moves down one row after
          */
         for (int i = 0; i < downSampleHeight ; i+= 1){
@@ -126,8 +125,8 @@ public class Features {
                 output.add ( checkIfSquareBurnable(tilesExtraRight, height, saveJ * widthN, height-1 -(i*heightN), cells, model) );
             }
         }
-        /** All rows (and possible extra tiles on the right) are checked now. It could be that a row with height < heightN
-         *  is still unchecked below. If so add that row to the list
+        /** All rows (and possible extra tiles on the right) are checked now. It could be that the lowest row with height
+         * < heightN is still unchecked below. If so add that row to the list
          */
         if (tilesExtraBelow > 0) {
             for (int i = 0; i < downSampleHeight ; i += 1){
@@ -142,15 +141,12 @@ public class Features {
         }
 
         // Add the downSampledWidth & downSampledHeight to end of list
-        if ( tilesExtraRight > 0){  downSampleWidth++;}
-        if ( tilesExtraBelow > 0){  downSampleHeight++;}
-        output.add ( (double)downSampleWidth);
-        output.add ( (double)downSampleHeight);
+        if ( tilesExtraRight > 0){  downSampleWidth++;} output.add ( (double)downSampleWidth);
+        if ( tilesExtraBelow > 0){  downSampleHeight++;} output.add ( (double)downSampleHeight);
 
+        // If a printed array is wanted, print the array
         double [] doubleArray = doubleListToArray(output);
-        if (print == 1){
-            printArray(model, doubleArray);
-        }
+        if (print == 1){  printArray(model, doubleArray); }
 
         return doubleArray;
     }
@@ -199,27 +195,19 @@ public class Features {
     }
 
     private static void printArray(Simulation model, double [] doubleArray) {
-        int width = model.getParameter_manager().getWidth();
-        int height = model.getParameter_manager().getHeight();
 
-
-        int downSampleWidth = width/3;
-        int downSampleHeight = height/3;
-        if (width % 3 != 0){ downSampleWidth++; }
-        if (height % 3 != 0){ downSampleHeight++; }
-
+        int downSampleWidth = (int)doubleArray[doubleArray.length-2];
         int newline = 0;
-        for(int i=0; i< doubleArray.length; i++){
+
+        for(int i=0; i< doubleArray.length-2; i++){
             if (newline == downSampleWidth) {
                 System.out.printf("%n");
                 newline = 0;
             }
             System.out.print(doubleArray[i] + " ");
             newline++;
-
         }
         System.out.printf("%n");
-        //System.out.println(Arrays.toString(doubleArray));
     }
 
     /**
