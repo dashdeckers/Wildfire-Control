@@ -332,7 +332,7 @@ public class Features implements MutableState {
     }
 
     /**
-     * Methods and fields related to BURLAP
+     *  Methods and fields related to BURLAP
      */
 
     public double A_N, A_S, A_E, A_W, D_N, D_S, D_E, D_W, X, Y;
