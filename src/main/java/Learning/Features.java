@@ -266,6 +266,27 @@ public class Features implements MutableState {
         return out;
     }
 
+    public double[] fireVectors(Simulation model){
+        List<Double> output = new ArrayList<>();
+        for (Agent a : model.getAgents()) {
+            int refVecX = 0;
+            int refVecY = 1;
+            if(a == null){
+                System.out.println("No agent!");
+            }
+            Element nearestFire = model.getNearestFireTo(a.getX(), a.getY());
+            if(nearestFire == null){
+                System.out.println("NO nearest fire");
+            }
+            double afVecX = a.getX() - nearestFire.getX();
+            double afVecY = a.getY() - nearestFire.getY();
+            output.add(afVecX);
+            output.add(afVecY);
+        }
+        return doubleListToArray(output);
+
+    }
+
     /**
      * Used to combine any set of arrays in sequence, so you can easily have multiple features combined
      * @param arrays
