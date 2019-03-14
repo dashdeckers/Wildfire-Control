@@ -359,4 +359,9 @@ public abstract class Element implements Serializable, Observer {
 		return "("+this.x+", "+this.y+")";
 	}
 
+	// Debugging function for painting the path of an agent.
+	public void colorPath(){
+		color = Color.LIGHT_GRAY;
+	}
+
 }

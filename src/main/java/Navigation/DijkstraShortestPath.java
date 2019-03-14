@@ -10,6 +10,8 @@ public class DijkstraShortestPath {
     public List<List<Element>> cells;
     public Agent agent;
     public Element goal;
+    public Stack<Element> path;
+
 
     // An efficient way to represent the directions "N", "W", "S", "E"
     int dx[]={0,-1,0,1};
@@ -48,7 +50,7 @@ public class DijkstraShortestPath {
         int agentX=agent.getX();
         int agentY=agent.getY();
 
-        st.add(new Node(cells.get(agentX).get(agentY),0));
+        st.add(new Node(cells.get(agentX).get(agentY),0,null));
 
         cost[agentX][agentY]=0;
 
@@ -76,12 +78,12 @@ public class DijkstraShortestPath {
                     If the cell had been visited before, remove the node corresponding to the cell from the queue
                      */
                     if (cost[x][y]!=Integer.MAX_VALUE){
-                        st.remove(new Node(cells.get(x).get(y),expectedCost(x,y)));
+                        st.remove(new Node(cells.get(x).get(y),expectedCost(x,y),k));
                     }
 
                     cost[x][y]=cost[e.getX()][e.getY()]+getMoveCost(x,y);
 
-                    st.add(new Node(cells.get(x).get(y),expectedCost(x,y)));
+                    st.add(new Node(cells.get(x).get(y),expectedCost(x,y),k));
 
 
                 }
@@ -94,6 +96,10 @@ public class DijkstraShortestPath {
 
         if (!e.equals(goal)){
             System.out.println("No path found :(");
+        } else {
+            makePath(k);
+            //printPath(findShortestPath());
+            //printDirections(getDirections());
         }
     }
 
@@ -129,11 +135,27 @@ public class DijkstraShortestPath {
 
     }
 
+    public void makePath(Node node){
+        Stack<Element> path = new Stack<>();
+
+        while (node!=null){
+            //System.out.println("Current cell: " + node.getElement().toCoordinates());
+            node.getElement().colorPath();
+            path.push(node.getElement());
+            node = node.getPreviousNode();
+        }
+
+        //System.out.println("Returned to original location");
+        this.path = path;
+    }
+
+    public Stack<Element> getPath(){ return this.path; }
+
 
     /**
      * This function will return the optimal path in terms of the actions the agents needs to take to reach its goal.
      */
-    public Stack<String> getDirections(){
+    public Stack<String> getDirections2(){
 
         /*
             Since the path is approached from the goal towards the agent, the actions an agent can take are inverted.
@@ -253,5 +275,6 @@ public class DijkstraShortestPath {
             System.out.println("|");
         }
     }
+
 
 }

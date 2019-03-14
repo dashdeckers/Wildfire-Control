@@ -29,7 +29,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private boolean undo_redo;
 	private boolean running;
 	private boolean use_gui;
-	private boolean generateRandom = false;
+	private boolean generateRandom = true;
 	private Random rand;
 	private long randomizer_seed = 0;
 
@@ -45,7 +45,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	// parameters related to agents
 	private int nr_agents;
 	private int energyAgents;
-	private boolean useDijkstra = false;
+	private boolean useDijkstra = true;
 
 	// other classes
 	private ParameterManager parameter_manager;
@@ -79,7 +79,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 
 		// Generate plan for agent(s)
 		if (useDijkstra){
-			generatePlanAgents();
+			setPathAgents();
 		}
 
 		findActiveCells();
@@ -207,7 +207,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 			a.setController(rlController);
 		}
 		if (useDijkstra){
-			generatePlanAgents();
+			setPathAgents();
 		}
 		setChanged();
 		notifyObservers(cells);
@@ -504,11 +504,12 @@ public class Simulation extends Observable implements Serializable, Observer {
 	 * For now, the sole purpose of this function is to provide some path finding functionality. Once other there is a
 	 * proper use for pathfinding, this function is redundant and can be removed.
 	 */
-	public void generatePlanAgents(){
+	public void setPathAgents(){
 		for (Agent a: agents){
 			DijkstraShortestPath sp = new DijkstraShortestPath(cells,a,cells.get(49).get(49));
 			sp.findPath();
-			a.setPlan(sp.getDirections());
+			a.setPath(sp.getPath());
+			//a.setPlan(sp.getDirections());
 		}
 	}
 }
