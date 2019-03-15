@@ -29,7 +29,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private boolean undo_redo;
 	private boolean running;
 	private boolean use_gui;
-	private boolean generateRandom = true;
+	private boolean generateRandom = false;
 	private Random rand;
 	private long randomizer_seed = 0;
 
@@ -508,7 +508,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 		for (Agent a: agents){
 			DijkstraShortestPath sp = new DijkstraShortestPath(cells,a,cells.get(49).get(49));
 			sp.findPath();
-			a.setPath(sp.getPath());
+			a.setPath(sp);
 			//a.setPlan(sp.getDirections());
 		}
 	}

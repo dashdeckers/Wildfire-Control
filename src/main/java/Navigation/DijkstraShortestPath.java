@@ -3,9 +3,10 @@ package Navigation;
 import Model.Agent;
 import Model.Elements.Element;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class DijkstraShortestPath {
+public class DijkstraShortestPath implements Serializable {
 
     public List<List<Element>> cells;
     public Agent agent;
@@ -149,6 +150,48 @@ public class DijkstraShortestPath {
         this.path = path;
     }
 
+    public String getNextAction() {
+        if (path.empty()){
+            return "Do Nothing";
+        }
+        Element e = path.peek();
+        String action = "default";
+        int dx = e.getX()-agent.getX();
+        int dy = e.getY()-agent.getY();
+        System.out.println("Coordinates of next action: " + e.toCoordinates());
+        if (dx==0){
+            if (dy==1){
+                action = "Go Up";
+            } else if (dy==-1) {
+                action = "Go Down";
+            } else if (dy==0) {
+                //TODO: It is possible this will be replaced with a dig action. not sure how to implement yet.
+                path.pop();
+                return "Do nothing";
+            }
+        } else if (dx==1){
+            action = "Go Right";
+        } else if (dx==-1){
+            action = "Go Left";
+        }
+        System.out.println("action of agent " + agent.getId() + ": " + action);
+        if (agent.tryAction(action)){
+            path.pop();
+            return action;
+        } else {
+            return "Do Nothing";
+        }
+    }
+
+    private boolean checkPath() {
+        for (Element e : path) {
+            if (e.isBurning()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public Stack<Element> getPath(){ return this.path; }
 
 
@@ -275,6 +318,5 @@ public class DijkstraShortestPath {
             System.out.println("|");
         }
     }
-
 
 }

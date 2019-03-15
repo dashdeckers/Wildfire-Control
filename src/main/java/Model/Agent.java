@@ -28,11 +28,12 @@ public class Agent implements Serializable{
     private int energyLevel;
     private Color color;
 
-    //Optimal plan, i.e. directions, found by A* will be stored here
-    private Queue<String> plan;
-
-    //Optimal path, i.e. elements that should be visited, found by A* will be stored here.
-    private Stack<Element> path;
+//    //Optimal plan, i.e. directions, found by A* will be stored here
+//    private Queue<String> plan;
+//
+//    //Optimal path, i.e. elements that should be visited, found by A* will be stored here.
+//    private Stack<Element> path;
+    private DijkstraShortestPath path;
 
     /**
      * Create an agent at X,Y with a certain id.
@@ -54,7 +55,6 @@ public class Agent implements Serializable{
     private void initializeParameters(){
         this.isAlive=true;
         this.color=Color.YELLOW;
-        this.plan = new LinkedList<>();
     }
 
     /**
@@ -110,28 +110,21 @@ public class Agent implements Serializable{
             //If an agent controller is assigned, have it make the decision
             if (controller != null) {
                 controller.pickAction(this);
+            } else if ( path != null) {
+                System.out.println("Using dijkstra");
+                currentAction = path.getNextAction();
+                System.out.println("current action: " + currentAction);
+                takeAction(currentAction);
             } else {
-                if (path==null || path.empty()) {
-                    List<String> actions = possibleActions();
-                    Random r = new Random();
-                    currentAction = actions.get(r.nextInt(actions.size()));
-                    takeAction(currentAction);
-                } else {
-                    makePlan();
-                    System.out.println("Current plan size of agent " + id + " is: " + plan.size());
-                    if (tryAction(plan.peek())) {
-                        currentAction = plan.remove();
-                        takeAction(currentAction);
-                    } else {
-                        doNothing();
-                    }
-                }
+                List<String> actions = possibleActions();
+                Random r = new Random();
+                currentAction = actions.get(r.nextInt(actions.size()));
+                takeAction(currentAction);
             }
+            //Make it so that the agents dies when it lands on a burning cell
+            Element currentCell = simulation.getAllCells().get(x).get(y);
+            if (currentCell.isBurning()) {isAlive = false;}
         }
-
-        //Make it so that the agents dies when it lands on a burning cell
-        Element currentCell = simulation.getAllCells().get(x).get(y);
-        if (currentCell.isBurning()) {isAlive = false;}
         simulation.applyUpdates();
     }
 
@@ -206,10 +199,10 @@ public class Agent implements Serializable{
         actions.add("Do Nothing");
         return actions;
     }
-
-    public void setPlan(Queue<String> plan) {
-        this.plan = plan;
-    }
+//
+//    public void setPlan(Queue<String> plan) {
+//        this.plan = plan;
+//    }
 
     public int determineMoveCost(Element e){
         return (int) ((double)simulation.getEnergyAgents()/(double)e.getParameters().get("Move Speed"));
@@ -345,45 +338,38 @@ public class Agent implements Serializable{
     public void doNothing(){
         energyLevel=0;
     }
+//
+//    private void makePlan() {
+//        Element nxt;
+//        String action;
+//        if (checkPath()) {
+//            if(!path.empty()){
+//                nxt = path.pop();
+//                action = determineAction(nxt);
+//                plan.offer(action);
+//            }
+//        }
+//    }
 
-    private void makePlan() {
-        Element nxt;
-        String action;
-        if (checkPath()) {
-            if(!path.empty()){
-                nxt = path.pop();
-                action = determineAction(nxt);
-                plan.offer(action);
-            }
-        }
-    }
 
-    private boolean checkPath() {
-        for (Element e : path) {
-            if (e.isBurning()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private String determineAction(Element nxt) {
-        int dx = nxt.getX()-x;
-        int dy = nxt.getY()-y;
-        if (dx==0){
-            if (dy==1){
-                return "Go Right";
-            } else if (dy==-1) {
-                return "Go Left";
-            }
-        } else if (dx==1){
-            return "Go Up";
-        } else if (dy==-1){
-            return "Go Down";
-        }
-        System.out.println("The next cell cannot be reached in one step");
-        return "Do Nothing";
-    }
+//
+//    private String determineAction(Element nxt) {
+//        int dx = nxt.getX()-x;
+//        int dy = nxt.getY()-y;
+//        if (dx==0){
+//            if (dy==1){
+//                return "Go Right";
+//            } else if (dy==-1) {
+//                return "Go Left";
+//            }
+//        } else if (dx==1){
+//            return "Go Up";
+//        } else if (dy==-1){
+//            return "Go Down";
+//        }
+//        System.out.println("The next cell cannot be reached in one step");
+//        return "Do Nothing";
+//    }
 
     public int getId() {
         return id;
@@ -415,7 +401,5 @@ public class Agent implements Serializable{
         return color;
     }
 
-    public void setPath(Stack<Element> path) {
-        this.path = path;
-    }
+    public void setPath(DijkstraShortestPath path) {this.path = path; }
 }
