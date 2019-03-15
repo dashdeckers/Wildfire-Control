@@ -23,6 +23,9 @@ public class Features {
      *
      * CoSyNe requires arrays of doubles, but if implementations require lists instead it might be nicer to only
      * convert when using CoSyNe (i.e. have CoSyNe convert it).
+     *
+     * This takes a non-zero time, so if you have lots of Lists which need to be combined
+     * it might be nicer to combine the lists first and then convert.
      * @param input
      * @return
      */
@@ -32,18 +35,6 @@ public class Features {
         return Stream.of(outputArray).mapToDouble(Double::doubleValue).toArray() ;
     }
 
-    /**
-     * This is some default set which just returns 0s. It's simply an example to test things.
-     * @param model
-     * @return
-     */
-    public double[] getZeroSet(Simulation model) {
-        List<Double>  output = new ArrayList<>();
-        for (int i = 0; i < 400; i++) {
-            output.add(0.0);
-        }
-        return doubleListToArray(output);
-    }
 
     /**
      * This gets a simple array where each entry represent whether a burning, burnable, or agent value.
@@ -324,5 +315,9 @@ public class Features {
      */
     public double[] angleDistAct(Simulation model){
         return  appendArrays(anglesAndDistances(model), previousAction());
+    }
+
+    public double[] fireCorners(Simulation model, boolean useDiagonal){
+        return null;
     }
 }

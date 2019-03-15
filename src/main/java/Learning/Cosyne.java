@@ -29,28 +29,26 @@ public class Cosyne implements RLController {
     List<Integer> mlpSize;
     public Cosyne(){
 
+        features = new Features();
+
         /*Initialize parameters */
-        int population = 250;    //Change this to change number of MLPs
-        int inputs = 3;   //Change this to match input size
+        int inputs = getInputs(null).length;   //Fetches input size from getInputs
         int outputs = 6;
-        int middle_layer = 50; //Change this for number of neurons in middle layer
-        int middle_layer_2 = 20;
-        int middle_layer_3 = 10;
+        List<Integer> hiddenLayers = new ArrayList<>();
+
+        int population = 250;    //Change this to change number of MLPs
+
+        hiddenLayers.add(20);//Add more hidden layers as you see fit
         float permutation_chance = 0.01f;   //Chance that a gene is random rather than inhereted
-        System.out.println("Inputs = " +inputs);
-        System.out.println("Outputs = "+outputs);
-        System.out.println("Making a population of "+population+" MLPs");
+
 
         List<Map.Entry<MultiLayerPerceptron, Double>> mlpList = new ArrayList<>();
         mlpSize = new ArrayList<>();
         mlpSize.add(inputs);
-        mlpSize.add(middle_layer);
-        mlpSize.add(middle_layer_2);
-        mlpSize.add(middle_layer_3);
+        for(Integer size : hiddenLayers){
+            mlpSize.add(size);
+        }
         mlpSize.add(outputs);
-
-        features = new Features();
-
 
         //Initialize subpopulation, takes a while
         for(int i = 0; i<population; i++){
@@ -58,7 +56,6 @@ public class Cosyne implements RLController {
             mlpList.add(entry);
         }
 
-        System.out.println("Initialized MLPs");
         List<Map.Entry<MultiLayerPerceptron, Double>> mlp_children = new ArrayList<>();
         List<Map.Entry<MultiLayerPerceptron, Double>> mlp_parents= new ArrayList<>();
 
@@ -280,6 +277,13 @@ public class Cosyne implements RLController {
         }
     }
 
+    public double[] getInputs(Simulation model){
+        if(model == null){
+           model = new Simulation(false);
+        }
+        return features.appendArrays(features.previousAction(), features.fireVectors(model));
+    }
+
     /**
      * Pick an action for the agent calling this.
      * At this stage the MLP (which initated the simulation) gets to pick an action for the calling agent
@@ -288,7 +292,7 @@ public class Cosyne implements RLController {
     @Override
     public void pickAction(Agent a) {
         //The features are generated with the feature class based on the model
-        current_mlp.setInput(features.appendArrays(features.previousAction(), features.fireVectors(current_model)));
+        current_mlp.setInput(getInputs(current_model));
         current_mlp.calculate();
         double[] outputs = current_mlp.getOutput();
         double max_out= 0.0;
