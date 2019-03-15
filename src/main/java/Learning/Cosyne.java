@@ -30,15 +30,15 @@ public class Cosyne implements RLController {
     public Cosyne(){
 
         /*Initialize parameters */
-        int population = 500;    //Change this to change number of MLPs
+        int population = 250;    //Change this to change number of MLPs
         int inputs = 3;   //Change this to match input size
         int outputs = 6;
         int middle_layer = 50; //Change this for number of neurons in middle layer
         int middle_layer_2 = 20;
+        int middle_layer_3 = 10;
         float permutation_chance = 0.01f;   //Chance that a gene is random rather than inhereted
         System.out.println("Inputs = " +inputs);
         System.out.println("Outputs = "+outputs);
-        System.out.println("1 middle layer =" +middle_layer);
         System.out.println("Making a population of "+population+" MLPs");
 
         List<Map.Entry<MultiLayerPerceptron, Double>> mlpList = new ArrayList<>();
@@ -46,6 +46,7 @@ public class Cosyne implements RLController {
         mlpSize.add(inputs);
         mlpSize.add(middle_layer);
         mlpSize.add(middle_layer_2);
+        mlpSize.add(middle_layer_3);
         mlpSize.add(outputs);
 
         features = new Features();
@@ -64,7 +65,7 @@ public class Cosyne implements RLController {
 
         generation = 0;
         //The learning loop!
-        while(generation < 500) {
+        while(generation < 750) {
             generation++;
 
             //Run & evaluate the MLPS
@@ -146,8 +147,8 @@ public class Cosyne implements RLController {
         for(Map.Entry entry: removeChildren){
             mlp_children.remove(entry);
         }
-        System.out.println("Nr children " + mlp_children.size());
-        System.out.println("Nr parents " + mlp_parents.size());
+        //System.out.println("Nr children " + mlp_children.size());
+        //System.out.println("Nr parents " + mlp_parents.size());
     }
 
     /**
@@ -287,7 +288,7 @@ public class Cosyne implements RLController {
     @Override
     public void pickAction(Agent a) {
         //The features are generated with the feature class based on the model
-        current_mlp.setInput(features.angleDistAct(current_model));
+        current_mlp.setInput(features.appendArrays(features.previousAction(), features.fireVectors(current_model)));
         current_mlp.calculate();
         double[] outputs = current_mlp.getOutput();
         double max_out= 0.0;

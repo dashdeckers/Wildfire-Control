@@ -28,11 +28,7 @@ public class Agent implements Serializable{
     private int energyLevel;
     private Color color;
 
-//    //Optimal plan, i.e. directions, found by A* will be stored here
-//    private Queue<String> plan;
-//
-//    //Optimal path, i.e. elements that should be visited, found by A* will be stored here.
-//    private Stack<Element> path;
+    //Optimal path, i.e. elements that should be visited, found by A* will be stored here.
     private DijkstraShortestPath path;
 
     /**
@@ -168,6 +164,9 @@ public class Agent implements Serializable{
                 doNothing();
         }
     }
+
+
+
 
     /**
      * Returns a list of valid action which can be taken at this time

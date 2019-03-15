@@ -29,7 +29,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private boolean undo_redo;
 	private boolean running;
 	private boolean use_gui;
-	private boolean generateRandom = true;
+	private boolean generateRandom = false;
 	private Random rand;
 	private long randomizer_seed = 0;
 
@@ -45,7 +45,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	// parameters related to agents
 	private int nr_agents;
 	private int energyAgents;
-	private boolean useDijkstra = true;
+	private boolean useDijkstra = false;
 
 	// other classes
 	private ParameterManager parameter_manager;
@@ -163,7 +163,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	 */
 	public void stop(String reason){
 		running = false;
-		System.out.println("STOPPED: " + agents.size() + " agents left on " + activeCells.size() + " active cells " + "(" + reason + ")");
+		//System.out.println("STOPPED: " + agents.size() + " agents left on " + activeCells.size() + " active cells " + "(" + reason + ")");
 	}
 
 	/**

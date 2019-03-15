@@ -27,22 +27,26 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
                 <version>2.5.2</version>
-                <executions>
-                    <execution>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>install-file</goal>
-                        </goals>
-                        <configuration>
-                            <file>lib/neuroph-core-2.94.jar</file>
-                            <groupId>com.somegroup.id</groupId>
-                            <artifactId>artefact-id</artifactId>
-                            <version>x.y.z</version>
-                            <packaging>jar</packaging>
-                        </configuration>
-                    </execution>
-                </executions>
+                <!---->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<phase>initialize</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>install-file</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<file>lib/neuroph-core-2.94.jar</file>-->
+                            <!--<groupId>com.somegroup.id</groupId>-->
+                            <!--<artifactId>artefact-id</artifactId>-->
+                            <!--<version>x.y.z</version>-->
+                            <!--<packaging>jar</packaging>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+                <!---->
             </plugin>
+
+
         </plugins>
     </build>
 
