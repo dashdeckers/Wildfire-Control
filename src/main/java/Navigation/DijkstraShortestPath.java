@@ -14,6 +14,18 @@ public class DijkstraShortestPath implements Serializable {
     public Stack<Element> path;
 
 
+    /*
+    If the agent only needs to move to a location, set to false. If the agent needs to cut
+    fire lines as well, set to true
+     */
+    public boolean cutLines = true;
+
+    /*
+    For debugging: If set to true, the generated path will be painted gray
+     */
+    public boolean paintPath = false;
+
+
     // An efficient way to represent the directions "N", "W", "S", "E"
     int dx[]={0,-1,0,1};
     int dy[]={1,0,-1,0};
@@ -99,8 +111,6 @@ public class DijkstraShortestPath implements Serializable {
             System.out.println("No path found :(");
         } else {
             makePath(k);
-            //printPath(findShortestPath());
-            //printDirections(getDirections());
         }
     }
 
@@ -139,17 +149,35 @@ public class DijkstraShortestPath implements Serializable {
     public void makePath(Node node){
         Stack<Element> path = new Stack<>();
 
-        while (node!=null){
-            //System.out.println("Current cell: " + node.getElement().toCoordinates());
-            node.getElement().colorPath();
+        /**
+         * Check for the previous node, since the node on which the agent is currently standing should not be added.
+         */
+        while (node.getPreviousNode()!=null){
+
+            if (paintPath){
+                node.getElement().colorPath();
+            }
             path.push(node.getElement());
             node = node.getPreviousNode();
+            /**
+             * If you want the agent to cut fires lines, set "cutLines" to true. The cell will be added to the path
+             * twice. This will be interpreted by getNextAction() as a dig action.
+             */
+            if (cutLines && (node.getElement().getType().equals("Grass") || node.getElement().getType().equals("Tree"))) {
+                path.push(node.getElement());
+            }
         }
 
         //System.out.println("Returned to original location");
         this.path = path;
     }
 
+
+    /**
+     * If it is possible to execute the movement necessary to move from the current location to the next location in
+     * the path, execute that action. Otherwise do nothing
+     * @return
+     */
     public String getNextAction() {
         if (path.empty()){
             return "Do Nothing";
@@ -158,23 +186,21 @@ public class DijkstraShortestPath implements Serializable {
         String action = "default";
         int dx = e.getX()-agent.getX();
         int dy = e.getY()-agent.getY();
-        System.out.println("Coordinates of next action: " + e.toCoordinates());
         if (dx==0){
             if (dy==1){
                 action = "Go Up";
             } else if (dy==-1) {
                 action = "Go Down";
             } else if (dy==0) {
-                //TODO: It is possible this will be replaced with a dig action. not sure how to implement yet.
-                path.pop();
-                return "Do nothing";
+                //TODO: This is an ad-hoc solution for making the agent dig a path instead of only walking over it.
+                // Works for now, should be changed in a more robust function.
+                action = "Dig";
             }
         } else if (dx==1){
             action = "Go Right";
         } else if (dx==-1){
             action = "Go Left";
         }
-        System.out.println("action of agent " + agent.getId() + ": " + action);
         if (agent.tryAction(action)){
             path.pop();
             return action;
@@ -295,12 +321,6 @@ public class DijkstraShortestPath implements Serializable {
             System.out.println("-> (" + e.getX() + ", " + e.getY() + ")");
         }
         System.out.println("Agent at: (" + agent.getX() + ", " + agent.getY() + ")");
-    }
-
-    public void printDirections(Stack<String> dir) {
-        for (String s:dir){
-            System.out.println("Next action for agent " + agent.getId()+ ": " + s);
-        }
     }
 
 

@@ -111,9 +111,7 @@ public class Agent implements Serializable{
             if (controller != null) {
                 controller.pickAction(this);
             } else if ( path != null) {
-                System.out.println("Using dijkstra");
                 currentAction = path.getNextAction();
-                System.out.println("current action: " + currentAction);
                 takeAction(currentAction);
             } else {
                 List<String> actions = possibleActions();
@@ -132,6 +130,7 @@ public class Agent implements Serializable{
         switch (action) {
             case "Cut Tree":
             case "Cut Grass":
+            case "Dig":
                 return tryDirt();
             case "Go Down":
                 return tryDown();
@@ -150,6 +149,7 @@ public class Agent implements Serializable{
         switch (action) {
             case "Cut Tree":
             case "Cut Grass":
+            case "Dig":
                 makeDirt();
                 break;
             case "Go Down":
@@ -199,10 +199,6 @@ public class Agent implements Serializable{
         actions.add("Do Nothing");
         return actions;
     }
-//
-//    public void setPlan(Queue<String> plan) {
-//        this.plan = plan;
-//    }
 
     public int determineMoveCost(Element e){
         return (int) ((double)simulation.getEnergyAgents()/(double)e.getParameters().get("Move Speed"));
@@ -333,43 +329,11 @@ public class Agent implements Serializable{
     }
 
     /**
-     * Set the fuel to 0, but increment the fitness with the remaining fuel
+     * Set the fuel to 0
      */
     public void doNothing(){
         energyLevel=0;
     }
-//
-//    private void makePlan() {
-//        Element nxt;
-//        String action;
-//        if (checkPath()) {
-//            if(!path.empty()){
-//                nxt = path.pop();
-//                action = determineAction(nxt);
-//                plan.offer(action);
-//            }
-//        }
-//    }
-
-
-//
-//    private String determineAction(Element nxt) {
-//        int dx = nxt.getX()-x;
-//        int dy = nxt.getY()-y;
-//        if (dx==0){
-//            if (dy==1){
-//                return "Go Right";
-//            } else if (dy==-1) {
-//                return "Go Left";
-//            }
-//        } else if (dx==1){
-//            return "Go Up";
-//        } else if (dy==-1){
-//            return "Go Down";
-//        }
-//        System.out.println("The next cell cannot be reached in one step");
-//        return "Do Nothing";
-//    }
 
     public int getId() {
         return id;
