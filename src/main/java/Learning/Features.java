@@ -84,13 +84,14 @@ public class Features implements MutableState {
      * @param model The simulation
      * @return A down sampled map
      *
-     * Map (width=8, height=8, widthN=3, heightN=3 ) -> downsampled map:
-     * grids 1 evaluated in 1st iteration nested for loop
-     * grid 2 evaluated after 1st iteration nested for loop (tilesExtraRight > 0 )
-     * grids 3 evaluated in 2nd iteration nested for loop
-     * grid 4 evaluated after 2nd iteration nested for loop (tilesExtraRight > 0 )
-     * grids 5 evaluated after double for loop (tilesExtraBelow > 0)
-     * grid 6 evaluated at last (tilesExtraRight > 0 && tilesExtraBelow > 0)
+     * Example: Map (width=8, height=8, widthN=3, heightN=3 ) -> downsampled map:
+     * grids 1 (3x3) evaluated in 1st iteration nested for loop
+     * grid 2 (2x3) evaluated after 1st iteration nested for loop (tilesExtraRight > 0 )
+     * grids 3 (3x3) evaluated in 2nd iteration nested for loop
+     * grid 4 (2x3) evaluated after 2nd iteration nested for loop (tilesExtraRight > 0 )
+     * grids 5 (3x2) evaluated after double for loop (tilesExtraBelow > 0)
+     * grid 6 (2x2) evaluated at last (tilesExtraRight > 0 && tilesExtraBelow > 0)
+     *
      * 1 1 2
      * 3 3 4
      * 5 5 6
@@ -151,7 +152,7 @@ public class Features implements MutableState {
 
         // If a printed array is wanted, print the array
         double [] doubleArray = doubleListToArray(output);
-        if (print == 1){  printArray(model, doubleArray); }
+        if (print == 1){  printArray(doubleArray); }
 
         return doubleArray;
     }
@@ -199,7 +200,7 @@ public class Features implements MutableState {
         }
     }
 
-    private static void printArray(Simulation model, double [] doubleArray) {
+    private static void printArray(double [] doubleArray) {
 
         int downSampleWidth = (int)doubleArray[doubleArray.length-2];
         int newline = 0;
