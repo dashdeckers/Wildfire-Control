@@ -3,13 +3,28 @@ package Navigation;
 import Model.Agent;
 import Model.Elements.Element;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class DijkstraShortestPath {
+public class DijkstraShortestPath implements Serializable {
 
     public List<List<Element>> cells;
     public Agent agent;
     public Element goal;
+    public Stack<Element> path;
+
+
+    /*
+    If the agent only needs to move to a location, set to false. If the agent needs to cut
+    fire lines as well, set to true
+     */
+    public boolean cutLines = true;
+
+    /*
+    For debugging: If set to true, the generated path will be painted gray
+     */
+    public boolean paintPath = false;
+
 
     // An efficient way to represent the directions "N", "W", "S", "E"
     int dx[]={0,-1,0,1};
@@ -48,7 +63,7 @@ public class DijkstraShortestPath {
         int agentX=agent.getX();
         int agentY=agent.getY();
 
-        st.add(new Node(cells.get(agentX).get(agentY),0));
+        st.add(new Node(cells.get(agentX).get(agentY),0,null));
 
         cost[agentX][agentY]=0;
 
@@ -76,12 +91,12 @@ public class DijkstraShortestPath {
                     If the cell had been visited before, remove the node corresponding to the cell from the queue
                      */
                     if (cost[x][y]!=Integer.MAX_VALUE){
-                        st.remove(new Node(cells.get(x).get(y),expectedCost(x,y)));
+                        st.remove(new Node(cells.get(x).get(y),expectedCost(x,y),k));
                     }
 
                     cost[x][y]=cost[e.getX()][e.getY()]+getMoveCost(x,y);
 
-                    st.add(new Node(cells.get(x).get(y),expectedCost(x,y)));
+                    st.add(new Node(cells.get(x).get(y),expectedCost(x,y),k));
 
 
                 }
@@ -94,6 +109,8 @@ public class DijkstraShortestPath {
 
         if (!e.equals(goal)){
             System.out.println("No path found :(");
+        } else {
+            makePath(k);
         }
     }
 
@@ -129,11 +146,85 @@ public class DijkstraShortestPath {
 
     }
 
+    public void makePath(Node node){
+        Stack<Element> path = new Stack<>();
+
+        /**
+         * Check for the previous node, since the node on which the agent is currently standing should not be added.
+         */
+        while (node.getPreviousNode()!=null){
+
+            if (paintPath){
+                node.getElement().colorPath();
+            }
+            path.push(node.getElement());
+            node = node.getPreviousNode();
+            /**
+             * If you want the agent to cut fires lines, set "cutLines" to true. The cell will be added to the path
+             * twice. This will be interpreted by getNextAction() as a dig action.
+             */
+            if (cutLines && (node.getElement().getType().equals("Grass") || node.getElement().getType().equals("Tree"))) {
+                path.push(node.getElement());
+            }
+        }
+
+        //System.out.println("Returned to original location");
+        this.path = path;
+    }
+
+
+    /**
+     * If it is possible to execute the movement necessary to move from the current location to the next location in
+     * the path, execute that action. Otherwise do nothing
+     * @return
+     */
+    public String getNextAction() {
+        if (path.empty()){
+            return "Do Nothing";
+        }
+        Element e = path.peek();
+        String action = "default";
+        int dx = e.getX()-agent.getX();
+        int dy = e.getY()-agent.getY();
+        if (dx==0){
+            if (dy==1){
+                action = "Go Up";
+            } else if (dy==-1) {
+                action = "Go Down";
+            } else if (dy==0) {
+                //TODO: This is an ad-hoc solution for making the agent dig a path instead of only walking over it.
+                // Works for now, should be changed in a more robust function.
+                action = "Dig";
+            }
+        } else if (dx==1){
+            action = "Go Right";
+        } else if (dx==-1){
+            action = "Go Left";
+        }
+        if (agent.tryAction(action)){
+            path.pop();
+            return action;
+        } else {
+            return "Do Nothing";
+        }
+    }
+
+    private boolean checkPath() {
+        for (Element e : path) {
+            if (e.isBurning()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public Stack<Element> getPath(){ return this.path; }
+
 
     /**
      * This function will return the optimal path in terms of the actions the agents needs to take to reach its goal.
      */
-    public Stack<String> getDirections(){
+    public Stack<String> getDirections2(){
 
         /*
             Since the path is approached from the goal towards the agent, the actions an agent can take are inverted.
@@ -230,12 +321,6 @@ public class DijkstraShortestPath {
             System.out.println("-> (" + e.getX() + ", " + e.getY() + ")");
         }
         System.out.println("Agent at: (" + agent.getX() + ", " + agent.getY() + ")");
-    }
-
-    public void printDirections(Stack<String> dir) {
-        for (String s:dir){
-            System.out.println("Next action for agent " + agent.getId()+ ": " + s);
-        }
     }
 
 
