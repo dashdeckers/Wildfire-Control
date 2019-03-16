@@ -1,5 +1,5 @@
 
-import Learning.BURLAP;
+import Learning.Burlap.BURLAP;
 import Learning.Cosyne;
 import Learning.HumanController;
 import Model.Simulation;

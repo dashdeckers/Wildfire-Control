@@ -1,4 +1,4 @@
-package Learning;
+package Learning.Burlap;
 
 import burlap.behavior.singleagent.Episode;
 import burlap.behavior.singleagent.auxiliary.EpisodeSequenceVisualizer;
