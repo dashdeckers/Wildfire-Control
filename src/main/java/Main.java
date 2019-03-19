@@ -25,7 +25,7 @@ public class Main {
 			new Cosyne();
 		} else if (args.length > 0 && args[0].equals("BURLAP")) {
 			BURLAP test = new BURLAP();
-			test.example();
+			test.QLearner();
 		} else if (args.length > 0 && args[0].equals("human")) {
 			HumanController hc = new HumanController();
 			Simulation s = new Simulation(hc);
