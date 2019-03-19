@@ -325,6 +325,120 @@ public class Features implements MutableState {
 
 
     /**
+     * Check whether a horizontal or vertical line contains any fire.
+     * This is useful when trying to identify the borders of the fire
+     * @param model
+     * @param c
+     * @param vertical
+     * @return
+     */
+    public boolean isClearLine (Simulation model, int c, boolean vertical){
+        if(vertical){
+            int y = 0;
+            while(y < model.getParameter_manager().getHeight()){
+                if(model.getElementAt(c, y).isBurning()){
+                    return false;
+                }
+                y++;
+            }
+            return true;
+        }else{
+            int x = 0;
+            while(x < model.getParameter_manager().getWidth()){
+                if(model.getElementAt(x, c).isBurning()){
+                    return false;
+                }
+                x++;
+            }
+            return true;
+        }
+    }
+
+    /**
+     * Returns two points which reprsent a rectangle which matches the fire (fire can be on border of this rectangle
+     * @param model
+     * @return
+     */
+    public double[] fit_square(Simulation model){
+        int x1, y1, x2, y2;
+        x1 = y1 = 0;
+
+        //Move lower left corner inward until you can't
+        while(isClearLine(model, x1, true)){
+            x1++;
+        }
+        while(isClearLine(model, y1, false)){
+            y1++;
+        }
+        x2 = model.getParameter_manager().getWidth() -1 ;
+        y2 = model.getParameter_manager().getHeight() -1 ;
+        //Move up right corner inward until you can't
+        while(isClearLine(model, x2, true)){
+            x2--;
+        }
+        while(isClearLine(model, y2, false)){
+            y2--;
+        }
+
+        double[] output = {x1, y1, x2, y2};
+        return output;
+    }
+
+    /**
+     * Extracts the length of vectors in seq x1,y1,x2,y2,x3,y3...
+     * Into l1, x1, y1, l2, x2, y2, l3, x3, y3
+     * Where li is the length of the vector, and xi & yi are the normalized vector
+     * @param vec2s
+     * @return
+     */
+    public double[] extractNormalize(double[] vec2s){
+        double[] output = new double[vec2s.length + vec2s.length/2];
+        int slot = 0;
+        for(int i = 0; i < vec2s.length; i+= 2){
+            //A^2 + B^C = C^2
+            double length = Math.sqrt(vec2s[i] * vec2s[i] + vec2s[i+1] * vec2s[i+1]);
+            output[slot] = length;
+            slot++;
+            //normalized vector = vector/vector_length
+            output[slot] = vec2s[i]/length;
+            if(length ==0){
+                output[slot] = 0;
+            }
+            slot++;
+            output[slot] = vec2s[i+1]/length;
+            if(length == 0){
+                output[slot] = 0;
+            }
+            slot++;
+        }
+        return output;
+    }
+
+    /**
+     * Retreives the distances and angles (in unit vector) of the agent to the corners of the fire.
+     * Currently only a rectangle is fitted, but an implementation which supports octagons can be implemnted.
+     * @param model
+     * @param use_octagon
+     * @return
+     */
+    public double[] cornerVectors(Simulation model, boolean use_octagon){
+        //Retrieve two corners of a rectangle to fit the fire
+        double[] square_c = fit_square(model);
+        //Turn those two corners into four corners (appears to improve performance but maybe it shouldn't)
+        double[] square_expanded = {square_c[0], square_c[1], square_c[0], square_c[3], square_c[2], square_c[1], square_c[2], square_c[3]};
+        for(int i = 0; i< square_expanded.length; i+=2){
+            //Turn the locations into vectors relative to agent
+            square_expanded[i] = square_expanded[i] - model.getAgents().get(0).getX();
+            square_expanded[i+1] = square_expanded[i+1] - model.getAgents().get(0).getY();
+        }
+
+
+        //Normalize the vectors and register the distances in different nodes
+        return extractNormalize(square_expanded);
+    }
+
+
+    /**
      *  Methods and fields related to BURLAP
      */
 

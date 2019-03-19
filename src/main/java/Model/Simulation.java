@@ -72,8 +72,8 @@ public class Simulation extends Observable implements Serializable, Observer {
 		if (generateRandom) {
 			generator.randomMap();
 		} else {
-			parameter_manager.changeParameter("Model", "Width", 50f);
-			parameter_manager.changeParameter("Model", "Height", 50f);
+			parameter_manager.changeParameter("Model", "Width", 10f);
+			parameter_manager.changeParameter("Model", "Height", 10f);
 			generator.plainMap();
 		}
 

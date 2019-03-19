@@ -13,8 +13,11 @@ public class HumanController implements RLController, KeyListener, Serializable 
     public JPanel simulationPanel;
     private Fitness fitness = new Fitness();
     private Simulation model;
+    private Features features;
 
-    public HumanController() {}
+    public HumanController() {
+        features = new Features();
+    }
 
     /**
      * When the agent asks us to pick an action we wait till a key has been pressed
@@ -23,6 +26,13 @@ public class HumanController implements RLController, KeyListener, Serializable 
     @Override
     public void pickAction(Agent a) {
         simulationPanel.requestFocus();
+        double [] feat = features.cornerVectors(model, false);
+
+        for(double d : feat){
+            System.out.print(d +" ");
+        }
+        System.out.print("\n");
+
         while(keyEvent == null){
             try {
                 Thread.sleep(Math.abs(100));
@@ -30,6 +40,8 @@ public class HumanController implements RLController, KeyListener, Serializable 
                 System.out.println(e.getMessage());
             }
         }
+
+
 
         switch (keyEvent.getKeyCode()){
             case KeyEvent.VK_UP:

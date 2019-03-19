@@ -281,7 +281,7 @@ public class Cosyne implements RLController {
         if(model == null){
            model = new Simulation(false);
         }
-        return features.appendArrays(features.previousAction(), features.fireVectors(model));
+        return features.appendArrays(features.previousAction(), features.cornerVectors(model, false));
     }
 
     /**
