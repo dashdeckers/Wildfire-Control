@@ -93,6 +93,7 @@ public class Features implements MutableState {
 
         List<List<Element>> cells = model.getAllCells();
         List<Double> output = new ArrayList<>();
+        double[] arrayTriples = {0,0,0};
 
         int width = model.getParameter_manager().getWidth();
         int height = model.getParameter_manager().getHeight();
@@ -112,14 +113,16 @@ public class Features implements MutableState {
          */
         for (int i = 0; i < downSampleHeight ; i+= 1){
             for (int j = 0; j < downSampleWidth; j+=1) {
-                output.add ( checkIfSquareBurnable (widthN, heightN, j*widthN, height-1 -(i*heightN), cells, model) );
+                arrayTriples = checkIfSquareBurnable (widthN, heightN, j*widthN, height-1 -(i*heightN), cells, model);
+                for (int k = 0; k < 3; k++){ output.add(arrayTriples[k]); }
                 saveJ = j;
             }
             /** A row has been checked (left->right). If there are extra tiles on the right that did not fit in a square, a square with
              * smaller width (=tilesExtraRight) is evaluated to not go over bounds but still save the info from the map.
              */
             if (tilesExtraRight > 0 ) {
-                output.add ( checkIfSquareBurnable(tilesExtraRight, height, saveJ * widthN, height-1 -(i*heightN), cells, model) );
+                arrayTriples = checkIfSquareBurnable(tilesExtraRight, height, saveJ * widthN, height-1 -(i*heightN), cells, model);
+                for (int k = 0; k < 3; k++){ output.add(arrayTriples[k]); }
             }
         }
         /** All rows (and possible extra tiles on the right) are checked now. It could be that the lowest row with height
@@ -127,14 +130,16 @@ public class Features implements MutableState {
          */
         if (tilesExtraBelow > 0) {
             for (int i = 0; i < downSampleHeight ; i += 1){
-                output.add ( checkIfSquareBurnable (widthN, tilesExtraBelow, i * widthN,  height - downSampleHeight * heightN, cells, model) );
+                arrayTriples = checkIfSquareBurnable (widthN, tilesExtraBelow, i * widthN,  height - downSampleHeight * heightN, cells, model);
+                for (int k = 0; k < 3; k++){ output.add(arrayTriples[k]); }
             }
         }
         /** Finally it could be the case that all rows (and possible extra tiles to the right of them) + the last row on the
          * bottom are checked but there are still unchecked tiles left in the lower right corner. Add those to the list
          */
         if (tilesExtraRight > 0 && tilesExtraBelow > 0) {
-            output.add ( checkIfSquareBurnable(tilesExtraRight, tilesExtraBelow, downSampleWidth * widthN, height-1 - downSampleHeight * heightN, cells, model) );
+            arrayTriples = checkIfSquareBurnable(tilesExtraRight, tilesExtraBelow, downSampleWidth * widthN, height-1 - downSampleHeight * heightN, cells, model);
+            for (int k = 0; k < 3; k++){ output.add(arrayTriples[k]); }
         }
 
         // Add the downSampledWidth & downSampledHeight to end of list
@@ -143,7 +148,14 @@ public class Features implements MutableState {
 
         // If a printed array is wanted, print the array
         double [] doubleArray = doubleListToArray(output);
-        if (print == 1){  printArray(doubleArray); }
+        if (print == 1) {
+            printArray(doubleArray);
+        } else if (print == 2){
+            printMap(doubleArray);
+        } else if (print == 3){
+            printArray(doubleArray);
+            printMap(doubleArray);
+        }
 
         return doubleArray;
     }
@@ -161,50 +173,95 @@ public class Features implements MutableState {
      * @return
      */
 
-    public double checkIfSquareBurnable(int width, int height, int x, int y, List<List<Element>> cells, Simulation model){
+    public double[] checkIfSquareBurnable(int width, int height, int x, int y, List<List<Element>> cells, Simulation model){
 
+        //TODO: Add parameter isBurned to 'Element' , to retrieve more accurate info map
+
+        int agent = 0;
         int burnable = 0;
         int burning = 0;
+        double [] doubleArray = {0,0,0};
+
         // Loop over the square starting at (x,y) for (width,height)
         for (int i = x; i < (x + width) ; i++) {
             for (int j = y; j < (y + height) ; j++) {
 
                 Element cell = cells.get(i).get(y);
-                if (model.getAgents().get(0).getX() == i && model.getAgents().get(0).getY() == j) {
-                    return 3.0;
+                if (model.getAgents().get(0).getX() == i && model.getAgents().get(0).getY() == j && agent == 0) { // ensure value is binary
+                    agent=1;
                 }
-                if (cell.isBurning() ){
-                    burning++;
+                if (cell.isBurning() && burning == 0){ // ensure value is binary
+                    burning=1;
                 }
-                if (cell.isBurnable()) {
-                    burnable++;
+                if (cell.isBurnable() && burnable == 0) { // ensure value is binary
+                    burnable=1;
                 }
             }
         }
-        if (burning > 0) {
-            return 2.0;
-        }
-        if (burnable > 0) {
-            return 1.0;
-        } else {
-            return 0.0;
-        }
+
+        doubleArray[0] = (double)agent;
+        doubleArray[1] = (double)burning;
+        doubleArray[2] = (double)burnable;
+        return doubleArray;
+
     }
 
     private static void printArray(double [] doubleArray) {
 
         int downSampleWidth = (int)doubleArray[doubleArray.length-2];
         int newline = 0;
+        int separate = 0;
 
         for(int i=0; i< doubleArray.length-2; i++){
-            if (newline == downSampleWidth) {
+            if (newline == 3*downSampleWidth) {
                 System.out.printf("%n");
                 newline = 0;
+                separate = 0;
+            } else if (separate == 3){ // else if so no separates on right side map
+                System.out.printf("| ");
+                separate = 0;
             }
             System.out.print(doubleArray[i] + " ");
             newline++;
+            separate++;
         }
-        System.out.printf("%n");
+        System.out.printf("%n%n");
+
+    }
+
+    private static void printMap(double [] doubleArray) {
+
+        int downSampleWidth = (int)doubleArray[doubleArray.length-2];
+        int newline = 0;
+        int step = 1;
+        int print = 0;
+
+        for(int i=0; i< doubleArray.length-2; i++){
+
+            if (newline == 3*downSampleWidth) {
+                System.out.printf("%n");
+                newline = 0;
+            }
+            if (step == 1 && doubleArray[i] == 1){ // first value from triplets = agent
+                System.out.print("A  ");
+                print = 1;
+            }
+            else if (step == 2 && doubleArray[i] == 1 && print != 1){ // second value from triplets = burning
+                System.out.print("F  ");
+                print = 1;
+            }
+            else if (step == 3 && doubleArray[i] == 1 && print != 1) { // third value from triplets = burnable
+                System.out.print(".  ");
+            }
+            if (step == 3){ // else if so no separates on right side map
+                step = 0;
+                print = 0;
+            }
+            newline++;
+            step++;
+        }
+        System.out.printf("%n%n");
+
     }
 
     /**
