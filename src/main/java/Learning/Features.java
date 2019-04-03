@@ -334,6 +334,9 @@ public class Features implements MutableState {
      */
     public boolean isClearLine (Simulation model, int c, boolean vertical){
         if(vertical){
+            if(c < 0 || c >= model.getParameter_manager().getWidth()){
+                return false;
+            }
             int y = 0;
             while(y < model.getParameter_manager().getHeight()){
                 if(model.getElementAt(c, y).isBurning()){
@@ -343,6 +346,9 @@ public class Features implements MutableState {
             }
             return true;
         }else{
+            if(c < 0 || c >= model.getParameter_manager().getHeight()){
+                return false;
+            }
             int x = 0;
             while(x < model.getParameter_manager().getWidth()){
                 if(model.getElementAt(x, c).isBurning()){
@@ -355,7 +361,7 @@ public class Features implements MutableState {
     }
 
     /**
-     * Returns two points which reprsent a rectangle which matches the fire (fire can be on border of this rectangle
+     * Returns two points which represent a rectangle which matches the fire (fire can be on border of this rectangle
      * @param model
      * @return
      */

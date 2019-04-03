@@ -118,7 +118,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 		width = 50;
 		height = 50;
 		nr_agents = 3;
-		energyAgents = 20;
+		energyAgents = 100;
 		if (use_gui) {
 			step_time = 100;
 		} else {

@@ -39,7 +39,7 @@ public class Cosyne implements RLController {
         int population = 250;    //Change this to change number of MLPs
 
         hiddenLayers.add(20);//Add more hidden layers as you see fit
-        float permutation_chance = 0.01f;   //Chance that a gene is random rather than inhereted
+        float permutation_chance = 0.05f;   //Chance that a gene is random rather than inhereted
 
 
         List<Map.Entry<MultiLayerPerceptron, Double>> mlpList = new ArrayList<>();
@@ -166,9 +166,14 @@ public class Cosyne implements RLController {
             current_model.start();
 
 
+            /*
             Fitness.SPE_Measure StraightPaths = fitness.new SPE_Measure(current_model);
             entry.setValue(StraightPaths.getFitness(2));
             scores[i] = StraightPaths.getFitness(2);
+
+            */
+            entry.setValue(fitness.totalFuelBurnt(current_model));
+            scores[i] = fitness.totalFuelBurnt(current_model);
 
             //If it's a new best run the simulation again and take a screenshot
             if(best != -1 && scores[i] < best){
@@ -236,8 +241,6 @@ public class Cosyne implements RLController {
                 //For each neuron
                 for(int in = 0; in < neurons; in++){
 
-                    //IntelliJ refers to the jar as source, which is not up to date with the compiled source at mvn
-                    //Therefore IntelliJ expects list, but the compiler knows it's arrays
                     int nconnections = child.getLayerAt(il).getNeuronAt(in).getInputConnections().length;
                     //For each (inbound) connection to a neuron
                     for(int ic = 0; ic < nconnections; ic++){
