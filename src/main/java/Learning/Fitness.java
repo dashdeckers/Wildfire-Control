@@ -24,7 +24,7 @@ public class Fitness implements Serializable {
 		private Simulation model;
 		private int maxDepth;
 
-		SPE_Measure(Simulation model) {
+		public SPE_Measure(Simulation model) {
 			this.model = model;
 		}
 

@@ -10,6 +10,7 @@ import burlap.mdp.core.state.annotations.DeepCopyState;
 import cern.colt.list.adapter.ObjectListAdapter;
 import org.apache.commons.lang3.ArrayUtils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,7 +18,7 @@ import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
 @DeepCopyState
-public class Features implements MutableState {
+public class Features implements MutableState, Serializable {
 
     public double previousAction = -1;
 
@@ -254,7 +255,13 @@ public class Features implements MutableState {
     }
 
     public double[] previousAction(){
-        double[] out = {previousAction};
+        double val;
+        if(previousAction == 4){
+            val = 1;
+        }else{
+            val = 0;
+        }
+        double[] out = {val};//TODO
         return out;
     }
 

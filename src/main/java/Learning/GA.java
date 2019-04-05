@@ -18,7 +18,7 @@ import java.util.*;
 import java.util.List;
 
 
-public class Cosyne implements RLController {
+public class GA implements RLController {
 
 
     MultiLayerPerceptron current_mlp;
@@ -27,7 +27,7 @@ public class Cosyne implements RLController {
     int generation;
     int best = -1;
     List<Integer> mlpSize;
-    public Cosyne(){
+    public GA(){
 
         features = new Features();
 
@@ -166,14 +166,14 @@ public class Cosyne implements RLController {
             current_model.start();
 
 
-            /*
+
             Fitness.SPE_Measure StraightPaths = fitness.new SPE_Measure(current_model);
             entry.setValue(StraightPaths.getFitness(2));
             scores[i] = StraightPaths.getFitness(2);
 
-            */
-            entry.setValue(fitness.totalFuelBurnt(current_model));
-            scores[i] = fitness.totalFuelBurnt(current_model);
+
+            //entry.setValue(fitness.totalFuelBurnt(current_model));
+            //scores[i] = fitness.totalFuelBurnt(current_model);
 
             //If it's a new best run the simulation again and take a screenshot
             if(best != -1 && scores[i] < best){
@@ -330,7 +330,7 @@ public class Cosyne implements RLController {
                 a.doNothing();
                 break;
             default:
-                System.out.println("NO ACTION FOR OUTPUT at Cosyne.pickAction");
+                System.out.println("NO ACTION FOR OUTPUT at GA.pickAction");
         }
     }
 }
