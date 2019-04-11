@@ -59,8 +59,8 @@ public class WeightBag {
 
     private WeightPair crossPerm(WeightPair w1, WeightPair w2){
         Random rng = new Random();
-        double weight = w1.getWeight().getValue() + w2.getWeight().getValue();
-        weight /= 2;
+        double weight = w1.getWeight().getValue() * w1.getFitness() + w2.getWeight().getValue() * w2.getFitness();
+        weight /= w1.getFitness() + w2.getFitness();
         //weight = 1000;
         weight += rng.nextGaussian();
         //if(Math.random() < 1){

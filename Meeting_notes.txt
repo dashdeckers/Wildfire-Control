@@ -108,3 +108,21 @@ We need to:
 Post meeting realisations: Agent not dying (needs to be added to cost)
 
 
+
+Meeting 8-4
+
+NA: Dirk-Jelle
+Late: Travis
+
+2 weeks!
+Features for ortagonal	-	Roel
+	Distance to center
+	Distance center - fireline
+	Wind-direction 
+Ortagonal sub-goal implemtnation	- Ritten
+Agent navigation to/between subgoals (straight-path)	- Ivo/Roel
+Changing CoSyNe to support off-sets	Ivo
+//Static agent start
+
+
+

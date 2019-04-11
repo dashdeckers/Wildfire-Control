@@ -51,7 +51,7 @@ public class CircleSyNe extends CoSyNe implements Serializable {
 
     @Override
     int defN_generations() {
-        return 10;
+        return 200;
     }
 
     @Override
@@ -67,7 +67,7 @@ public class CircleSyNe extends CoSyNe implements Serializable {
 
     @Override
     int defBagSize() {
-        return 30;
+        return 50;
     }
 
     @Override
@@ -82,7 +82,7 @@ public class CircleSyNe extends CoSyNe implements Serializable {
 
     @Override
     int defN_children() {
-        return 10;
+        return 30;
     }
 
     @Override
