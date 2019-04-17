@@ -14,10 +14,7 @@ public class DijkstraShortestPath extends PathFinder implements Serializable {
     public Stack<Element> path;
 
 
-    /*
-    If the agent only needs to move to a location, set to false. If the agent needs to cut
-    fire lines as well, set to true
-     */
+
     public boolean cutPath = false;
 
     /*

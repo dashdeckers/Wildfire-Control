@@ -29,7 +29,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private boolean undo_redo;
 	private boolean running;
 	private boolean use_gui;
-	private boolean generateRandom = true;
+	private boolean generateRandom = false;
 	private Random rand;
 	private long randomizer_seed = 0;
 
@@ -45,8 +45,12 @@ public class Simulation extends Observable implements Serializable, Observer {
 	// parameters related to agents
 	private int nr_agents;
 	private int energyAgents;
-	private boolean useSubGoal = true;
-	private boolean cutLines = true;
+	private boolean useSubGoal = false;
+    /*
+    If the agents only needs to move to a location, set to false. If the agent needs to cut
+    fire lines as well, set to true
+     */
+	private boolean cutPath = false;
 
 	// other classes
 	private ParameterManager parameter_manager;
@@ -507,7 +511,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	 */
 	public void setPathAgents(){
 		for (Agent a: agents){
-			SubGoal sp = new SubGoal(cells,cells.get(9).get(9), "Dijkstra", a, cutLines);
+			SubGoal sp = new SubGoal(cells,cells.get(9).get(9), "Dijkstra", a, cutPath);
 			a.setPath(sp);
 		}
 	}
