@@ -2,7 +2,7 @@ package Model;
 
 import Learning.RLController;
 import Model.Elements.*;
-import Navigation.DijkstraShortestPath;
+import Navigation.SubGoal;
 //import com.sun.xml.internal.bind.v2.TODO;
 
 import java.io.*;
@@ -45,7 +45,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	// parameters related to agents
 	private int nr_agents;
 	private int energyAgents;
-	private boolean useDijkstra = false;
+	private boolean useSubGoal = true;
 
 	// other classes
 	private ParameterManager parameter_manager;
@@ -78,7 +78,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 		}
 
 		// Generate plan for agent(s)
-		if (useDijkstra){
+		if (useSubGoal){
 			setPathAgents();
 		}
 
@@ -206,7 +206,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 		for(Agent a : agents){
 			a.setController(rlController);
 		}
-		if (useDijkstra){
+		if (useSubGoal){
 			setPathAgents();
 		}
 		setChanged();
@@ -506,8 +506,8 @@ public class Simulation extends Observable implements Serializable, Observer {
 	 */
 	public void setPathAgents(){
 		for (Agent a: agents){
-			DijkstraShortestPath sp = new DijkstraShortestPath(cells,a,cells.get(49).get(49));
-			sp.findPath();
+			SubGoal sp = new SubGoal(cells,cells.get(0).get(4), "Bresenham", a);
+//			sp.determinePath();
 			a.setPath(sp);
 			//a.setPlan(sp.getDirections());
 		}

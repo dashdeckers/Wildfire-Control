@@ -6,7 +6,7 @@ import Model.Elements.Element;
 import java.io.Serializable;
 import java.util.*;
 
-public class DijkstraShortestPath implements Serializable {
+public class DijkstraShortestPath extends PathFinder implements Serializable {
 
     public List<List<Element>> cells;
     public Agent agent;
@@ -18,12 +18,12 @@ public class DijkstraShortestPath implements Serializable {
     If the agent only needs to move to a location, set to false. If the agent needs to cut
     fire lines as well, set to true
      */
-    public boolean cutLines = true;
+    public boolean cutLines = false;
 
     /*
     For debugging: If set to true, the generated path will be painted gray
      */
-    public boolean paintPath = false;
+    public boolean paintPath = true;
 
 
     // An efficient way to represent the directions "N", "W", "S", "E"
@@ -173,50 +173,8 @@ public class DijkstraShortestPath implements Serializable {
     }
 
 
-    /**
-     * If it is possible to execute the movement necessary to move from the current location to the next location in
-     * the path, execute that action. Otherwise do nothing
-     * @return
-     */
-    public String getNextAction() {
-        if (path.empty()){
-            return "Do Nothing";
-        }
-        Element e = path.peek();
-        String action = "default";
-        int dx = e.getX()-agent.getX();
-        int dy = e.getY()-agent.getY();
-        if (dx==0){
-            if (dy==1){
-                action = "Go Up";
-            } else if (dy==-1) {
-                action = "Go Down";
-            } else if (dy==0) {
-                //TODO: This is an ad-hoc solution for making the agent dig a path instead of only walking over it.
-                // Works for now, should be changed in a more robust function.
-                action = "Dig";
-            }
-        } else if (dx==1){
-            action = "Go Right";
-        } else if (dx==-1){
-            action = "Go Left";
-        }
-        if (agent.tryAction(action)){
-            path.pop();
-            return action;
-        } else {
-            return "Do Nothing";
-        }
-    }
 
-    private boolean checkPath() {
-        for (Element e : path) {
-            if (e.isBurning()) {
-                return false;
-            }
-        }
-        return true;
-    }
+
 
     public Stack<Element> getPath(){ return this.path; }
 
@@ -309,18 +267,6 @@ public class DijkstraShortestPath implements Serializable {
 
         return shortestPath;
 
-    }
-
-
-    /**
-     * debugging function for checking the optimal path
-     */
-    public void printPath(Stack<Element> path) {
-        System.out.println("shortest path found from goal "+ goal.toCoordinates() +":");
-        for (Element e:path){
-            System.out.println("-> (" + e.getX() + ", " + e.getY() + ")");
-        }
-        System.out.println("Agent at: (" + agent.getX() + ", " + agent.getY() + ")");
     }
 
 
