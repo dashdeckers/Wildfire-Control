@@ -46,11 +46,11 @@ public class Simulation extends Observable implements Serializable, Observer {
 	// parameters related to agents
 	private int nr_agents;
 	private int energyAgents;
-	private boolean useSubGoal = true;
 
 	/*
 	For now, orthogonal goals are predetermined. Al a RL controller needs to do, is determine the values for this array.
 	 */
+    private boolean useSubGoal = false;
 	private double dist[] = {4,4,4,4,4,4,4,4};
 	private OrthogonalSubgoals subGoals;
 	private String algorithm = "Bresenham";

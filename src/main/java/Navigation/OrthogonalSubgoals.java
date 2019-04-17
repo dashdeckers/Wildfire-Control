@@ -6,19 +6,19 @@ import Model.Elements.Element;
 import java.io.Serializable;
 import java.util.List;
 
-//TODO: ONLY COMPATIBLE WITH A SINGLE AGENT!!!
+//TODO: ONLY COMPATIBLE WITH MULTIPLE AGENTS!!!
 public class OrthogonalSubgoals implements Serializable {
     private List<SubGoal> subGoals;
     List<List<Element>> cells;
     int fireX, fireY;
     String algorithm;
-    int nextGoal = 0; // not useful when having multiple agents.
-    final int maxNrGoals = 8; // Increase to 8 once diagonals are implemented.
+    int nextGoal = 0; // not suitable when having multiple agents, temporarily used as ad hoc solution.
+    final int maxNrGoals = 8;
 
 
     double[] dist;
 
-    //used for directions
+    //used for directions of subgoals
     int dx[]={-1,-1,0,1,1,1,0,-1};
     int dy[]={0,-1,-1,-1,0,1,1,1};
 
@@ -30,22 +30,24 @@ public class OrthogonalSubgoals implements Serializable {
         this.cells = cells;
     }
 
+    /**
+     * give an agent a new goal. If it already is on a subgoal, start cutting towards another subgoal. If not on
+     * the current goal, move towards it.
+     * @param agent the agent for which the goals need to be updated.
+     */
     public void setNextGoal(Agent agent){
         if (!agentOnGoal(agent)){
             Element goalCell = getCorrespondingCell(nextGoal);
-            System.out.println(goalCell.toCoordinates());
             agent.setGoal(new SubGoal(cells, goalCell, algorithm, agent, false));
         } else {
             nextGoal=(nextGoal+1)%maxNrGoals;
             Element goalCell = getCorrespondingCell(nextGoal);
-            System.out.println(goalCell.toCoordinates());
             agent.setGoal(new SubGoal(cells, goalCell, algorithm, agent, true));
         }
     }
 
 
     private boolean agentOnGoal(Agent agent){
-        System.out.println("Goes to X: " + xOfGoal(nextGoal) + " Y: " + yOfGoal(nextGoal));
         return (agent.getX() == xOfGoal(nextGoal) && agent.getY() == yOfGoal(nextGoal));
     }
 
@@ -65,6 +67,7 @@ public class OrthogonalSubgoals implements Serializable {
             return Math.toIntExact(Math.round(dist[goalNr]*dy[goalNr]/Math.sqrt(2)))+fireY;
         }
     }
+
 
 
     private Element getCorrespondingCell(int goalNr){
