@@ -98,7 +98,7 @@ We need to:
 		Noteable this cost function should give some measure of how enclosed the fire is at any given time. This can be some ratio where the gap of the encircling is defined as the cost.
 		This is to be combined with a movement and cutting cost (previously implemented by Ritten)
 
-	A feature class is to be defined where noteable features from the simulation are extracted to be used as inputs for RL/evol learing. For the primary implementation a function can be defined which will give a vector of widthxheightxtypes values where each value is a boolean of whether the cell at x,y, holds type t. (Travis(?))
+	A feature class is to be defined where noteable features from the simulation are extracted to be used as inputs for RL/evol learing. For the primary implementation a function can be defined which will give a vector of widthxheightxtypes values where each value is a boolean of whether the cell at x,y, holds algorithm t. (Travis(?))
 
 	Fire should always spawn somewhat centrally (Dirk-Jelle)
 	Further bug hunting(?) (Dirk-Jelle)

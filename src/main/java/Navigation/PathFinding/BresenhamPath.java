@@ -1,9 +1,8 @@
-package Navigation;
+package Navigation.PathFinding;
 
 import Model.Agent;
 import Model.Elements.Element;
 
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Stack;
 
@@ -52,10 +51,8 @@ public class BresenhamPath extends PathFinder {
                 Quadrant III
                  */
                 if (dx > dy) {
-                    System.out.println("x==r, y==q");
                     determineStraightPath(y0, x0, y1, x1, false, 0, 0);
                 } else {
-                    System.out.println("x==q, y==r");
                     determineStraightPath(x0, y0, x1, y1, true, 0, 0);
                 }
             } else {
@@ -63,10 +60,8 @@ public class BresenhamPath extends PathFinder {
                 Quadrant IV
                  */
                 if (Math.abs(dx) > dy) {
-                    System.out.println("x==r, y==q");
                     determineStraightPath(y0, x1, y1, x0, false, 0, 1);
                 } else {
-                    System.out.println("x==q, y==r");
                     determineStraightPath(x1, y0, x0, y1, true, 1, 0);
                 }
             }
@@ -76,10 +71,8 @@ public class BresenhamPath extends PathFinder {
                 Quadrant II
                  */
                 if (dx > Math.abs(dy)) {
-                    System.out.println("x==r, y==q");
                     determineStraightPath(y1, x0, y0, x1, false, 1, 0);
                 } else {
-                    System.out.println("x==q, y==r");
                     determineStraightPath(x0, y1, x1, y0, true, 0, 1);
                 }
             } else {
@@ -87,10 +80,8 @@ public class BresenhamPath extends PathFinder {
                 Quadrant I
                  */
                 if (Math.abs(dx) > Math.abs(dy)) {
-                    System.out.println("x==r, y==q");
                     determineStraightPath(y1, x1, y0, x0, false, 1, 1);
                 } else {
-                    System.out.println("x==q, y==r");
                     determineStraightPath(x1, y1, x0, y0, true, 1, 1);
                 }
             }

@@ -2,6 +2,7 @@ package Model;
 
 import Learning.RLController;
 import Model.Elements.*;
+import Navigation.OrthogonalSubgoals;
 import Navigation.SubGoal;
 //import com.sun.xml.internal.bind.v2.TODO;
 
@@ -45,12 +46,15 @@ public class Simulation extends Observable implements Serializable, Observer {
 	// parameters related to agents
 	private int nr_agents;
 	private int energyAgents;
-	private boolean useSubGoal = false;
-    /*
-    If the agents only needs to move to a location, set to false. If the agent needs to cut
-    fire lines as well, set to true
-     */
-	private boolean cutPath = false;
+	private boolean useSubGoal = true;
+
+	/*
+	For now, orthogonal goals are predetermined. Al a RL controller needs to do, is determine the values for this array.
+	 */
+	private double dist[] = {4,4,4,4,4,4,4,4};
+	private OrthogonalSubgoals subGoals;
+	private String algorithm = "Bresenham";
+
 
 	// other classes
 	private ParameterManager parameter_manager;
@@ -84,7 +88,8 @@ public class Simulation extends Observable implements Serializable, Observer {
 
 		// Generate plan for agent(s)
 		if (useSubGoal){
-			setPathAgents();
+		    subGoals = new OrthogonalSubgoals(5, 5, dist, algorithm, cells);
+			subGoals.setNextGoal(agents.get(0));
 		}
 
 		findActiveCells();
@@ -212,7 +217,8 @@ public class Simulation extends Observable implements Serializable, Observer {
 			a.setController(rlController);
 		}
 		if (useSubGoal){
-			setPathAgents();
+            subGoals = new OrthogonalSubgoals(5, 5, dist, algorithm, cells);
+            subGoals.setNextGoal(agents.get(0));
 		}
 		setChanged();
 		notifyObservers(cells);
@@ -284,6 +290,13 @@ public class Simulation extends Observable implements Serializable, Observer {
 		HashSet<Element> activesToRemove = new HashSet<>();
 		HashSet<Element> activesToAdd = new HashSet<>();
 		HashSet<Agent> agentsToRemove = new HashSet<>();
+
+		//Can be removed once Orthogonal Subgoals are assigned by a controller
+		if (useSubGoal){
+		    if (!agents.get(0).onGoal()){
+		        subGoals.setNextGoal(agents.get(0));
+            }
+        }
 
 		if (agents.isEmpty() && activeCells.isEmpty()) {
 			stop("empty sets");
@@ -503,16 +516,5 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public void applyUpdates(){
 		setChanged();
 		notifyObservers(cells);
-	}
-
-	/**
-	 * For now, the sole purpose of this function is to provide some path finding functionality. Once other there is a
-	 * proper use for pathfinding, this function is redundant and can be removed.
-	 */
-	public void setPathAgents(){
-		for (Agent a: agents){
-			SubGoal sp = new SubGoal(cells,cells.get(9).get(9), "Dijkstra", a, cutPath);
-			a.setPath(sp);
-		}
 	}
 }

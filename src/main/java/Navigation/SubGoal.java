@@ -2,23 +2,25 @@ package Navigation;
 
 import Model.Agent;
 import Model.Elements.Element;
+import Navigation.PathFinding.BresenhamPath;
+import Navigation.PathFinding.DijkstraShortestPath;
+import Navigation.PathFinding.PathFinder;
 
 import java.io.Serializable;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Stack;
 
 public class SubGoal implements Serializable {
     Element goal;
     List<List<Element>> cells;
-    String type;
+    String algorithm;
     public Stack<Element> path;
     private Agent agent;
 
-    public SubGoal(List<List<Element>> cells, Element goal, String type, Agent agent, boolean cutPath){
+    public SubGoal(List<List<Element>> cells, Element goal, String algorithm, Agent agent, boolean cutPath){
         this.goal = goal;
         this.cells = cells;
-        this.type = type;
+        this.algorithm = algorithm;
         this.agent = agent;
         if (agent.checkTile(goal.getX(), goal.getY())){
             determinePath(cutPath);
@@ -32,14 +34,12 @@ public class SubGoal implements Serializable {
      */
     private void determinePath(boolean cutPath){
         PathFinder pf;
-        switch (type) {
+        switch (algorithm) {
             case "Dijkstra":
                 pf = new DijkstraShortestPath(cells, agent, goal, cutPath);
-                System.out.println("using Dijksta");
                 break;
             default :
                 pf = new BresenhamPath(cells, agent, goal, cutPath);
-                System.out.println("using Bresenham");
         }
         pf.findPath();
         path = pf.getPath();
@@ -53,7 +53,11 @@ public class SubGoal implements Serializable {
      */
 
     public String getNextAction() {
-        if (path == null || path.empty()){
+        if (path == null){
+            return "Do Nothing";
+        }
+        if (path.empty()){
+            System.out.println("Path to goal is empty");
             return "Do Nothing";
         }
         Element e = path.peek();

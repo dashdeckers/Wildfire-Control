@@ -1,6 +1,6 @@
-package Navigation;
+package Navigation.PathFinding;
 
-import Model.Elements.Element;
+import Navigation.PathFinding.Node;
 
 import java.util.Comparator;
 

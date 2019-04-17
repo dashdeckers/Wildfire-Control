@@ -3,10 +3,6 @@ package Model;
 import Learning.RLController;
 import Model.Elements.Dirt;
 import Model.Elements.Element;
-import Model.ParameterManager;
-import Model.Simulation;
-import Navigation.DijkstraShortestPath;
-import Navigation.PathFinder;
 import Navigation.SubGoal;
 
 import java.awt.*;
@@ -367,5 +363,12 @@ public class Agent implements Serializable{
         return color;
     }
 
-    public void setPath(SubGoal goal) {this.goal = goal; }
+    public boolean onGoal(){
+        if (goal == null || goal.getPath() == null || goal.getPath().empty()){
+            return false;
+        }
+        return true;
+    }
+
+    public void setGoal(SubGoal goal) {this.goal = goal; }
 }

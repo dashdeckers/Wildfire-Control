@@ -1,4 +1,4 @@
-package Navigation;
+package Navigation.PathFinding;
 
 import Model.Agent;
 import Model.Elements.Element;
@@ -13,14 +13,12 @@ public class DijkstraShortestPath extends PathFinder implements Serializable {
     public Element goal;
     public Stack<Element> path;
 
-
-
-    public boolean cutPath = false;
+    public boolean cutPath;
 
     /*
     For debugging: If set to true, the generated path will be painted gray
      */
-    public boolean paintPath = true;
+    public boolean paintPath = false;
 
 
     // An efficient way to represent the directions "N", "W", "S", "E"
