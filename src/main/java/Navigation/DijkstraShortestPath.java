@@ -18,7 +18,7 @@ public class DijkstraShortestPath extends PathFinder implements Serializable {
     If the agent only needs to move to a location, set to false. If the agent needs to cut
     fire lines as well, set to true
      */
-    public boolean cutLines = false;
+    public boolean cutPath = false;
 
     /*
     For debugging: If set to true, the generated path will be painted gray
@@ -37,10 +37,11 @@ public class DijkstraShortestPath extends PathFinder implements Serializable {
 
     public int cost[][];
 
-    public DijkstraShortestPath(List<List<Element>> cells, Agent agent, Element goal) {
+    public DijkstraShortestPath(List<List<Element>> cells, Agent agent, Element goal, boolean cutPath) {
         this.cells=cells;
         this.agent=agent;
         this.goal=goal;
+        this.cutPath =cutPath;
 
         //initialisation of cost matrix
         cost = new int[cells.size()][cells.get(0).size()];
@@ -148,6 +149,7 @@ public class DijkstraShortestPath extends PathFinder implements Serializable {
 
     public void makePath(Node node){
         Stack<Element> path = new Stack<>();
+        Element cellAgent;
 
         /**
          * Check for the previous node, since the node on which the agent is currently standing should not be added.
@@ -158,22 +160,24 @@ public class DijkstraShortestPath extends PathFinder implements Serializable {
                 node.getElement().colorPath();
             }
             path.push(node.getElement());
-            node = node.getPreviousNode();
             /**
-             * If you want the agent to cut fires lines, set "cutLines" to true. The cell will be added to the path
+             * If you want the agent to cut fires lines, set "cutPath" to true. The cell will be added to the path
              * twice. This will be interpreted by getNextAction() as a dig action.
              */
-            if (cutLines && (node.getElement().getType().equals("Grass") || node.getElement().getType().equals("Tree"))) {
+            if (cutPath && (node.getElement().getType().equals("Grass") || node.getElement().getType().equals("Tree"))) {
                 path.push(node.getElement());
             }
+            node = node.getPreviousNode();
         }
 
+        //Final push to make sure the cell the agent is standing is also cut if needed.
+        cellAgent = cells.get(agent.getX()).get(agent.getY());
+        if (cutPath && (cellAgent.getType().equals("Grass") || cellAgent.getType().equals("Tree"))) {
+            path.push(cellAgent);
+        }
         //System.out.println("Returned to original location");
         this.path = path;
     }
-
-
-
 
 
     public Stack<Element> getPath(){ return this.path; }

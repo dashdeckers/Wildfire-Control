@@ -15,32 +15,35 @@ public class SubGoal implements Serializable {
     public Stack<Element> path;
     private Agent agent;
 
-    public SubGoal(List<List<Element>> cells, Element goal, String type, Agent agent){
+    public SubGoal(List<List<Element>> cells, Element goal, String type, Agent agent, boolean cutPath){
         this.goal = goal;
-        this. cells = cells;
+        this.cells = cells;
         this.type = type;
         this.agent = agent;
-        determinePath();
-
+        if (agent.checkTile(goal.getX(), goal.getY())){
+            determinePath(cutPath);
+        } else {
+            System.out.println("Invalid goal, pick another one");
+        }
     }
 
     /**
      * If we with to add more path finding methods, we can do so by extending the switch statement.
      */
-    private void determinePath(){
+    private void determinePath(boolean cutPath){
         PathFinder pf;
         switch (type) {
             case "Dijkstra":
-                pf = new DijkstraShortestPath(cells, agent, goal);
+                pf = new DijkstraShortestPath(cells, agent, goal, cutPath);
                 System.out.println("using Dijksta");
                 break;
             default :
-                pf = new BresenhamPath(cells, agent, goal);
+                pf = new BresenhamPath(cells, agent, goal, cutPath);
                 System.out.println("using Bresenham");
         }
         pf.findPath();
         path = pf.getPath();
-        printPath(path);
+        //printPath(path);
     }
 
     /**
@@ -50,7 +53,7 @@ public class SubGoal implements Serializable {
      */
 
     public String getNextAction() {
-        if (path.empty()){
+        if (path == null || path.empty()){
             return "Do Nothing";
         }
         Element e = path.peek();

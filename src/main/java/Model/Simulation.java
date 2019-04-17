@@ -29,7 +29,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private boolean undo_redo;
 	private boolean running;
 	private boolean use_gui;
-	private boolean generateRandom = false;
+	private boolean generateRandom = true;
 	private Random rand;
 	private long randomizer_seed = 0;
 
@@ -46,6 +46,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private int nr_agents;
 	private int energyAgents;
 	private boolean useSubGoal = true;
+	private boolean cutLines = true;
 
 	// other classes
 	private ParameterManager parameter_manager;
@@ -506,10 +507,8 @@ public class Simulation extends Observable implements Serializable, Observer {
 	 */
 	public void setPathAgents(){
 		for (Agent a: agents){
-			SubGoal sp = new SubGoal(cells,cells.get(0).get(4), "Bresenham", a);
-//			sp.determinePath();
+			SubGoal sp = new SubGoal(cells,cells.get(9).get(9), "Dijkstra", a, cutLines);
 			a.setPath(sp);
-			//a.setPlan(sp.getDirections());
 		}
 	}
 }
