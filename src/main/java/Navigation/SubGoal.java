@@ -57,7 +57,7 @@ public class SubGoal implements Serializable {
             return "Do Nothing";
         }
         if (path.empty()){
-            System.out.println("Path to goal is empty");
+            //System.out.println("Path to goal is empty");
             return "Do Nothing";
         }
         Element e = path.peek();

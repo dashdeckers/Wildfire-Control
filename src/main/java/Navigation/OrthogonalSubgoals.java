@@ -74,6 +74,18 @@ public class OrthogonalSubgoals implements Serializable {
 
         int xDist = xOfGoal(goalNr);
         int yDist = yOfGoal(goalNr);
+        if(xDist < 0){
+            xDist = 0;
+        }
+        if(xDist >= cells.size()){
+            xDist = cells.size() -1;
+        }
+        if(yDist < 0){
+            yDist = 0;
+        }
+        if(yDist >= cells.get(0).size()){
+            yDist = cells.get(0).size() -1;
+        }
 
         return cells.get(xDist).get(yDist);
     }

@@ -50,7 +50,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	/*
 	For now, orthogonal goals are predetermined. Al a RL controller needs to do, is determine the values for this array.
 	 */
-    private boolean useSubGoal = false;
+    private boolean useSubGoal = true;
 	private double dist[] = {4,4,4,4,4,4,4,4};
 	private OrthogonalSubgoals subGoals;
 	private String algorithm = "Bresenham";
@@ -88,8 +88,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 
 		// Generate plan for agent(s)
 		if (useSubGoal){
-		    subGoals = new OrthogonalSubgoals(5, 5, dist, algorithm, cells);
-			subGoals.setNextGoal(agents.get(0));
+			applySubgoals();
 		}
 
 		findActiveCells();
@@ -99,6 +98,19 @@ public class Simulation extends Observable implements Serializable, Observer {
 
 		// Save the state so it can be reset to
 		states.add((Simulation) deepCopy(this));
+	}
+
+	public void applySubgoals(){
+		subGoals = new OrthogonalSubgoals(5, 5, dist, algorithm, cells);
+		subGoals.setNextGoal(agents.get(0));
+	}
+
+	public double[] getSubGoals(){
+		return dist;
+	}
+
+	public void setSubGoals(double[] d){
+		dist = d;
 	}
 
 	/**
@@ -291,16 +303,18 @@ public class Simulation extends Observable implements Serializable, Observer {
 		HashSet<Element> activesToAdd = new HashSet<>();
 		HashSet<Agent> agentsToRemove = new HashSet<>();
 
+		if (agents.isEmpty() && activeCells.isEmpty()) {
+			stop("empty sets");
+		}
+
 		//Can be removed once Orthogonal Subgoals are assigned by a controller
 		if (useSubGoal){
-		    if (!agents.get(0).onGoal()){
+		    if (agents.size() != 0 && !agents.get(0).onGoal()){
 		        subGoals.setNextGoal(agents.get(0));
             }
         }
 
-		if (agents.isEmpty() && activeCells.isEmpty()) {
-			stop("empty sets");
-		}
+
 
 		for (Agent a : agents){
 			String status = a.timeStep();

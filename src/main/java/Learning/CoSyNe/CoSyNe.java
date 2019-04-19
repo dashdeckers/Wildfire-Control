@@ -5,6 +5,7 @@ import Model.Agent;
 import Model.Simulation;
 import View.MainFrame;
 import org.neuroph.nnet.MultiLayerPerceptron;
+import org.neuroph.util.TransferFunctionType;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -13,11 +14,11 @@ import java.util.List;
 abstract class CoSyNe implements RLController {
     private List<Integer> MLP_shape;
     //layer, neuron, weight
-    private List<List<List<WeightBag>>> weightBags;
-    private MultiLayerPerceptron mlp;
+    protected List<List<List<WeightBag>>> weightBags;
+    protected MultiLayerPerceptron mlp;
     protected Simulation model;
-    private Double best_performance = null;
-    private double mean_perfomance;
+    protected Double best_performance = null;
+    protected double mean_perfomance;
 
     public CoSyNe(){
         MLP_shape = new ArrayList<>();
@@ -50,7 +51,7 @@ abstract class CoSyNe implements RLController {
     }
 
     private void createMLP(){
-        mlp = new MultiLayerPerceptron(MLP_shape);
+        mlp = new MultiLayerPerceptron(MLP_shape, TransferFunctionType.SIGMOID);
         for (int layer = 0; layer < mlp.getLayersCount(); layer ++) {
             for (int neuron = 0; neuron < mlp.getLayerAt(layer).getNeuronsCount(); neuron++) {
                 for (int weight = 0; weight < mlp.getLayerAt(layer).getNeuronAt(neuron).getWeights().length; weight++) {

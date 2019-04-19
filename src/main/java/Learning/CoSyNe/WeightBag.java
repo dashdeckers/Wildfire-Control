@@ -15,7 +15,7 @@ public class WeightBag {
         weights = new ArrayList<>();
         sortedWeights = new ArrayList<>();
         for(int i = 0; i< size; i++) {
-            weights.add(new WeightPair((new Random().nextDouble() * 2 - 1)*5, alpha));
+            weights.add(new WeightPair((new Random().nextDouble() * 2 - 1), alpha));
         }
     }
 
@@ -40,6 +40,8 @@ public class WeightBag {
 
     public void breed(int n_children){
         Collections.sort(sortedWeights);
+        //System.out.println("Old = " + Arrays.toString(sortedWeights.toArray()));
+
         Random rng = new Random();
         for(int i = 0; i< n_children; i++){
             int p1 = rng.nextInt(sortedWeights.size() / 4);
@@ -59,8 +61,8 @@ public class WeightBag {
 
     private WeightPair crossPerm(WeightPair w1, WeightPair w2){
         Random rng = new Random();
-        double weight = w1.getWeight().getValue() * w1.getFitness() + w2.getWeight().getValue() * w2.getFitness();
-        weight /= w1.getFitness() + w2.getFitness();
+        double weight = w1.getWeight().getValue() + w2.getWeight().getValue();
+        weight /= 2;
         weight += rng.nextGaussian();
         return new WeightPair(weight, alpha);
     }
