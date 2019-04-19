@@ -1,4 +1,4 @@
-package Navigation;
+package Navigation.PathFinding;
 
 import Model.Agent;
 import Model.Elements.Element;
@@ -6,19 +6,14 @@ import Model.Elements.Element;
 import java.io.Serializable;
 import java.util.*;
 
-public class DijkstraShortestPath implements Serializable {
+public class DijkstraShortestPath extends PathFinder implements Serializable {
 
     public List<List<Element>> cells;
     public Agent agent;
     public Element goal;
     public Stack<Element> path;
 
-
-    /*
-    If the agent only needs to move to a location, set to false. If the agent needs to cut
-    fire lines as well, set to true
-     */
-    public boolean cutLines = true;
+    public boolean cutPath;
 
     /*
     For debugging: If set to true, the generated path will be painted gray
@@ -37,10 +32,11 @@ public class DijkstraShortestPath implements Serializable {
 
     public int cost[][];
 
-    public DijkstraShortestPath(List<List<Element>> cells, Agent agent, Element goal) {
+    public DijkstraShortestPath(List<List<Element>> cells, Agent agent, Element goal, boolean cutPath) {
         this.cells=cells;
         this.agent=agent;
         this.goal=goal;
+        this.cutPath =cutPath;
 
         //initialisation of cost matrix
         cost = new int[cells.size()][cells.get(0).size()];
@@ -148,6 +144,7 @@ public class DijkstraShortestPath implements Serializable {
 
     public void makePath(Node node){
         Stack<Element> path = new Stack<>();
+        Element cellAgent;
 
         /**
          * Check for the previous node, since the node on which the agent is currently standing should not be added.
@@ -158,65 +155,25 @@ public class DijkstraShortestPath implements Serializable {
                 node.getElement().colorPath();
             }
             path.push(node.getElement());
-            node = node.getPreviousNode();
             /**
-             * If you want the agent to cut fires lines, set "cutLines" to true. The cell will be added to the path
+             * If you want the agent to cut fires lines, set "cutPath" to true. The cell will be added to the path
              * twice. This will be interpreted by getNextAction() as a dig action.
              */
-            if (cutLines && (node.getElement().getType().equals("Grass") || node.getElement().getType().equals("Tree"))) {
+            if (cutPath && (node.getElement().getType().equals("Grass") || node.getElement().getType().equals("Tree"))) {
                 path.push(node.getElement());
             }
+            node = node.getPreviousNode();
         }
 
+        //Final push to make sure the cell the agent is standing is also cut if needed.
+        cellAgent = cells.get(agent.getX()).get(agent.getY());
+        if (cutPath && (cellAgent.getType().equals("Grass") || cellAgent.getType().equals("Tree"))) {
+            path.push(cellAgent);
+        }
         //System.out.println("Returned to original location");
         this.path = path;
     }
 
-
-    /**
-     * If it is possible to execute the movement necessary to move from the current location to the next location in
-     * the path, execute that action. Otherwise do nothing
-     * @return
-     */
-    public String getNextAction() {
-        if (path.empty()){
-            return "Do Nothing";
-        }
-        Element e = path.peek();
-        String action = "default";
-        int dx = e.getX()-agent.getX();
-        int dy = e.getY()-agent.getY();
-        if (dx==0){
-            if (dy==1){
-                action = "Go Up";
-            } else if (dy==-1) {
-                action = "Go Down";
-            } else if (dy==0) {
-                //TODO: This is an ad-hoc solution for making the agent dig a path instead of only walking over it.
-                // Works for now, should be changed in a more robust function.
-                action = "Dig";
-            }
-        } else if (dx==1){
-            action = "Go Right";
-        } else if (dx==-1){
-            action = "Go Left";
-        }
-        if (agent.tryAction(action)){
-            path.pop();
-            return action;
-        } else {
-            return "Do Nothing";
-        }
-    }
-
-    private boolean checkPath() {
-        for (Element e : path) {
-            if (e.isBurning()) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     public Stack<Element> getPath(){ return this.path; }
 
@@ -309,18 +266,6 @@ public class DijkstraShortestPath implements Serializable {
 
         return shortestPath;
 
-    }
-
-
-    /**
-     * debugging function for checking the optimal path
-     */
-    public void printPath(Stack<Element> path) {
-        System.out.println("shortest path found from goal "+ goal.toCoordinates() +":");
-        for (Element e:path){
-            System.out.println("-> (" + e.getX() + ", " + e.getY() + ")");
-        }
-        System.out.println("Agent at: (" + agent.getX() + ", " + agent.getY() + ")");
     }
 
 

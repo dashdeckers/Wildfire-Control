@@ -3,9 +3,7 @@ package Model;
 import Learning.RLController;
 import Model.Elements.Dirt;
 import Model.Elements.Element;
-import Model.ParameterManager;
-import Model.Simulation;
-import Navigation.DijkstraShortestPath;
+import Navigation.SubGoal;
 
 import java.awt.*;
 import java.io.Serializable;
@@ -29,7 +27,7 @@ public class Agent implements Serializable{
     private Color color;
 
     //Optimal path, i.e. elements that should be visited, found by A* will be stored here.
-    private DijkstraShortestPath path;
+    private SubGoal goal;
 
     /**
      * Create an agent at X,Y with a certain id.
@@ -106,8 +104,8 @@ public class Agent implements Serializable{
             //If an agent controller is assigned, have it make the decision
             if (controller != null) {
                 controller.pickAction(this);
-            } else if ( path != null) {
-                currentAction = path.getNextAction();
+            } else if ( goal != null) {
+                currentAction = goal.getNextAction();
                 takeAction(currentAction);
             } else {
                 List<String> actions = possibleActions();
@@ -365,5 +363,12 @@ public class Agent implements Serializable{
         return color;
     }
 
-    public void setPath(DijkstraShortestPath path) {this.path = path; }
+    public boolean onGoal(){
+        if (goal == null || goal.getPath() == null || goal.getPath().empty()){
+            return false;
+        }
+        return true;
+    }
+
+    public void setGoal(SubGoal goal) {this.goal = goal; }
 }

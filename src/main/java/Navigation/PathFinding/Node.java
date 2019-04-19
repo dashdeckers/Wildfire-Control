@@ -1,4 +1,4 @@
-package Navigation;
+package Navigation.PathFinding;
 
 import Model.Elements.Element;
 
