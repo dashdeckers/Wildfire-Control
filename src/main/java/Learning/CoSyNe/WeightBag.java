@@ -15,7 +15,7 @@ public class WeightBag {
         weights = new ArrayList<>();
         sortedWeights = new ArrayList<>();
         for(int i = 0; i< size; i++) {
-            weights.add(new WeightPair(new Random().nextGaussian(), alpha));
+            weights.add(new WeightPair((new Random().nextDouble() * 2 - 1)*5, alpha));
         }
     }
 
@@ -61,11 +61,7 @@ public class WeightBag {
         Random rng = new Random();
         double weight = w1.getWeight().getValue() * w1.getFitness() + w2.getWeight().getValue() * w2.getFitness();
         weight /= w1.getFitness() + w2.getFitness();
-        //weight = 1000;
         weight += rng.nextGaussian();
-        //if(Math.random() < 1){
-          //  weight = rng.nextGaussian();
-        //}
         return new WeightPair(weight, alpha);
     }
 
