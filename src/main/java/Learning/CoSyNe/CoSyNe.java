@@ -7,7 +7,11 @@ import View.MainFrame;
 import org.neuroph.nnet.MultiLayerPerceptron;
 import org.neuroph.util.TransferFunctionType;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +22,7 @@ abstract class CoSyNe implements RLController {
     protected MultiLayerPerceptron mlp;
     protected Simulation model;
     protected Double best_performance = null;
+    protected Double ultimate_performance = null;
     protected double mean_perfomance;
 
     public CoSyNe(){
@@ -77,7 +82,33 @@ abstract class CoSyNe implements RLController {
         if(best_performance == null || getFitness() < best_performance){
             best_performance = getFitness();
         }
+        if(ultimate_performance == null || getFitness() < ultimate_performance){
+            model = new Simulation(this);
+            //model.getParameter_manager().changeParameter("Model", "Step Time", 1000f);
+
+            JFrame f = new MainFrame(model);
+            model.start();
+            try {
+                Thread.sleep(Math.abs(1000));
+            } catch (java.lang.InterruptedException e) {
+                System.out.println(e.getMessage());
+            }
+            screenshot(0, (int) getFitness());
+
+            f.dispose();
+        }
         model = new Simulation(this);
+    }
+
+    protected void screenshot(int generation, int i){
+        Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
+        try {
+            BufferedImage capture = new Robot().createScreenCapture(screenRect);
+            ImageIO.write(capture, "bmp", new File("./screenshot_g"+ generation+"_i_"+i+".bmp"));
+
+        }catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 
     private void breed(){
