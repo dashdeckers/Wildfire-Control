@@ -15,18 +15,24 @@ public class WeightBag {
         weights = new ArrayList<>();
         sortedWeights = new ArrayList<>();
         for(int i = 0; i< size; i++) {
-            weights.add(new WeightPair((new Random().nextDouble() * 2 - 1), alpha));
+            weights.add(new WeightPair((new Random().nextDouble()), alpha));    //Initialized between 0-1
         }
     }
 
+    /**
+     * Pull a random weight from the bag
+     * @return
+     */
     public Weight randomWeight(){
         Random rng = new Random();
-        //Collections.sort(weights);
         activeWeight = weights.get(rng.nextInt(weights.size()));
-        //activeWeight = weights.get(Math.min((int) Math.round(Math.abs(rng.nextGaussian()) * weights.size()/4), weights.size()-1));
         return activeWeight.getWeight();
     }
 
+    /**
+     * Update the fitness of the current weight
+     * @param f
+     */
     public void updateFitness(double f){
         if(activeWeight.no_trials){
             activeWeight.updateFitness(f);
@@ -38,27 +44,35 @@ public class WeightBag {
         }
     }
 
+    /**
+     * Perform the breeding procedure on all weights in the bags, all fitnessess should be defined by this point
+     *
+     * @param n_children How many children should be spawned, keep this below half the bagSize
+     */
     public void breed(int n_children){
         Collections.sort(sortedWeights);
         //System.out.println("Old = " + Arrays.toString(sortedWeights.toArray()));
 
         Random rng = new Random();
         for(int i = 0; i< n_children; i++){
-            int p1 = rng.nextInt(sortedWeights.size() / 4);
+            int p1 = rng.nextInt(sortedWeights.size() / 4); //fetch parents from 25th percentile
             int p2 = rng.nextInt(sortedWeights.size() / 4);
             WeightPair w1 = sortedWeights.get(p1);
             WeightPair w2 = sortedWeights.get(p2);
             WeightPair child = crossPerm(w1, w2);
-            WeightPair kill = sortedWeights.get(sortedWeights.size()-1);
-            //System.out.println("Parent1 " + w1 + " parent2 " + w2 + " kill " + kill + " for " + child);
+            WeightPair kill = sortedWeights.get(sortedWeights.size()-1);    //Kill the worst
             sortedWeights.remove(kill);
             weights.remove(kill);
             weights.add(child);
         }
-        //System.out.println("New = " + Arrays.toString(weights.toArray()));
-
     }
 
+    /**
+     * Create a child based on it's two parents
+     * @param w1
+     * @param w2
+     * @return  A weightpair child at the mean of the parents + 1 random standard deviation
+     */
     private WeightPair crossPerm(WeightPair w1, WeightPair w2){
         Random rng = new Random();
         double weight = w1.getWeight().getValue() + w2.getWeight().getValue();
@@ -83,6 +97,10 @@ public class WeightBag {
             return fitness;
         }
 
+        /**
+         * Add a value to the simulated mean, which encourages recency over real mean
+         * @param f
+         */
         public void updateFitness(double f){
             if(no_trials){
                 fitness = f;
@@ -93,17 +111,28 @@ public class WeightBag {
             fitness = fitness + alpha * (f - fitness);
         }
 
+        /**
+         * Set the fitness back to 0 for both mean and
+         */
         public void resetFitness(){
             fitness = 0;
             fitness_calls = 0;
         }
 
+        /**
+         * Use this when using the accurate mean
+         * @param f
+         */
         public void addFitness(double f){
             fitness += f;
             fitness_calls++;
             no_trials = false;
         }
 
+        /**
+         * Use this when using the accurate mean
+         * @return
+         */
         public double getMeanFitness(){
             return fitness / fitness_calls;
         }
@@ -112,6 +141,11 @@ public class WeightBag {
             return weight;
         }
 
+        /**
+         * Compare function which is used for sorting
+         * @param c
+         * @return
+         */
         @Override
         public int compareTo(Object c) {
             Double tf = fitness;

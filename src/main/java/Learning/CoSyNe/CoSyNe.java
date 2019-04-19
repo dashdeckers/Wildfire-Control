@@ -39,6 +39,9 @@ abstract class CoSyNe implements RLController {
 
     }
 
+    /**
+     * The overall generation loop including creating MLPs, testing them, and breeding them
+     */
     protected void performLearning(){
         for(int generation = 0; generation < defN_generations(); generation++){
             mean_perfomance = 0;
@@ -55,6 +58,9 @@ abstract class CoSyNe implements RLController {
         }
     }
 
+    /**
+     * Form an MLP by pulling random weights out of the weightbags.
+     */
     private void createMLP(){
         mlp = new MultiLayerPerceptron(MLP_shape, TransferFunctionType.SIGMOID);
         for (int layer = 0; layer < mlp.getLayersCount(); layer ++) {
@@ -66,10 +72,11 @@ abstract class CoSyNe implements RLController {
         }
     }
 
+    /**
+     * Subject the MLP to the simulation so we can establish its fitness.
+     */
     protected void testMLP(){
-        //JFrame frame = new MainFrame(model);
         model.start();
-        //frame.dispose();
         for(int layer = 0; layer < weightBags.size(); layer++){
             for(int neuron = 0; neuron < weightBags.get(layer).size(); neuron++){
                 for(int weight = 0; weight < weightBags.get(layer).get(neuron).size(); weight++){
@@ -82,9 +89,8 @@ abstract class CoSyNe implements RLController {
         if(best_performance == null || getFitness() < best_performance){
             best_performance = getFitness();
         }
-        if(ultimate_performance == null || getFitness() < ultimate_performance){
+        if(ultimate_performance == null || getFitness() < ultimate_performance){    //take screenshot
             model = new Simulation(this);
-            //model.getParameter_manager().changeParameter("Model", "Step Time", 1000f);
 
             JFrame f = new MainFrame(model);
             model.start();
@@ -100,6 +106,11 @@ abstract class CoSyNe implements RLController {
         model = new Simulation(this);
     }
 
+    /**
+     * Takes a screenshot. Generation and i are only used to define the name of the file.
+     * @param generation
+     * @param i
+     */
     protected void screenshot(int generation, int i){
         Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
         try {
@@ -111,6 +122,9 @@ abstract class CoSyNe implements RLController {
         }
     }
 
+    /**
+     * Tell all bags to breed
+     */
     private void breed(){
         for(int layer = 0; layer < weightBags.size(); layer++){
             for(int neuron = 0; neuron < weightBags.get(layer).size(); neuron++) {
@@ -122,6 +136,9 @@ abstract class CoSyNe implements RLController {
         }
     }
 
+    /**
+     * Creates all the weight bags.
+     */
     private void initializeBags(){
         weightBags = new ArrayList<>();
         mlp = new MultiLayerPerceptron(MLP_shape);
@@ -137,6 +154,10 @@ abstract class CoSyNe implements RLController {
         }
     }
 
+    /**
+     * Extracts an action integer from the MLPs output.
+     * @param a
+     */
     @Override
     public void pickAction(Agent a) {
         mlp.setInput(getInput());
