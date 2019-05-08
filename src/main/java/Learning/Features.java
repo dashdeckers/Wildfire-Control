@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
+import java.lang.Math;
+
 @DeepCopyState
 public class Features implements MutableState, Serializable {
 
@@ -263,6 +265,235 @@ public class Features implements MutableState, Serializable {
         }
         System.out.printf("%n%n");
 
+    }
+
+    /** Wind direction
+     * For simplification we only take into account wind directions parallel to movement subgoals (not (near) orthogonal)
+     *
+     * Wind: vectorX, vectorY, windspeed
+     * NN, SS: only vectorY of interest (since subgoal 'moves' only vertical)
+     * EE, WW: only vectorX of interest ((since subgoal 'moves' only horizontal)
+     * Simplification:
+     * NE, SW, only vectorX & vectorY of interest if both positive OR negative (since vector wind otherwise orthogonal on movevement)
+     * SE, NW: only vectorX & vectorY of interest if : positive AND negative (since vector wind otherwise orthogonal on movevement)
+     *
+     * NOT FINISHED
+     *
+     * Two ways to implement this:
+     * 1) For every wind direction different ( I think most efficient), presented beneath
+     * 2) One general solution
+     *
+     * TODO: think about >= 0
+     */
+
+    public double windRelativeToSubgoal(Simulation model, int windVectorX, int windVectorY, int windSpeed, String compassDirection){
+
+        double wind = 0;
+
+        switch (compassDirection) {
+            case "NN":
+                wind = windVectorY * windSpeed;
+                break;
+            case "SS":
+                wind = -windVectorY * windSpeed; // - : since up is towards center
+                break;
+            case "EE":
+                wind = windVectorX * windSpeed;
+                break;
+            case "WW":
+                wind = -windVectorX * windSpeed; // - : since right is towards center
+                break;
+            case "NE":
+                if ( windVectorX >= 0 && windVectorY >= 0 ){ // if both positive the pythogoras can stay positive
+                    double c = ( (double)windVectorX*(double)windVectorX)+( (double)windVectorY* (double)windVectorY);
+                    wind = Math.sqrt(c) * windSpeed;
+                }
+                if ( windVectorX < 0 && windVectorY < 0 ){ // if both negative the pythogoras needs to be made stay negative
+                    double c = ( (double)windVectorX*(double)windVectorX)+( (double)windVectorY* (double)windVectorY);
+                    wind = -Math.sqrt(c) * windSpeed;
+                }
+                break;
+            case "SW":
+                if ( windVectorX >= 0 && windVectorY >= 0 ){
+                    double c = ( (double)windVectorX*(double)windVectorX)+( (double)windVectorY* (double)windVectorY);
+                    wind = -Math.sqrt(c) * windSpeed; // - : since right-up is towards center
+                }
+                if ( windVectorX < 0 && windVectorY < 0 ){
+                    double c = ( (double)windVectorX*(double)windVectorX)+( (double)windVectorY* (double)windVectorY);
+                    wind = Math.sqrt(c) * windSpeed; // no - : since left-down is away from center
+                }
+                break;
+            case "SE":
+                if ( windVectorX >= 0 && windVectorY < 0 ){
+                    double c = ( (double)windVectorX*(double)windVectorX)+( (double)windVectorY* (double)windVectorY);
+                    wind = Math.sqrt(c) * windSpeed; // + : since right-down is away from center
+                }
+                if ( windVectorX < 0 && windVectorY >= 0 ) {
+                    double c = ((double) windVectorX * (double) windVectorX) + ((double) windVectorY * (double) windVectorY);
+                    wind = -Math.sqrt(c) * windSpeed; // - : since left-up is towards from center
+                }
+                break;
+            case ""NW:
+                if ( windVectorX < 0 && windVectorY >= 0 ){
+                    double c = ( (double)windVectorX*(double)windVectorX)+( (double)windVectorY* (double)windVectorY);
+                    wind = Math.sqrt(c) * windSpeed; // + : since right-down is away from center
+                }
+                if ( windVectorX >= 0 && windVectorY < 0 ) {
+                    double c = ((double) windVectorX * (double) windVectorX) + ((double) windVectorY * (double) windVectorY);
+                    wind = -Math.sqrt(c) * windSpeed; // - : since left-up is towards from center
+                }
+                break;
+        }
+        return wind; // can be the case that wind is 0, if the wind is orthogonal on point
+    }
+
+
+    /** Distance to center (from subgoal)
+     * Needs the coordinates of the point
+     */
+    public double distanceToCenterFire(Simulation model, int x, int y){
+        double distance;
+        double[] centerFireAndMinMax = {0,0,0,0,0,0}; // 0 = centerX, 1 = centerY, 2 = minX, 3 = maxX, 4 = minY, 5 = maxY
+        centerFireAndMinMax = locationCenterFireAndMinMax(model);
+
+        double deltaX;
+        double deltaY;
+
+        deltaX = Math.abs((double)x - centerFireAndMinMax[0]);
+        deltaY = Math.abs((double)y - centerFireAndMinMax[1]);
+
+        // Given that deltaX or deltaY is always positive
+        if (deltaX == 0){
+            distance = deltaY;
+        }
+        if (deltaY == 0){
+            distance = deltaX;
+        }
+        else { // Use pythogaros
+            double c = (deltaX*deltaX)+(deltaY*deltaY);
+            distance = Math.sqrt(c);
+        }
+        System.out.print(distance + "%n");
+        return distance;
+    }
+
+    /** Distance fireline to center
+     * => A Feature needed for the NN to determine the placement of the subgoal
+     * 1) Center of the fire is calculated
+     * 2) minX, maxX, minY, maxY are determined
+     * 3) Depending on the compass direction the subgoal is placed the distance is calculated
+     * Compass directions:
+     *              NN
+     *         NW        NE
+     *     WW                EE
+     *         SW        SE
+     *              SS
+     */
+    public double distanceFromCenterToFireline(Simulation model, String compassDirection){
+        double distanceCenterToFire = 0;
+        double[] centerFireAndMinMax = {0,0,0,0,0,0}; // 0 = centerX, 1 = centerY, 2 = minX, 3 = maxX, 4 = minY, 5 = maxY
+        centerFireAndMinMax = locationCenterFireAndMinMax(model);
+
+        //System.out.println(Arrays.toString(centerFireAndMinMax));
+
+        double centerX = centerFireAndMinMax[0];
+        double centerY = centerFireAndMinMax[1];
+        double minX = centerFireAndMinMax[2];
+        double maxX = centerFireAndMinMax[3];
+        double minY = centerFireAndMinMax[4];
+        double maxY = centerFireAndMinMax[5];
+
+        switch (compassDirection) {
+            case "NN":
+                distanceCenterToFire = maxY - centerY;                break;
+            case "NE":
+                // Assumption: distance spreads evenly in norhtern direction
+                distanceCenterToFire = maxY - centerY;                break;
+            case "EE":
+                distanceCenterToFire = maxX - centerX;                break;
+            case "SE":
+                // Assumption: distance spreads evenly in southern direction
+                distanceCenterToFire = centerY - minY;                break;
+            case "SS":
+                distanceCenterToFire = centerY - minY;                break;
+            case "SW":
+                // Assumption: distance spreads evenly in southern direction
+                distanceCenterToFire = centerY - minY;                break;
+            case "WW":
+                distanceCenterToFire = centerX - minX;                break;
+            case "NW":
+                // Assumption: distance spreads evenly in norhtern direction
+                distanceCenterToFire = maxY - centerY;                break;
+        }
+
+        //System.out.print(distanceCenterToFire + "%n");
+        return distanceCenterToFire;
+
+    }
+
+    /** Helper function for distanceCenterFireline
+     * - Goes over whole map and stores all cells on fire. Calculates meanX and meanY as center fire
+     * - Simultaneously stores minX, maxX, minY, maxY
+     *
+     * Also returns values if no fire
+     */
+    public double[] locationCenterFireAndMinMax (Simulation model){
+        // blablablablablablablabla
+        double width = model.getParameter_manager().getWidth();
+        double height = model.getParameter_manager().getHeight();
+        List<List<Element>> cells = model.getAllCells();
+
+        double centerX = 0, centerY = 0, minX = 0, maxX = 0, minY = 0, maxY = 0;
+        double numberOfTilesBurning = 0;
+
+        int firstTile = 0;
+
+        // Loop over the grid
+        for (double i = 0; i < width ; i++) {
+            for (double j = 0; j < height ; j++) {
+
+                Element cell = cells.get((int)i).get((int)j);
+
+                if ( cell.isBurning() ){
+                    numberOfTilesBurning++;
+                    centerX += i; // add x location burning tile, later divide by total tiles
+                    centerY += j; // add y location burning tile, later divide by total tiles
+
+                    if (firstTile == 0){
+                        minX = i;
+                        minY = j;
+                        firstTile = 1;
+                    }
+                    if (i < minX ){
+                        minX = i;
+                    }
+                    if (i > maxX) { // always true first time
+                        maxX = i;
+                    }
+                    if (j < minY ) {
+                        minY = j;
+                    }
+                    if (j > maxY) { // always true first time
+                        maxY = j;
+                    }
+
+
+
+                }
+
+            }
+        }
+        centerX = centerX/numberOfTilesBurning;
+        centerY = centerY/numberOfTilesBurning;
+        double[] locationCenterFireAndMinMax = {0,0,0,0,0,0};
+        locationCenterFireAndMinMax[0] = centerX;
+        locationCenterFireAndMinMax[1] = centerY;
+        locationCenterFireAndMinMax[2] = minX;
+        locationCenterFireAndMinMax[3] = maxX;
+        locationCenterFireAndMinMax[4] = minY;
+        locationCenterFireAndMinMax[5] = maxY;
+
+        return locationCenterFireAndMinMax;
     }
 
     /**
