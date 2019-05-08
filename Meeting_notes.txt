@@ -126,3 +126,11 @@ Changing CoSyNe to support off-sets	Ivo
 
 
 
+Meeting 08-05
+NA: Dirk-Jelle, Travis, Ivo
+
+Discussed features
+    Edit wind feature - Roel
+Discussed BresenhamPath
+    Ritten will now 'split up' -> continue with deep q learning MLP
+Roel and Ivo still have to implement the features in cosyne. test after that
