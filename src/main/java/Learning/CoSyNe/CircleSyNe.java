@@ -101,4 +101,9 @@ public class CircleSyNe extends CoSyNe implements Serializable {
 
         return StraightPaths.getFitness(2);
     }
+
+    @Override
+    protected int defWeightSpread(){
+        return 3;
+    }
 }

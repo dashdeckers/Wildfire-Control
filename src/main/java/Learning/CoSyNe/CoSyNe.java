@@ -13,7 +13,9 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 abstract class CoSyNe implements RLController {
     private List<Integer> MLP_shape;
@@ -62,11 +64,11 @@ abstract class CoSyNe implements RLController {
      * Form an MLP by pulling random weights out of the weightbags.
      */
     private void createMLP(){
-        mlp = new MultiLayerPerceptron(MLP_shape, TransferFunctionType.SIGMOID);
+        mlp = new MultiLayerPerceptron(MLP_shape, TransferFunctionType.RECTIFIED);
         for (int layer = 0; layer < mlp.getLayersCount(); layer ++) {
             for (int neuron = 0; neuron < mlp.getLayerAt(layer).getNeuronsCount(); neuron++) {
                 for (int weight = 0; weight < mlp.getLayerAt(layer).getNeuronAt(neuron).getWeights().length; weight++) {
-                    mlp.getLayerAt(layer).getNeuronAt(neuron).getInputConnections()[weight].setWeight(weightBags.get(layer).get(neuron).get(weight).randomWeight());
+                    mlp.getLayerAt(layer).getNeuronAt(neuron).getInputConnections().get(weight).setWeight(weightBags.get(layer).get(neuron).get(weight).randomWeight());
                 }
             }
         }
@@ -100,7 +102,7 @@ abstract class CoSyNe implements RLController {
                 System.out.println(e.getMessage());
             }
             screenshot(0, (int) getFitness());
-
+            ultimate_performance = getFitness();
             f.dispose();
         }
         model = new Simulation(this);
@@ -148,7 +150,7 @@ abstract class CoSyNe implements RLController {
             for(int neuron = 0; neuron < mlp.getLayerAt(layer).getNeuronsCount(); neuron++){
                 weightBags.get(layer).add(new ArrayList<>());
                 for(int weight = 0; weight < mlp.getLayerAt(layer).getNeuronAt(neuron).getWeights().length; weight++){
-                    weightBags.get(layer).get(neuron).add(new WeightBag(bagSize, defAlpha()));
+                    weightBags.get(layer).get(neuron).add(new WeightBag(bagSize, defAlpha(), defWeightSpread()));
                 }
             }
         }
@@ -165,8 +167,33 @@ abstract class CoSyNe implements RLController {
         double[] outputs = mlp.getOutput();
         double max_out= 0.0;
         int action = -1;
+
+        //System.out.println("Output " + Arrays.toString(outputs));
+        //We apply softMax
+        double sum = 0;
+
+        for(int i = 0; i< outputs.length; i++){
+            sum += Math.exp(outputs[i]);
+        }
+
+        double rand = new Random().nextDouble();
+
+        double step = 0;
+        int chosen_action = -1;
+        while(chosen_action < outputs.length && step < rand){
+            chosen_action++;
+            step += Math.exp(outputs[chosen_action])/sum;
+            //System.out.println("p = " + Math.exp(outputs[chosen_action])/sum);
+        }
+        performAction(chosen_action, a);
+
+
+        /*
         //We simply apply the maximum action, since we already have a doNothing action
         for(int i = 0; i<outputs.length; i++){
+            if(outputs[i] == max_out){
+                //System.out.println("equal output?");
+            }
             if(action == -1 || outputs[i] > max_out){
                 max_out = outputs[i];
                 action = i;
@@ -174,6 +201,7 @@ abstract class CoSyNe implements RLController {
         }
 
         performAction(action, a);
+        */
     }
 
     /**
@@ -241,4 +269,10 @@ abstract class CoSyNe implements RLController {
      */
     abstract double getFitness();
 
+    /**
+     * DefWeightSpread determines the range the weigths are spawned in [-x, x].
+     * Due to the SoftMax output, a larger range makes the SoftMax less stochastic, while a lower range makes it more.
+     * @return
+     */
+    abstract int defWeightSpread();
 }

@@ -2,6 +2,7 @@
 import Learning.BURLAP;
 import Learning.CoSyNe.CircleSyNe;
 import Learning.CoSyNe.SubGoalLearning;
+import Learning.CoSyNe.SubSyne;
 import Learning.GA;
 import Learning.HumanController;
 import Model.Simulation;
@@ -40,6 +41,8 @@ public class Main {
 			hc.simulationPanel = f.simulationPanel;
 		} else if (args.length > 0 && args[0].equals("sub")){
 			new SubGoalLearning();
+		} else if (args.length > 0 && args[0].equals("subSyne")){
+			new SubSyne();
 		}
 		else {
 			use_gui = true;

@@ -164,4 +164,9 @@ public class SubGoalLearning extends CoSyNe  {
 
         return fit.totalFuelBurnt(model);
     }
+
+    @Override
+    protected int defWeightSpread(){
+        return 3;
+    }
 }
