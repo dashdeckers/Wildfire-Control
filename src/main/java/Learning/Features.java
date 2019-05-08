@@ -333,7 +333,7 @@ public class Features implements MutableState, Serializable {
                     wind = -Math.sqrt(c) * windSpeed; // - : since left-up is towards from center
                 }
                 break;
-            case ""NW:
+            case "NW":
                 if ( windVectorX < 0 && windVectorY >= 0 ){
                     double c = ( (double)windVectorX*(double)windVectorX)+( (double)windVectorY* (double)windVectorY);
                     wind = Math.sqrt(c) * windSpeed; // + : since right-down is away from center
