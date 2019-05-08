@@ -6,14 +6,15 @@ import Model.Elements.Element;
 import Model.Simulation;
 import Navigation.SubGoal;
 import View.MainFrame;
+import org.neuroph.util.TransferFunctionType;
 
 import javax.swing.*;
 import java.util.Arrays;
 
 public class SubSyne extends CoSyNe{
 
-    Simulation model;
-    boolean previousaction =true;
+
+    protected boolean previousaction =true;
     public SubSyne(){
         super();
         performLearning();
@@ -64,7 +65,7 @@ public class SubSyne extends CoSyNe{
     }
 
     @Override
-    void performAction(int action, Agent a) {
+    protected void performAction(int action, Agent a) {
 
 
         if(previousaction){
@@ -106,43 +107,44 @@ public class SubSyne extends CoSyNe{
     }
 
     @Override
-    int defN_generations() {
+    protected int defN_generations() {
         return 1000;
     }
 
     @Override
-    int[] defHiddenLayers() {
+    protected int[] defHiddenLayers() {
         int[] hl = {4};
+        hl = new int[0];
         return hl;
     }
 
     @Override
-    int defN_outputs() {
+    protected int defN_outputs() {
         return 4;
     }
 
     @Override
-    int defBagSize() {
+    protected int defBagSize() {
         return 20;
     }
 
     @Override
-    int defGenerationSize() {
+    protected int defGenerationSize() {
         return defBagSize() * 30;
     }
 
     @Override
-    float defAlpha() {
+    protected float defAlpha() {
         return 0.05f;
     }
 
     @Override
-    int defN_children() {
+    protected int defN_children() {
         return 1;
     }
 
     @Override
-    double[] getInput() {
+    protected double[] getInput() {
         if(model == null){
             model = new Simulation(this);
             model.applySubgoals();
@@ -181,7 +183,7 @@ public class SubSyne extends CoSyNe{
     }
 
     @Override
-    double getFitness() {
+    protected double getFitness() {
         Fitness fit = new Fitness();
 
         Fitness.SPE_Measure StraightPaths = fit.new SPE_Measure(model);
@@ -197,5 +199,10 @@ public class SubSyne extends CoSyNe{
     @Override
     protected int defWeightSpread(){
         return 3;
+    }
+
+    @Override
+    protected TransferFunctionType defTransferFunction() {
+        return TransferFunctionType.RECTIFIED;
     }
 }

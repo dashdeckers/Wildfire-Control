@@ -3,6 +3,7 @@ package Learning.CoSyNe;
 import Learning.Features;
 import Learning.Fitness;
 import Model.Agent;
+import org.neuroph.util.TransferFunctionType;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -23,7 +24,7 @@ public class CircleSyNe extends CoSyNe implements Serializable {
     }
 
     @Override
-    void performAction(int action, Agent a) {
+    protected void performAction(int action, Agent a) {
         features.previousAction = action;
         switch (action){
             case 0:
@@ -50,43 +51,43 @@ public class CircleSyNe extends CoSyNe implements Serializable {
     }
 
     @Override
-    int defN_generations() {
+    protected int defN_generations() {
         return 200;
     }
 
     @Override
-    int[] defHiddenLayers() {
+    protected int[] defHiddenLayers() {
         int[] hl = {20};
         return hl;
     }
 
     @Override
-    int defN_outputs() {
+    protected int defN_outputs() {
         return 6;
     }
 
     @Override
-    int defBagSize() {
+    protected int defBagSize() {
         return 50;
     }
 
     @Override
-    int defGenerationSize() {
+    protected int defGenerationSize() {
         return defBagSize()*10;
     }
 
     @Override
-    float defAlpha() {
+    protected float defAlpha() {
         return 0.05f;
     }
 
     @Override
-    int defN_children() {
+    protected int defN_children() {
         return 30;
     }
 
     @Override
-    double[] getInput() {
+    protected double[] getInput() {
         if(features == null){
             features = new Features();
         }
@@ -94,7 +95,7 @@ public class CircleSyNe extends CoSyNe implements Serializable {
     }
 
     @Override
-    double getFitness() {
+    protected double getFitness() {
         Fitness fit = new Fitness();
 
         Fitness.SPE_Measure StraightPaths = fit.new SPE_Measure(model);
@@ -105,5 +106,10 @@ public class CircleSyNe extends CoSyNe implements Serializable {
     @Override
     protected int defWeightSpread(){
         return 3;
+    }
+
+    @Override
+    protected TransferFunctionType defTransferFunction() {
+        return TransferFunctionType.RECTIFIED;
     }
 }
