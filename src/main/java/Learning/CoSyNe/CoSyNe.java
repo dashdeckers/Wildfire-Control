@@ -26,6 +26,9 @@ public abstract class CoSyNe implements RLController {
     protected Double best_performance = null;
     protected Double ultimate_performance = null;
     protected double mean_perfomance;
+    protected Double mean_confidence = null;
+    protected Integer conf_counter = null;
+    protected int generation;
 
     public CoSyNe(){
         MLP_shape = new ArrayList<>();
@@ -45,7 +48,7 @@ public abstract class CoSyNe implements RLController {
      * The overall generation loop including creating MLPs, testing them, and breeding them
      */
     protected void performLearning(){
-        for(int generation = 0; generation < defN_generations(); generation++){
+        for(generation = 0; generation < defN_generations(); generation++){
             mean_perfomance = 0;
             for(int test = 0; test < defGenerationSize(); test++){
                 createMLP();
@@ -60,6 +63,9 @@ public abstract class CoSyNe implements RLController {
     }
 
 
+    /**
+     * Print performance. Can be nice to override if you want extra information
+     */
     protected void printPerformance(){
         System.out.println("Best performance: " + best_performance);
         System.out.println("Mean perforamcne: " + mean_perfomance);
@@ -162,7 +168,7 @@ public abstract class CoSyNe implements RLController {
     }
 
     /**
-     * Extracts an action integer from the MLPs output.
+     * Extracts an action integer from the MLPs output. Using SoftMax
      * @param a
      */
     @Override
@@ -170,15 +176,13 @@ public abstract class CoSyNe implements RLController {
         mlp.setInput(getInput());
         mlp.calculate();
         double[] outputs = mlp.getOutput();
-        double max_out= 0.0;
-        int action = -1;
 
-        //System.out.println("Output " + Arrays.toString(outputs));
+
         //We apply softMax
         double sum = 0;
 
         for(int i = 0; i< outputs.length; i++){
-            sum += Math.exp(outputs[i]);
+            sum = sum + Math.exp(outputs[i]/ defCertainty());
         }
 
         double rand = new Random().nextDouble();
@@ -187,26 +191,19 @@ public abstract class CoSyNe implements RLController {
         int chosen_action = -1;
         while(chosen_action < outputs.length && step < rand){
             chosen_action++;
-            step += Math.exp(outputs[chosen_action])/sum;
-            //System.out.println("p = " + Math.exp(outputs[chosen_action])/sum);
+            step += Math.exp(outputs[chosen_action]/defCertainty())/sum;
         }
+
+        if(mean_confidence == null){
+            mean_confidence = new Double(0);
+        }
+        if(conf_counter == null){
+            conf_counter = new Integer(0);
+        }
+        //Log the confidence so that they become printable
+        mean_confidence = mean_confidence + Math.exp(outputs[chosen_action]/defCertainty())/sum;
+        conf_counter++;
         performAction(chosen_action, a);
-
-
-        /*
-        //We simply apply the maximum action, since we already have a doNothing action
-        for(int i = 0; i<outputs.length; i++){
-            if(outputs[i] == max_out){
-                //System.out.println("equal output?");
-            }
-            if(action == -1 || outputs[i] > max_out){
-                max_out = outputs[i];
-                action = i;
-            }
-        }
-
-        performAction(action, a);
-        */
     }
 
     /**
@@ -281,5 +278,21 @@ public abstract class CoSyNe implements RLController {
      */
     protected abstract int defWeightSpread();
 
+    /**
+     * Pick a transferFunction for the MLP. Reasonable options are:
+     * TransferFunctionType.RECTIFIED (ReLU)
+     * TransferFunctionType.SIGMOID
+     * @return
+     */
     protected abstract TransferFunctionType defTransferFunction();
+
+    /**
+     * Certainty determines how stochastic the actions from the MLPs will be.
+     * A small value grants low stochasticity (i.e. more certain). A value too small (0.01) results in NaNs.
+     * A larger value (1-5) grants high stochasticity.
+     *
+     * @return
+     */
+    protected abstract double defCertainty();
+
 }

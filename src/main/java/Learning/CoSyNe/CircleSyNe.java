@@ -6,8 +6,11 @@ import Model.Agent;
 import org.neuroph.util.TransferFunctionType;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
+/**
+ * Learns to navigate the map with the fitness of StraightPaths.
+ * It does not use subgoals.
+ */
 public class CircleSyNe extends CoSyNe implements Serializable {
 
     private Features features;
@@ -111,5 +114,10 @@ public class CircleSyNe extends CoSyNe implements Serializable {
     @Override
     protected TransferFunctionType defTransferFunction() {
         return TransferFunctionType.RECTIFIED;
+    }
+
+    @Override
+    protected double defCertainty(){
+        return 1;
     }
 }

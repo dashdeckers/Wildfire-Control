@@ -4,33 +4,30 @@ import Learning.Fitness;
 import Model.Agent;
 import Model.Elements.Element;
 import Model.Simulation;
-import Navigation.SubGoal;
 import View.MainFrame;
 import org.neuroph.util.TransferFunctionType;
 
 import javax.swing.*;
-import java.util.Arrays;
 
+/**
+ * SubSyne class navigates between subgoals. This class is used by the ActionLearner, so changes made here may result in changes in the HRL approach.
+ */
 public class SubSyne extends CoSyNe{
 
 
-    protected boolean previousaction =true;
+    protected boolean previousaction =true; //Switch for ensuring every other action is a dig
+
     public SubSyne(){
         super();
         performLearning();
     }
 
     /**
-     * The original testMLP assume that this is the RL controller, but that's not the case.
-     * We copied that code and changed some things around to fit the task.
+     * We need to add subgoals, which the original testMLP didn't do, so we override that.
      */
     @Override
     protected void testMLP(){
-        //double[] dist = {4,4,4,4,4,4,4,4};
-        //model.setSubGoals(dist);
         model.applySubgoals();
-        //System.out.println(Arrays.toString( model.getSubGoals()));
-
 
         model.start();
         for(int layer = 0; layer < weightBags.size(); layer++){
@@ -49,7 +46,6 @@ public class SubSyne extends CoSyNe{
             ultimate_performance = getFitness();
 
             model = new Simulation(this);
-            model.getParameter_manager().changeParameter("Model", "Step Time", 1000f);
             JFrame f = new MainFrame(model);
             model.applySubgoals();
             model.start();
@@ -66,26 +62,10 @@ public class SubSyne extends CoSyNe{
 
     @Override
     protected void performAction(int action, Agent a) {
-
-
-        if(previousaction){
+        if(previousaction){ //every other action is a dig
             a.makeDirt();
             previousaction = false;
         }else {
-            /*
-            System.out.println(Arrays.toString(getInput()));
-            if(getInput()[0] > 0){
-                a.moveRight();
-            }else if(getInput()[1] > 0){
-                a.moveLeft();
-            }else if(getInput()[2] > 0){
-                a.moveUp();
-            }else{
-                a.moveDown();
-            }
-            */
-
-
             switch (action) {
                 case 0:
                     a.moveRight();
@@ -114,7 +94,6 @@ public class SubSyne extends CoSyNe{
     @Override
     protected int[] defHiddenLayers() {
         int[] hl = {4};
-        hl = new int[0];
         return hl;
     }
 
@@ -129,6 +108,10 @@ public class SubSyne extends CoSyNe{
     }
 
     @Override
+    /**
+     * Large generation size grants a more accurate representation of how good a weight is.
+     * Though 30 x might be a bit much
+     */
     protected int defGenerationSize() {
         return defBagSize() * 30;
     }
@@ -140,10 +123,13 @@ public class SubSyne extends CoSyNe{
 
     @Override
     protected int defN_children() {
-        return 1;
+        return 5;
     }
 
     @Override
+    /**
+     * Input is the scaled x&y difference to the next subgoal
+     */
     protected double[] getInput() {
         if(model == null){
             model = new Simulation(this);
@@ -151,11 +137,6 @@ public class SubSyne extends CoSyNe{
         }
         Agent agent = model.getAgents().get(0);
         Element goal = agent.goal.goal;
-        /*
-        double[] output = {
-                (((double) goal.getX() - (double) agent.getX() )/ (double) model.getParameter_manager().getWidth() + 1) / 2,
-                (((double) goal.getY() - (double) agent.getY() )/ (double) model.getParameter_manager().getHeight() + 1) / 2
-        };*/
 
 
         double[] output = new double[4];
@@ -175,21 +156,17 @@ public class SubSyne extends CoSyNe{
             output[2] = (goal.getY() - agent.getY()) / (double) model.getParameter_manager().getHeight();
             output[3] = 0;
         }
-        //System.out.println("Agent at " + model.getAgents().get(0).getX() + " " + model.getAgents().get(0).getY()
-        //+ "While target at " + model.getAgents().get(0).goal.goal.getX() + " " + model.getAgents().get(0).goal.goal.getY()
-        //);
-        //System.out.println(Arrays.toString(output));
         return output;
     }
 
     @Override
+    /**
+     * Fitness is derived from distance to next subgoal, number of subgoals reached, and the area of map burned
+     * Due to the stochastic behavior it might be possible to remove the distance to next subgoal
+     */
     protected double getFitness() {
         Fitness fit = new Fitness();
-
-        Fitness.SPE_Measure StraightPaths = fit.new SPE_Measure(model);
-
-        //return StraightPaths.getFitness(2);
-        return /*fit.totalFuelBurnt(model) +*/ 10 * (
+        return  10 * (
                 (model.getAgents().get(0).goal.goal.getX() - model.getAgents().get(0).getX()) * (model.getAgents().get(0).goal.goal.getX() - model.getAgents().get(0).getX()) +
                 (model.getAgents().get(0).goal.goal.getY() - model.getAgents().get(0).getY()) * (model.getAgents().get(0).goal.goal.getY() - model.getAgents().get(0).getY()))
                 - 1000 *model.goalsHit  +
@@ -204,5 +181,14 @@ public class SubSyne extends CoSyNe{
     @Override
     protected TransferFunctionType defTransferFunction() {
         return TransferFunctionType.RECTIFIED;
+    }
+
+    @Override
+    /**
+     * Certainty is inverse, so 0.05 grants the ability to be very certain.
+     * A too small number (0.01) creates NaNs.
+     */
+    protected double defCertainty(){
+        return 0.05;
     }
 }

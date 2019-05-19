@@ -7,6 +7,10 @@ import Model.Simulation;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 
+/**
+ * Since the goalLearner fundamentally runs on SubGoalLearning we extend on that.
+ * A key difference is that GoalLearner does not run its own generations, but is a puppet to ActionLearner
+ */
 public class GoalLearner extends SubGoalLearning {
 
     public GoalLearner(){

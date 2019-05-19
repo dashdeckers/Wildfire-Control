@@ -1,41 +1,36 @@
 package Learning.CoSyNe.HRL;
 
-import Learning.CoSyNe.CoSyNe;
 import Learning.CoSyNe.SubSyne;
 import Learning.CoSyNe.WeightBag;
 import Learning.Fitness;
-import Model.Agent;
 import Model.Simulation;
 import View.MainFrame;
-
 import javax.swing.*;
 
+/**
+ * We build on SubSyne, since this already knows how to navigate to a subgoal, and use GoalLearner to pick the subgoals.
+ */
 public class ActionLearner extends SubSyne {
 
     private Double bestGoalFitness;
-    private Double meanGoalFitness = new Double(0);
-    private Double meanGoalDist;
-
+    private Double meanGoalFitness;
     private GoalLearner goalLearner;
     public ActionLearner(){
         super();
     }
 
     @Override
+    /**
+     * Change the testMLP to have goalLearner pick subGoals
+     */
     protected void testMLP(){
+        //Goal learner does not run its own generation, so testMLP asks for inputs, and grants fitness
         if(goalLearner == null){
             goalLearner = new GoalLearner();
         }
         double[] dist = goalLearner.generateGoals(model);
-        if(meanGoalDist == null){
-            meanGoalDist = new Double(0);
-        }
-        for(int i =0; i< dist.length; i++){
-            meanGoalDist += dist[i];
-        }
         model.setSubGoals(dist);
         model.applySubgoals();
-        //System.out.println(Arrays.toString( model.getSubGoals()));
 
 
         model.start();
@@ -47,6 +42,7 @@ public class ActionLearner extends SubSyne {
                 }
             }
         }
+        //We grant a fitness to goalLearner
         goalLearner.setFitness(getGoalFitness());
 
         mean_perfomance += getFitness();
@@ -73,17 +69,22 @@ public class ActionLearner extends SubSyne {
     }
 
     @Override
+    /**
+     * Changed printPerformance to add some more insights relevant to the HRL
+     */
     protected void printPerformance(){
         System.out.println("Best performance: " + best_performance + " , " + bestGoalFitness);
         System.out.println("Mean performance: " + mean_perfomance + " , " + meanGoalFitness/defGenerationSize());
-        System.out.println("Mean goalDist: " + meanGoalDist/(defGenerationSize()*model.getSubGoals().length));
+        System.out.println("Mean confidence: " + mean_confidence / conf_counter);
         bestGoalFitness = null;
         meanGoalFitness = null;
-        meanGoalDist = null;
 
     }
 
     @Override
+    /**
+     * Override the breeding step to inform GoalLearner that it needs to breed
+     */
     protected void breed(){
         for(int layer = 0; layer < weightBags.size(); layer++){
             for(int neuron = 0; neuron < weightBags.get(layer).size(); neuron++) {
@@ -96,6 +97,11 @@ public class ActionLearner extends SubSyne {
         goalLearner.breed();
     }
 
+    /**
+     * We have an extra function to determine the fitness of the goal.
+     * The goal does not need to care whether the agent is able to reach it, only whether the map burns.
+     * @return
+     */
     private double getGoalFitness(){
         Fitness fit = new Fitness();
         if(bestGoalFitness == null || fit.totalFuelBurnt(model) < bestGoalFitness){

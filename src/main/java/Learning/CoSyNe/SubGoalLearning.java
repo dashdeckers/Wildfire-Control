@@ -154,7 +154,6 @@ public class SubGoalLearning extends CoSyNe  {
     protected double[] getInput() {
         if(features == null){
             features = new OffsetFeatures(model);
-            //System.out.println("New features");
         }
         return features.getResult();
     }
@@ -172,7 +171,16 @@ public class SubGoalLearning extends CoSyNe  {
     }
 
     @Override
+    /**
+     * Use a sigmoid, since the output from 0-1 is scaled to be center-border.
+     */
     protected TransferFunctionType defTransferFunction() {
         return TransferFunctionType.SIGMOID;
+    }
+
+
+    @Override
+    protected double defCertainty(){
+        return 1;
     }
 }

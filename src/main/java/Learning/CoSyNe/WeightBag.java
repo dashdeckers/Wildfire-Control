@@ -38,11 +38,9 @@ public class WeightBag {
     public void updateFitness(double f){
         if(activeWeight.no_trials){
             activeWeight.updateFitness(f);
-            //activeWeight.addFitness(f);
             sortedWeights.add(activeWeight);
         }else {
             activeWeight.updateFitness(f);
-            //activeWeight.addFitness(f);
         }
     }
 
@@ -53,7 +51,6 @@ public class WeightBag {
      */
     public void breed(int n_children){
         Collections.sort(sortedWeights);
-        //System.out.println("Old = " + Arrays.toString(sortedWeights.toArray()));
 
         Random rng = new Random();
         for(int i = 0; i< n_children; i++){
@@ -77,15 +74,12 @@ public class WeightBag {
      */
     private WeightPair crossPerm(WeightPair w1, WeightPair w2){
         Random rng = new Random();
-        //double weight = w1.getWeight().getValue() + w2.getWeight().getValue();
-        //weight /= 2;
         double weight;
         if(rng.nextBoolean()){
             weight = w1.getWeight().getValue();
         }else{
             weight = w2.getWeight().getValue();
         }
-        //weight += rng.nextGaussian()/3;
         if(rng.nextFloat() < 0.05){
             weight = (rng.nextDouble() * 2 - 1) * weightSpread;
         }
