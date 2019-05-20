@@ -267,84 +267,104 @@ public class Features implements MutableState, Serializable {
 
     }
 
-    /** Wind direction
-     * For simplification we only take into account wind directions parallel to movement subgoals (not (near) orthogonal)
+    /** Overarching function that combines the output of the functions
+     * -windRelativeToSubgoal
+     * -distanceToCenterFire
+     * -distanceFromCenterToFireline
+     * into one array
      *
-     * Wind: vectorX, vectorY, windspeed
-     * NN, SS: only vectorY of interest (since subgoal 'moves' only vertical)
-     * EE, WW: only vectorX of interest ((since subgoal 'moves' only horizontal)
-     * Simplification:
-     * NE, SW, only vectorX & vectorY of interest if both positive OR negative (since vector wind otherwise orthogonal on movevement)
-     * SE, NW: only vectorX & vectorY of interest if : positive AND negative (since vector wind otherwise orthogonal on movevement)
+     * Input: vectors, compassDirection of current subgoal and current coordinates subgoal
      *
-     * NOT FINISHED
-     *
-     * Two ways to implement this:
-     * 1) For every wind direction different ( I think most efficient), presented beneath
-     * 2) One general solution
-     *
-     * TODO: think about >= 0
+     * // TODO:
      */
 
-    public double windRelativeToSubgoal(Simulation model, int windVectorX, int windVectorY, int windSpeed, String compassDirection){
+    public double[] inputCosyne (String compassDirection, Simulation model, int x, int y) {
+        //windRelativeToSubgoal (int windVectorX, int windVectorY, String compassDirection)
+        //distanceToCenterFire(Simulation model, int x, int y)
+        //distanceFromCenterToFireline(Simulation model, String compassDirection)
 
-        double wind = 0;
+        double[] input = {0,0,0};
+        // TODO: Extract windvectors automatically
+        input[0] = windRelativeToSubgoal (-1, 0, compassDirection);
+        input[1] = distanceToCenterFire(model, x, y);
+        input[2] = distanceFromCenterToFireline(model, compassDirection);
 
+        System.out.println(input[0] + " " + input[1] + " " + input[2]);
+        return input;
+    }
+
+    /** Wind direction
+     * New approach:
+     * V1: Wind
+     * V2: Subgoal Vector
+     * A = projection of wind on compass direction (degrees as with unit circle)
+     *
+     * 1) angle alpha = acos ( V1 . V2 ) : Dotproduct
+     * 2) A = V1 * cos(alpha)
+     */
+
+    //public double windRelativeToSubgoal( int windVectorX, int windVectorY, int windSpeed, String compassDirection){
+    public double windRelativeToSubgoal (int windVectorX, int windVectorY, String compassDirection) {
+
+        double alpha = 0;
+        double A = 0;
+        double[] subGoalVector = {0,0};
+        double[] windVector = { (double)windVectorX , (double)windVectorY };
+
+        // Set Subgoal Vector
         switch (compassDirection) {
-            case "NN":
-                wind = windVectorY * windSpeed;
-                break;
-            case "SS":
-                wind = -windVectorY * windSpeed; // - : since up is towards center
-                break;
             case "EE":
-                wind = windVectorX * windSpeed;
-                break;
-            case "WW":
-                wind = -windVectorX * windSpeed; // - : since right is towards center
+                subGoalVector[0] = 1;
+                subGoalVector[1] = 0;
                 break;
             case "NE":
-                if ( windVectorX >= 0 && windVectorY >= 0 ){ // if both positive the pythogoras can stay positive
-                    double c = ( (double)windVectorX*(double)windVectorX)+( (double)windVectorY* (double)windVectorY);
-                    wind = Math.sqrt(c) * windSpeed;
-                }
-                if ( windVectorX < 0 && windVectorY < 0 ){ // if both negative the pythogoras needs to be made stay negative
-                    double c = ( (double)windVectorX*(double)windVectorX)+( (double)windVectorY* (double)windVectorY);
-                    wind = -Math.sqrt(c) * windSpeed;
-                }
+                subGoalVector[0] = Math.sqrt(0.5);
+                subGoalVector[1] = Math.sqrt(0.5);
+                break;
+            case "NN":
+                subGoalVector[0] = 0;
+                subGoalVector[1] = 1;
+                break;
+            case "NW":
+                subGoalVector[0] = -Math.sqrt(0.5);
+                subGoalVector[1] = Math.sqrt(0.5);
+                break;
+            case "WW":
+                subGoalVector[0] = -1;
+                subGoalVector[1] = 0;
                 break;
             case "SW":
-                if ( windVectorX >= 0 && windVectorY >= 0 ){
-                    double c = ( (double)windVectorX*(double)windVectorX)+( (double)windVectorY* (double)windVectorY);
-                    wind = -Math.sqrt(c) * windSpeed; // - : since right-up is towards center
-                }
-                if ( windVectorX < 0 && windVectorY < 0 ){
-                    double c = ( (double)windVectorX*(double)windVectorX)+( (double)windVectorY* (double)windVectorY);
-                    wind = Math.sqrt(c) * windSpeed; // no - : since left-down is away from center
-                }
+                subGoalVector[0] = -Math.sqrt(0.5);
+                subGoalVector[1] = -Math.sqrt(0.5);
+                break;
+            case "SS":
+                subGoalVector[0] = 0;
+                subGoalVector[1] = -1;
                 break;
             case "SE":
-                if ( windVectorX >= 0 && windVectorY < 0 ){
-                    double c = ( (double)windVectorX*(double)windVectorX)+( (double)windVectorY* (double)windVectorY);
-                    wind = Math.sqrt(c) * windSpeed; // + : since right-down is away from center
-                }
-                if ( windVectorX < 0 && windVectorY >= 0 ) {
-                    double c = ((double) windVectorX * (double) windVectorX) + ((double) windVectorY * (double) windVectorY);
-                    wind = -Math.sqrt(c) * windSpeed; // - : since left-up is towards from center
-                }
-                break;
-            case ""NW:
-                if ( windVectorX < 0 && windVectorY >= 0 ){
-                    double c = ( (double)windVectorX*(double)windVectorX)+( (double)windVectorY* (double)windVectorY);
-                    wind = Math.sqrt(c) * windSpeed; // + : since right-down is away from center
-                }
-                if ( windVectorX >= 0 && windVectorY < 0 ) {
-                    double c = ((double) windVectorX * (double) windVectorX) + ((double) windVectorY * (double) windVectorY);
-                    wind = -Math.sqrt(c) * windSpeed; // - : since left-up is towards from center
-                }
+                subGoalVector[0] = Math.sqrt(0.5);
+                subGoalVector[1] = -Math.sqrt(0.5);
                 break;
         }
-        return wind; // can be the case that wind is 0, if the wind is orthogonal on point
+
+        // Step 1 : Calculate angle alpha
+        alpha = Math.acos( dotProduct(windVector, subGoalVector) );
+
+        // Step 2 : Calculate A
+        A = Math.sqrt(windVector[0] * windVector[0] + windVector[1] * windVector[1]) * Math.cos(alpha);
+
+        //System.out.print(A + "%n");
+        return A;
+
+
+    }
+
+    public static double dotProduct(double[] a, double[] b) {
+        double sum = 0;
+        for (int i = 0; i < a.length; i++) {
+            sum += a[i] * b[i];
+        }
+        return sum;
     }
 
 
@@ -373,7 +393,7 @@ public class Features implements MutableState, Serializable {
             double c = (deltaX*deltaX)+(deltaY*deltaY);
             distance = Math.sqrt(c);
         }
-        System.out.print(distance + "%n");
+        //System.out.print(distance + "%n");
         return distance;
     }
 
@@ -407,23 +427,23 @@ public class Features implements MutableState, Serializable {
             case "NN":
                 distanceCenterToFire = maxY - centerY;                break;
             case "NE":
-                // Assumption: distance spreads evenly in norhtern direction
-                distanceCenterToFire = maxY - centerY;                break;
+                // Assumption: NE = (NN + EE)/2
+                distanceCenterToFire = ((maxY - centerY) + (maxX - centerX))/2;                break;
             case "EE":
                 distanceCenterToFire = maxX - centerX;                break;
             case "SE":
-                // Assumption: distance spreads evenly in southern direction
-                distanceCenterToFire = centerY - minY;                break;
+                // Assumption: SE = (SS + EE)/2
+                distanceCenterToFire = ((centerY - minY) + (maxX - centerX))/2;                break;
             case "SS":
                 distanceCenterToFire = centerY - minY;                break;
             case "SW":
-                // Assumption: distance spreads evenly in southern direction
-                distanceCenterToFire = centerY - minY;                break;
+                // Assumption: SW = (SS + WW)/2
+                distanceCenterToFire = ((centerY - minY) + (centerX - minX))/2;                break;
             case "WW":
                 distanceCenterToFire = centerX - minX;                break;
             case "NW":
-                // Assumption: distance spreads evenly in norhtern direction
-                distanceCenterToFire = maxY - centerY;                break;
+                // Assumption: NW = (NN + WW)/2
+                distanceCenterToFire = ((maxY - centerY) + (centerX - minX))/2;                break;
         }
 
         //System.out.print(distanceCenterToFire + "%n");
