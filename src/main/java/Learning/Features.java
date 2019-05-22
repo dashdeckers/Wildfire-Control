@@ -354,7 +354,11 @@ public class Features implements MutableState, Serializable {
         // Step 2 : Calculate A
         A = Math.sqrt(windVector[0] * windVector[0] + windVector[1] * windVector[1]) * Math.cos(alpha);
 
-        //System.out.print(A + "%n");
+
+        if ( A == 6.123233995736766E-17){ // Needed in order to account for well known rounding error with cosine
+            A = 0;
+        }
+        System.out.println(A);
         return A;
 
 
