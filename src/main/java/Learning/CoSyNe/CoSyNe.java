@@ -13,9 +13,11 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
-abstract class CoSyNe implements RLController {
+public abstract class CoSyNe implements RLController {
     private List<Integer> MLP_shape;
     //layer, neuron, weight
     protected List<List<List<WeightBag>>> weightBags;
@@ -24,6 +26,9 @@ abstract class CoSyNe implements RLController {
     protected Double best_performance = null;
     protected Double ultimate_performance = null;
     protected double mean_perfomance;
+    protected Double mean_confidence = null;
+    protected Integer conf_counter = null;
+    protected int generation;
 
     public CoSyNe(){
         MLP_shape = new ArrayList<>();
@@ -43,7 +48,7 @@ abstract class CoSyNe implements RLController {
      * The overall generation loop including creating MLPs, testing them, and breeding them
      */
     protected void performLearning(){
-        for(int generation = 0; generation < defN_generations(); generation++){
+        for(generation = 0; generation < defN_generations(); generation++){
             mean_perfomance = 0;
             for(int test = 0; test < defGenerationSize(); test++){
                 createMLP();
@@ -51,22 +56,30 @@ abstract class CoSyNe implements RLController {
                 testMLP();
             }
             mean_perfomance /= defGenerationSize();
-            System.out.println("Best performance: " + best_performance);
-            System.out.println("Mean perforamcne: " + mean_perfomance);
+            printPerformance();
             best_performance = null;
             breed();
         }
     }
 
+
+    /**
+     * Print performance. Can be nice to override if you want extra information
+     */
+    protected void printPerformance(){
+        System.out.println("Best performance: " + best_performance);
+        System.out.println("Mean perforamcne: " + mean_perfomance);
+    }
+
     /**
      * Form an MLP by pulling random weights out of the weightbags.
      */
-    private void createMLP(){
-        mlp = new MultiLayerPerceptron(MLP_shape, TransferFunctionType.SIGMOID);
+    protected void createMLP(){
+        mlp = new MultiLayerPerceptron(MLP_shape, defTransferFunction());
         for (int layer = 0; layer < mlp.getLayersCount(); layer ++) {
             for (int neuron = 0; neuron < mlp.getLayerAt(layer).getNeuronsCount(); neuron++) {
                 for (int weight = 0; weight < mlp.getLayerAt(layer).getNeuronAt(neuron).getWeights().length; weight++) {
-                    mlp.getLayerAt(layer).getNeuronAt(neuron).getInputConnections()[weight].setWeight(weightBags.get(layer).get(neuron).get(weight).randomWeight());
+                    mlp.getLayerAt(layer).getNeuronAt(neuron).getInputConnections().get(weight).setWeight(weightBags.get(layer).get(neuron).get(weight).randomWeight());
                 }
             }
         }
@@ -100,7 +113,7 @@ abstract class CoSyNe implements RLController {
                 System.out.println(e.getMessage());
             }
             screenshot(0, (int) getFitness());
-
+            ultimate_performance = getFitness();
             f.dispose();
         }
         model = new Simulation(this);
@@ -125,7 +138,7 @@ abstract class CoSyNe implements RLController {
     /**
      * Tell all bags to breed
      */
-    private void breed(){
+    protected void breed(){
         for(int layer = 0; layer < weightBags.size(); layer++){
             for(int neuron = 0; neuron < weightBags.get(layer).size(); neuron++) {
                 for (int weight = 0; weight < weightBags.get(layer).get(neuron).size(); weight++) {
@@ -139,7 +152,7 @@ abstract class CoSyNe implements RLController {
     /**
      * Creates all the weight bags.
      */
-    private void initializeBags(){
+    protected void initializeBags(){
         weightBags = new ArrayList<>();
         mlp = new MultiLayerPerceptron(MLP_shape);
         int bagSize = defBagSize();
@@ -148,14 +161,14 @@ abstract class CoSyNe implements RLController {
             for(int neuron = 0; neuron < mlp.getLayerAt(layer).getNeuronsCount(); neuron++){
                 weightBags.get(layer).add(new ArrayList<>());
                 for(int weight = 0; weight < mlp.getLayerAt(layer).getNeuronAt(neuron).getWeights().length; weight++){
-                    weightBags.get(layer).get(neuron).add(new WeightBag(bagSize, defAlpha()));
+                    weightBags.get(layer).get(neuron).add(new WeightBag(bagSize, defAlpha(), defWeightSpread()));
                 }
             }
         }
     }
 
     /**
-     * Extracts an action integer from the MLPs output.
+     * Extracts an action integer from the MLPs output. Using SoftMax
      * @param a
      */
     @Override
@@ -163,48 +176,65 @@ abstract class CoSyNe implements RLController {
         mlp.setInput(getInput());
         mlp.calculate();
         double[] outputs = mlp.getOutput();
-        double max_out= 0.0;
-        int action = -1;
-        //We simply apply the maximum action, since we already have a doNothing action
-        for(int i = 0; i<outputs.length; i++){
-            if(action == -1 || outputs[i] > max_out){
-                max_out = outputs[i];
-                action = i;
-            }
+
+
+        //We apply softMax
+        double sum = 0;
+
+        for(int i = 0; i< outputs.length; i++){
+            sum = sum + Math.exp(outputs[i]/ defCertainty());
         }
 
-        performAction(action, a);
+        double rand = new Random().nextDouble();
+
+        double step = 0;
+        int chosen_action = -1;
+        while(chosen_action < outputs.length && step < rand){
+            chosen_action++;
+            step += Math.exp(outputs[chosen_action]/defCertainty())/sum;
+        }
+
+        if(mean_confidence == null){
+            mean_confidence = new Double(0);
+        }
+        if(conf_counter == null){
+            conf_counter = new Integer(0);
+        }
+        //Log the confidence so that they become printable
+        mean_confidence = mean_confidence + Math.exp(outputs[chosen_action]/defCertainty())/sum;
+        conf_counter++;
+        performAction(chosen_action, a);
     }
 
     /**
      * Define how an action i should be performed
      * @param action
      */
-    abstract void performAction(int action, Agent a);
+    protected abstract void performAction(int action, Agent a);
 
     /**
      * Define the number of generations the CoSyNe needs to learn for
      * @return the number of generations wanted
      */
-    abstract int defN_generations();
+    protected abstract int defN_generations();
 
     /**
      * Define the shape of hidden layer(s).
      * @return An array of ints representing the number of neurons in each hidden layer
      */
-    abstract int[] defHiddenLayers();
+    protected abstract int[] defHiddenLayers();
 
     /**
      * Define the number of outputs the MLP should be able to produce. Make sure this corresponds with pickAction
      * @return The number of possible actions the MLP should be able to take
      */
-    abstract int defN_outputs();
+    protected abstract int defN_outputs();
 
     /**
      * Specify the number of weights in each bag
      * @return Number of weights in each bag
      */
-    abstract int defBagSize();
+    protected abstract int defBagSize();
 
     /**
      * Specify the number of MLPs which should be created&tested in each generation.
@@ -212,7 +242,7 @@ abstract class CoSyNe implements RLController {
      * A value of 1-5x bagsize seems reasonable
      * @return Number of MLPs created in each generation
      */
-    abstract int defGenerationSize();
+    protected abstract int defGenerationSize();
 
     /**
      * Specify the learning rate at which the fitness of a weight is evaluated. This mimics the discount rate discussed in the Reinforcement Learning book.
@@ -221,24 +251,48 @@ abstract class CoSyNe implements RLController {
      * Alpha at 0.05 is common, where the last 20 trials mostly determine the performance.
      * @return
      */
-    abstract float defAlpha();
+    protected abstract float defAlpha();
 
     /**
      * Specify the number of children which should be generated on each generation
      * @return
      */
-    abstract int defN_children();
+    protected abstract int defN_children();
 
     /**
      * Get the inputs to the MLP from a model
      * @return A list of doubles extracted as meaningful features from the model
      */
-    abstract double[] getInput();
+    protected abstract double[] getInput();
 
     /**
      * Get the performance the MLP delivered from the model
      * @return A double representing the model's performance
      */
-    abstract double getFitness();
+    protected abstract double getFitness();
+
+    /**
+     * DefWeightSpread determines the range the weigths are spawned in [-x, x].
+     * Due to the SoftMax output, a larger range makes the SoftMax less stochastic, while a lower range makes it more.
+     * @return
+     */
+    protected abstract int defWeightSpread();
+
+    /**
+     * Pick a transferFunction for the MLP. Reasonable options are:
+     * TransferFunctionType.RECTIFIED (ReLU)
+     * TransferFunctionType.SIGMOID
+     * @return
+     */
+    protected abstract TransferFunctionType defTransferFunction();
+
+    /**
+     * Certainty determines how stochastic the actions from the MLPs will be.
+     * A small value grants low stochasticity (i.e. more certain). A value too small (0.01) results in NaNs.
+     * A larger value (1-5) grants high stochasticity.
+     *
+     * @return
+     */
+    protected abstract double defCertainty();
 
 }

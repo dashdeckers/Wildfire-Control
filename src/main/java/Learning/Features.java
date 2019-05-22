@@ -344,6 +344,7 @@ public class Features implements MutableState, Serializable {
             case "SE":
                 subGoalVector[0] = Math.sqrt(0.5);
                 subGoalVector[1] = -Math.sqrt(0.5);
+
                 break;
         }
 

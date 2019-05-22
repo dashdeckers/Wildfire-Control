@@ -241,15 +241,15 @@ public class GA implements RLController {
                 //For each neuron
                 for(int in = 0; in < neurons; in++){
 
-                    int nconnections = child.getLayerAt(il).getNeuronAt(in).getInputConnections().length;
+                    int nconnections = child.getLayerAt(il).getNeuronAt(in).getInputConnections().size();
                     //For each (inbound) connection to a neuron
                     for(int ic = 0; ic < nconnections; ic++){
 
                         int origin_rate = rng.nextInt(5);
                         //Take some random ratio between the two parents
                         double weight =
-                                parent_1.getLayerAt(il).getNeuronAt(in).getInputConnections()[ic].getWeight().value * origin_rate
-                                + parent_2.getLayerAt(il).getNeuronAt(in).getInputConnections()[ic].getWeight().value * (1-origin_rate);
+                                parent_1.getLayerAt(il).getNeuronAt(in).getInputConnections().get(ic).getWeight().value * origin_rate
+                                + parent_2.getLayerAt(il).getNeuronAt(in).getInputConnections().get(ic).getWeight().value * (1-origin_rate);
 
 
                         //Take the weight from the parent giving the neuron
@@ -260,14 +260,14 @@ public class GA implements RLController {
 
                             child.getLayerAt(il)
                                     .getNeuronAt(in)
-                                    .getInputConnections()[ic]
+                                    .getInputConnections().get(ic)
                                     .setWeight(new Weight(rng.nextDouble())
                                     );
                         }else{
                             //Else set it the the parent
                             child.getLayerAt(il)
                                     .getNeuronAt(in)
-                                    .getInputConnections()[ic]
+                                    .getInputConnections().get(ic)
                                     .setWeight(newWeight
                                     );
                         }

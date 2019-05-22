@@ -7,6 +7,7 @@ import Model.Agent;
 import Model.Simulation;
 import Learning.OffsetFeatures;
 import View.MainFrame;
+import org.neuroph.util.TransferFunctionType;
 
 import javax.swing.*;
 import java.io.Serializable;
@@ -34,7 +35,7 @@ public class SubGoalLearning extends CoSyNe  {
      * @param max
      * @return
      */
-    private double determineOffset(int iterator, int max){
+    protected double determineOffset(int iterator, int max){
         double deg = (double)iterator / (double)max;    //Not actually degree, but normalized to 0-1
         if(deg == NaN){
             System.out.println("NaN degrees!");
@@ -102,12 +103,12 @@ public class SubGoalLearning extends CoSyNe  {
      * @param a
      */
     @Override
-    void performAction(int action, Agent a) {
+    protected void performAction(int action, Agent a) {
 
     }
 
     @Override
-    int defN_generations() {
+    protected int defN_generations() {
         return 20;
     }
 
@@ -116,7 +117,7 @@ public class SubGoalLearning extends CoSyNe  {
      * @return
      */
     @Override
-    int[] defHiddenLayers() {
+    protected int[] defHiddenLayers() {
         int[] hl = {3};
         return hl;
     }
@@ -125,43 +126,61 @@ public class SubGoalLearning extends CoSyNe  {
      * Only 1 output, from which the value is translated to an offset
      */
     @Override
-    int defN_outputs() {
+    protected int defN_outputs() {
         return 1;
     }
 
     @Override
-    int defBagSize() {
+    protected int defBagSize() {
         return 30;
     }
 
     @Override
-    int defGenerationSize() {
+    protected int defGenerationSize() {
         return defBagSize()*10;
     }
 
     @Override
-    float defAlpha() {
+    protected float defAlpha() {
         return 0.05f;
     }
 
     @Override
-    int defN_children() {
+    protected int defN_children() {
         return 10;
     }
 
     @Override
-    double[] getInput() {
+    protected double[] getInput() {
         if(features == null){
             features = new OffsetFeatures(model);
-            //System.out.println("New features");
         }
         return features.getResult();
     }
 
     @Override
-    double getFitness() {
+    protected double getFitness() {
         Fitness fit = new Fitness();
 
         return fit.totalFuelBurnt(model);
+    }
+
+    @Override
+    protected int defWeightSpread(){
+        return 3;
+    }
+
+    @Override
+    /**
+     * Use a sigmoid, since the output from 0-1 is scaled to be center-border.
+     */
+    protected TransferFunctionType defTransferFunction() {
+        return TransferFunctionType.SIGMOID;
+    }
+
+
+    @Override
+    protected double defCertainty(){
+        return 1;
     }
 }

@@ -37,6 +37,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	// parameters related to fitness
 	int totalFuel = 0;
 	int totalFuelBurnt = 0;
+	public int goalsHit = 0;
 
 	// parameters related to wind
 	private float wVecX;
@@ -103,6 +104,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public void applySubgoals(){
 		subGoals = new OrthogonalSubgoals(5, 5, dist, algorithm, cells);
 		subGoals.setNextGoal(agents.get(0));
+		useSubGoal = true;
 	}
 
 	public double[] getSubGoals(){
@@ -112,6 +114,15 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public void setSubGoals(double[] d){
 		dist = d;
 	}
+
+	public void checkSubGoals(){
+        if (useSubGoal){
+            if (agents.size() != 0 && !agents.get(0).onGoal()){
+                subGoals.setNextGoal(agents.get(0));
+                goalsHit++;
+            }
+        }
+    }
 
 	/**
 	 * Start a simulation if there exists a controller.
@@ -309,8 +320,10 @@ public class Simulation extends Observable implements Serializable, Observer {
 
 		//Can be removed once Orthogonal Subgoals are assigned by a controller
 		if (useSubGoal){
+		    //System.out.println("Wtf");
 		    if (agents.size() != 0 && !agents.get(0).onGoal()){
 		        subGoals.setNextGoal(agents.get(0));
+		        goalsHit++;
             }
         }
 

@@ -10,12 +10,14 @@ public class WeightBag {
     private List<WeightPair> sortedWeights;
     private WeightPair activeWeight;
     private float alpha;
-    public WeightBag(int size, float alpha){
+    private int weightSpread;
+    public WeightBag(int size, float alpha, int weightSpread){
         this.alpha = alpha;
+        this.weightSpread = weightSpread;
         weights = new ArrayList<>();
         sortedWeights = new ArrayList<>();
         for(int i = 0; i< size; i++) {
-            weights.add(new WeightPair((new Random().nextDouble()), alpha));    //Initialized between 0-1
+            weights.add(new WeightPair( (new Random().nextDouble()*2 -1) *weightSpread , alpha));    //Initialized between 2, -2
         }
     }
 
@@ -36,11 +38,9 @@ public class WeightBag {
     public void updateFitness(double f){
         if(activeWeight.no_trials){
             activeWeight.updateFitness(f);
-            //activeWeight.addFitness(f);
             sortedWeights.add(activeWeight);
         }else {
             activeWeight.updateFitness(f);
-            //activeWeight.addFitness(f);
         }
     }
 
@@ -51,7 +51,6 @@ public class WeightBag {
      */
     public void breed(int n_children){
         Collections.sort(sortedWeights);
-        //System.out.println("Old = " + Arrays.toString(sortedWeights.toArray()));
 
         Random rng = new Random();
         for(int i = 0; i< n_children; i++){
@@ -75,9 +74,15 @@ public class WeightBag {
      */
     private WeightPair crossPerm(WeightPair w1, WeightPair w2){
         Random rng = new Random();
-        double weight = w1.getWeight().getValue() + w2.getWeight().getValue();
-        weight /= 2;
-        weight += rng.nextGaussian();
+        double weight;
+        if(rng.nextBoolean()){
+            weight = w1.getWeight().getValue();
+        }else{
+            weight = w2.getWeight().getValue();
+        }
+        if(rng.nextFloat() < 0.05){
+            weight = (rng.nextDouble() * 2 - 1) * weightSpread;
+        }
         return new WeightPair(weight, alpha);
     }
 

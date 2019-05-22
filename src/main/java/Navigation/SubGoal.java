@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Stack;
 
 public class SubGoal implements Serializable {
-    Element goal;
+    public Element goal;
     List<List<Element>> cells;
     String algorithm;
     public Stack<Element> path;

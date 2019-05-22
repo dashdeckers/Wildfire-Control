@@ -27,7 +27,7 @@ public class Agent implements Serializable{
     private Color color;
 
     //Optimal path, i.e. elements that should be visited, found by A* will be stored here.
-    private SubGoal goal;
+    public SubGoal goal;
 
     /**
      * Create an agent at X,Y with a certain id.
@@ -115,8 +115,9 @@ public class Agent implements Serializable{
             }
             //Make it so that the agents dies when it lands on a burning cell
             Element currentCell = simulation.getAllCells().get(x).get(y);
-            if (currentCell.isBurning()) {isAlive = false;}
+            //if (currentCell.isBurning()) {isAlive = false; System.out.println("DEAD");}
             simulation.applyUpdates();
+            simulation.checkSubGoals();
 
         }
     }
@@ -364,7 +365,9 @@ public class Agent implements Serializable{
     }
 
     public boolean onGoal(){
-        if (goal == null || goal.getPath() == null || goal.getPath().empty()){
+        if (goal == null || goal.getPath() == null || goal.getPath().empty()
+                ||( goal.goal.getX() == getX() && goal.goal.getY() == getY())
+                ){
             return false;
         }
         return true;
