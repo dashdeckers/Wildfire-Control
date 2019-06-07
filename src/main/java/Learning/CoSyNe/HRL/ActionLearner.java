@@ -98,8 +98,8 @@ public class ActionLearner extends SubSyne {
     }
 
     /**
-     * We have an extra function to determine the fitness of the goal.
-     * The goal does not need to care whether the agent is able to reach it, only whether the map burns.
+     * We have an extra function to determine the fitness of the subGoal.
+     * The subGoal does not need to care whether the agent is able to reach it, only whether the map burns.
      * @return
      */
     private double getGoalFitness(){

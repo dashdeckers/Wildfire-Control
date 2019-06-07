@@ -4,6 +4,7 @@ import Learning.CoSyNe.CircleSyNe;
 import Learning.CoSyNe.HRL.ActionLearner;
 import Learning.CoSyNe.SubGoalLearning;
 import Learning.CoSyNe.SubSyne;
+import Learning.DeepQ.DeepQLearner;
 import Learning.GA;
 import Learning.HumanController;
 import Model.Simulation;
@@ -26,9 +27,12 @@ public class Main {
 			System.out.println("CoSyNe gui");
 			//new GA();
 			new CircleSyNe();
-		} else if (args.length > 0 && args[0].equals("GA")){
+		} else if (args.length > 0 && args[0].equals("GA")) {
 			System.out.println("GA");
 			new GA();
+		} else if(args.length > 0 && args[0].equals("DQ")){
+			System.out.println("Deep Q");
+			new DeepQLearner();
 
 		} else if (args.length > 0 && args[0].equals("BURLAP")) {
 			BURLAP test = new BURLAP();

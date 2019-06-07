@@ -1,18 +1,23 @@
 package Learning.DeepQ;
 
+import Learning.Features;
+import Learning.Fitness;
 import Learning.RLController;
 import Model.Agent;
+import Model.Simulation;
 import Navigation.OrthogonalSubgoals;
 import Navigation.SubGoal;
+import View.MainFrame;
 
 import java.util.Arrays;
 import java.util.Random;
 
 public class DeepQLearner implements RLController {
-    protected float exploration;
-    protected float explorDiscount;
-    protected float gamma;
-    protected float alpha;
+    protected int iter = 5000;
+    protected float explorationRate = 1.0f;
+    protected float explorDiscount = explorationRate/iter;
+    protected float gamma = 0.99f;
+    protected float alpha = 0.1f;
 
 
     //parameters for neural network construction.
@@ -29,28 +34,62 @@ public class DeepQLearner implements RLController {
 
     private MLP mlp;
     private Random rand;
-    private OrthogonalSubgoals goal;
+    private OrthogonalSubgoals subGoals;
+    private SubGoal subGoal;
+    private Simulation model;
+
+    //variables needed for debugging:
+    final static boolean use_gui = true;
+    private double dist[] = {4,4,4,4,4,4,4,4};
+    private String algorithm = "Bresenham";
+    private Fitness fitt;
 
 
-    public DeepQLearner(float alpha, float gamma, int iter, float exploration, int length){
-        this.exploration = exploration;
-        this.explorDiscount = exploration/iter;
-        this.gamma = gamma;
-        this.alpha = alpha;
+    public DeepQLearner(){
+        model = new Simulation(this, use_gui);
+
+        if(use_gui){
+            new MainFrame(model);
+        }
+
+        Features f = new Features();
+
+        sizeInput = f.appendArrays(f.cornerVectors(model, false)).length;
+        sizeOutput = Math.min(model.getAllCells().size(),model.getAllCells().get(0).size())/2;
+
         initNN();
+
+        for (int i = 0; i<dist.length; i++){
+            dist[i]= getDistance(f.appendArrays(f.cornerVectors(model, false)));
+
+        }
+
+        double fireLocation[] = f.locationCenterFireAndMinMax(model);
+        subGoals = new OrthogonalSubgoals((int)fireLocation[0],(int)fireLocation[1], dist, algorithm, model.getAllCells());
+        System.out.println("Length of feature vector:" + Arrays.toString(f.appendArrays(f.cornerVectors(model,false))));
+
+        fitt = new Fitness();
+
+        //model.start();
 
     }
 
     @Override
     public void pickAction(Agent a) {
-        if (!a.onGoal()){
-            goal.setNextGoal(a);
-            //goalsHit++;//TODO: TRIGGER REWARD FUNCTION
+        while(a.isAlive()&&a.getEnergyLevel()>0){
+            if (a.onGoal()){
+                subGoals.setNextGoal(a);
+                //goalsHit++;//TODO: TRIGGER REWARD FUNCTION
+            }
+            String nextAction = a.subGoal.getNextAction();
+            a.takeAction(nextAction);
         }
+        Fitness.SPE_Measure StraightPaths = fitt.new SPE_Measure(model);
+        System.out.println("current fitness: " + StraightPaths.getFitness(2));
+
     }
 
     private void initNN(){
-
         rand = new Random();
         batchNr = 0;
         inputBatch = new double[batchSize][sizeInput];
@@ -61,34 +100,26 @@ public class DeepQLearner implements RLController {
 
 
 
-    protected String greedyAction(double[] state){
+    protected int greedyLocation(double[] state){
         double[] outputSet = getQ(state);
-        double maxOut = -1.0;
+        double minOut = Double.MAX_VALUE;
         int actionIndex = -1;
 
         for (int i = 0; i<outputSet.length; i++){
             // if the current action has the same activation as the highest value, choose randomly between them
-            if (outputSet[i]==maxOut){
+            if (outputSet[i]==minOut){
                 actionIndex = (new Random().nextBoolean()?i:actionIndex);
             }
-            else if (outputSet[i]>maxOut){
-                maxOut=outputSet[i];
+            else if (outputSet[i]<minOut){
+                minOut=outputSet[i];
                 actionIndex = i;
             }
         }
-        switch (actionIndex){
-            case 0:
-                return "FORWARD";
-            case 1:
-                return "BACKWARD";
-            default:
-                System.out.println("No suitable action found, choosing at random");
-                return (new Random().nextBoolean()? "FORWARD":"BACKWARD");
-        }
+        return actionIndex;
     }
 
-    protected String randomAction(){
-        return (new Random().nextBoolean()? "FORWARD" : "BACKWARD");
+    protected int randomLocation(){
+        return (int) rand.nextInt(sizeOutput);
     }
 
     private double[] getQ(double[] in){
@@ -114,7 +145,7 @@ public class DeepQLearner implements RLController {
 
         System.out.println(Arrays.toString(oldState)+" -> " +Arrays.toString(oldValue));
 
-        double[] newValue = getQ(newState);
+        double[] newValue = getQ(newState); //TODO: Need to predict new state?
         int actionInt = (action.equals("FORWARD")? 0 :1);
 
         oldValue[actionInt] = reward + gamma*maxValue(newValue);
@@ -152,19 +183,19 @@ public class DeepQLearner implements RLController {
 
         train(getInputSet(oldState),getInputSet(newState), action, reward);
 
-        if (exploration>0){
-            exploration-=explorDiscount;
+        if (explorationRate>0){
+            explorationRate-=explorDiscount;
             //System.out.println("Updated exploration: " + exploration);
         }
     }
 
-    public String getNextAction(int state){
+    public int getDistance(double in[]){
         float randFloat = rand.nextFloat();
-        System.out.println("choosing greedy action: " + (randFloat>exploration) + " exploration: " + exploration + " randFloat: " + randFloat);
-        if (randFloat> exploration){
-            return greedyAction(getInputSet(state));
+        System.out.println("choosing greedy action: " + (randFloat>explorationRate) + " exploration: " + explorationRate + " randFloat: " + randFloat);
+        if (randFloat> explorationRate){
+            return greedyLocation(in);
         } else {
-            return randomAction();
+            return randomLocation();
         }
     }
 

@@ -117,7 +117,7 @@ public class Agent implements Serializable{
             Element currentCell = simulation.getAllCells().get(x).get(y);
             //if (currentCell.isBurning()) {isAlive = false; System.out.println("DEAD");}
             simulation.applyUpdates();
-            simulation.checkSubGoals();
+            //simulation.checkSubGoals();
 
         }
     }
@@ -368,10 +368,18 @@ public class Agent implements Serializable{
         if (subGoal == null || subGoal.getPath() == null || subGoal.getPath().empty()
                 ||( subGoal.goal.getX() == this.getX() && subGoal.goal.getY() == this.getY())
                 ){
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     public void setSubGoal(SubGoal subGoal) {this.subGoal = subGoal; }
+
+    public boolean isAlive() {
+        return isAlive;
+    }
+
+    public int getEnergyLevel() {
+        return energyLevel;
+    }
 }

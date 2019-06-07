@@ -157,7 +157,7 @@ public class DijkstraShortestPath extends PathFinder implements Serializable {
             path.push(node.getElement());
             /**
              * If you want the agent to cut fires lines, set "cutPath" to true. The cell will be added to the path
-             * twice. This will be interpreted by getNextAction() as a dig action.
+             * twice. This will be interpreted by getDistance() as a dig action.
              */
             if (cutPath && (node.getElement().getType().equals("Grass") || node.getElement().getType().equals("Tree"))) {
                 path.push(node.getElement());

@@ -88,9 +88,9 @@ public class Simulation extends Observable implements Serializable, Observer {
 		}
 
 		// Generate plan for agent(s)
-		if (useSubGoal){
-			applySubgoals();
-		}
+//		if (useSubGoal){
+//			applySubgoals();
+//		}
 
 		findActiveCells();
 		setChanged();
@@ -117,9 +117,10 @@ public class Simulation extends Observable implements Serializable, Observer {
 
 	public void checkSubGoals(){
         if (useSubGoal){
-            if (agents.size() != 0 && !agents.get(0).onGoal()){
+            if (agents.size() != 0 && agents.get(0).onGoal()){
                 subGoals.setNextGoal(agents.get(0));
                 goalsHit++;
+				System.out.println("goals hit: " + goalsHit);
             }
         }
     }
@@ -131,6 +132,17 @@ public class Simulation extends Observable implements Serializable, Observer {
 	 */
 	public Simulation(RLController controller) {
 		this(false);
+		if(generateRandom){
+			System.out.println("WARNING! GENERATING RANDOM MIGHT CAUSE NPE");
+		}
+		this.rlController = controller;
+		for (Agent a: agents) {
+			a.setController(rlController);
+		}
+		parameter_manager.changeParameter("Model", "Step Time", 0f);
+	}
+	public Simulation(RLController controller, boolean use_gui) {
+		this(use_gui);
 		if(generateRandom){
 			System.out.println("WARNING! GENERATING RANDOM MIGHT CAUSE NPE");
 		}
@@ -319,12 +331,12 @@ public class Simulation extends Observable implements Serializable, Observer {
 		}
 
 		//Can be removed once Orthogonal Subgoals are assigned by a controller
-		if (useSubGoal){
-		    if (agents.size() != 0 && !agents.get(0).onGoal()){
-		        subGoals.setNextGoal(agents.get(0));
-		        goalsHit++;
-            }
-        }
+//		if (useSubGoal){
+//		    if (agents.size() != 0 && agents.get(0).onGoal()){
+//		        subGoals.setNextGoal(agents.get(0));
+//		        goalsHit++;
+//            }
+//        }
 
 
 
