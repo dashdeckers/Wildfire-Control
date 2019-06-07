@@ -320,7 +320,6 @@ public class Simulation extends Observable implements Serializable, Observer {
 
 		//Can be removed once Orthogonal Subgoals are assigned by a controller
 		if (useSubGoal){
-		    //System.out.println("Wtf");
 		    if (agents.size() != 0 && !agents.get(0).onGoal()){
 		        subGoals.setNextGoal(agents.get(0));
 		        goalsHit++;

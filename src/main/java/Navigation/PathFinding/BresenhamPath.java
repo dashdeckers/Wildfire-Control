@@ -23,11 +23,11 @@ public class BresenhamPath extends PathFinder {
     }
 
     /**
-     * Function used to make a Stack of all cells that the agent needs to travel in order to reach the goal in a
-     * straight line. Quadrants are indicated from the perspective of the agent, i.e. a goal North-East to the agent is
+     * Function used to make a Stack of all cells that the agent needs to travel in order to reach the subGoal in a
+     * straight line. Quadrants are indicated from the perspective of the agent, i.e. a subGoal North-East to the agent is
      * in quadrant I. N-W is quadrant II, S-W quadrant III and S-E quadrant IV.
      *
-     * As the path needs the added the a stack, the path needs to be determined in reverse order (goal -> agent).
+     * As the path needs the added the a stack, the path needs to be determined in reverse order (subGoal -> agent).
      * By doing so, the agent can pop the element from the stack in order to determine its next move.
      */
     public void findPath(){

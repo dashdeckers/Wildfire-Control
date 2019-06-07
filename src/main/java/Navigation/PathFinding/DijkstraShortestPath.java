@@ -66,7 +66,7 @@ public class DijkstraShortestPath extends PathFinder implements Serializable {
         Node k = st.remove();
         Element e = k.getElement();
 
-        //Continue until goal is reached, or if there are no states nodes to visit.
+        //Continue until subGoal is reached, or if there are no states nodes to visit.
         do {
 
             for (int i = 0; i<4; i++){
@@ -132,7 +132,7 @@ public class DijkstraShortestPath extends PathFinder implements Serializable {
 
 
     /**
-     * Current implementation of A* is simply the minimum amount of steps needed to get to the goal from the current cell
+     * Current implementation of A* is simply the minimum amount of steps needed to get to the subGoal from the current cell
      * @param x
      * @param y
      * @return
@@ -179,12 +179,12 @@ public class DijkstraShortestPath extends PathFinder implements Serializable {
 
 
     /**
-     * This function will return the optimal path in terms of the actions the agents needs to take to reach its goal.
+     * This function will return the optimal path in terms of the actions the agents needs to take to reach its subGoal.
      */
     public Stack<String> getDirections2(){
 
         /*
-            Since the path is approached from the goal towards the agent, the actions an agent can take are inverted.
+            Since the path is approached from the subGoal towards the agent, the actions an agent can take are inverted.
             Where dx=0 and dy=-1 used to be going down, it is instead related to the agent needing to move upwards.
          */
         int newX=0,newY=0;

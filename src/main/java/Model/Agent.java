@@ -27,7 +27,7 @@ public class Agent implements Serializable{
     private Color color;
 
     //Optimal path, i.e. elements that should be visited, found by A* will be stored here.
-    public SubGoal goal;
+    public SubGoal subGoal;
 
     /**
      * Create an agent at X,Y with a certain id.
@@ -104,8 +104,8 @@ public class Agent implements Serializable{
             //If an agent controller is assigned, have it make the decision
             if (controller != null) {
                 controller.pickAction(this);
-            } else if ( goal != null) {
-                currentAction = goal.getNextAction();
+            } else if ( subGoal != null) {
+                currentAction = subGoal.getNextAction();
                 takeAction(currentAction);
             } else {
                 List<String> actions = possibleActions();
@@ -365,13 +365,13 @@ public class Agent implements Serializable{
     }
 
     public boolean onGoal(){
-        if (goal == null || goal.getPath() == null || goal.getPath().empty()
-                ||( goal.goal.getX() == getX() && goal.goal.getY() == getY())
+        if (subGoal == null || subGoal.getPath() == null || subGoal.getPath().empty()
+                ||( subGoal.goal.getX() == this.getX() && subGoal.goal.getY() == this.getY())
                 ){
             return false;
         }
         return true;
     }
 
-    public void setGoal(SubGoal goal) {this.goal = goal; }
+    public void setSubGoal(SubGoal subGoal) {this.subGoal = subGoal; }
 }

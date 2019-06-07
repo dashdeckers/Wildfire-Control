@@ -25,7 +25,7 @@ public class SubGoal implements Serializable {
         if (agent.checkTile(goal.getX(), goal.getY())){
             determinePath(cutPath);
         } else {
-            System.out.println("Invalid goal, pick another one");
+            System.out.println("Invalid subGoal, pick another one");
         }
     }
 
@@ -57,7 +57,7 @@ public class SubGoal implements Serializable {
             return "Do Nothing";
         }
         if (path.empty()){
-            //System.out.println("Path to goal is empty");
+            //System.out.println("Path to subGoal is empty");
             return "Do Nothing";
         }
         Element e = path.peek();
@@ -100,7 +100,7 @@ public class SubGoal implements Serializable {
      * debugging function for checking the optimal path
      */
     public void printPath(Stack<Element> path) {
-        System.out.println("shortest path found from goal "+ goal.toCoordinates() +":");
+        System.out.println("shortest path found from subGoal "+ goal.toCoordinates() +":");
         for (Element e:path){
             System.out.println("-> (" + e.getX() + ", " + e.getY() + ")");
         }

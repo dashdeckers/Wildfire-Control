@@ -31,18 +31,18 @@ public class OrthogonalSubgoals implements Serializable {
     }
 
     /**
-     * give an agent a new goal. If it already is on a subgoal, start cutting towards another subgoal. If not on
-     * the current goal, move towards it.
+     * give an agent a new subGoal. If it already is on a subgoal, start cutting towards another subgoal. If not on
+     * the current subGoal, move towards it.
      * @param agent the agent for which the goals need to be updated.
      */
     public void setNextGoal(Agent agent){
         if (!agentOnGoal(agent)){
             Element goalCell = getCorrespondingCell(nextGoal);
-            agent.setGoal(new SubGoal(cells, goalCell, algorithm, agent, false));
+            agent.setSubGoal(new SubGoal(cells, goalCell, algorithm, agent, false));
         } else {
             nextGoal=(nextGoal+1)%maxNrGoals;
             Element goalCell = getCorrespondingCell(nextGoal);
-            agent.setGoal(new SubGoal(cells, goalCell, algorithm, agent, true));
+            agent.setSubGoal(new SubGoal(cells, goalCell, algorithm, agent, true));
         }
     }
 

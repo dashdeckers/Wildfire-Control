@@ -136,7 +136,7 @@ public class SubSyne extends CoSyNe{
             model.applySubgoals();
         }
         Agent agent = model.getAgents().get(0);
-        Element goal = agent.goal.goal;
+        Element goal = agent.subGoal.goal;
 
 
         double[] output = new double[4];
@@ -167,8 +167,8 @@ public class SubSyne extends CoSyNe{
     protected double getFitness() {
         Fitness fit = new Fitness();
         return  10 * (
-                (model.getAgents().get(0).goal.goal.getX() - model.getAgents().get(0).getX()) * (model.getAgents().get(0).goal.goal.getX() - model.getAgents().get(0).getX()) +
-                (model.getAgents().get(0).goal.goal.getY() - model.getAgents().get(0).getY()) * (model.getAgents().get(0).goal.goal.getY() - model.getAgents().get(0).getY()))
+                (model.getAgents().get(0).subGoal.goal.getX() - model.getAgents().get(0).getX()) * (model.getAgents().get(0).subGoal.goal.getX() - model.getAgents().get(0).getX()) +
+                (model.getAgents().get(0).subGoal.goal.getY() - model.getAgents().get(0).getY()) * (model.getAgents().get(0).subGoal.goal.getY() - model.getAgents().get(0).getY()))
                 - 1000 *model.goalsHit  +
                 fit.totalFuelBurnt(model);
     }
