@@ -2,8 +2,7 @@ package Model;
 
 import Learning.RLController;
 import Model.Elements.*;
-import Navigation.OrthogonalSubgoals;
-import Navigation.SubGoal;
+import Navigation.OrthogonalSubGoals;
 //import com.sun.xml.internal.bind.v2.TODO;
 
 import java.io.*;
@@ -30,7 +29,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private boolean undo_redo;
 	private boolean running;
 	private boolean use_gui;
-	private boolean generateRandom = false;
+	private boolean generateRandom = true;
 	private Random rand;
 	private long randomizer_seed = 0;
 
@@ -53,7 +52,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	 */
     private boolean useSubGoal = true;
 	private double dist[] = {4,4,4,4,4,4,4,4};
-	private OrthogonalSubgoals subGoals;
+	private OrthogonalSubGoals subGoals;
 	private String algorithm = "Bresenham";
 
 
@@ -102,7 +101,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	}
 
 	public void applySubgoals(){
-		subGoals = new OrthogonalSubgoals(5, 5, dist, algorithm, cells);
+		subGoals = new OrthogonalSubGoals(5, 5, dist, algorithm, cells);
 		subGoals.setNextGoal(agents.get(0));
 		useSubGoal = true;
 	}
@@ -162,7 +161,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private void create_parameters() {
 		width = 50;
 		height = 50;
-		nr_agents = 3;
+		nr_agents = 1;
 		energyAgents = 100;
 		if (use_gui) {
 			step_time = 100;
@@ -252,7 +251,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 			a.setController(rlController);
 		}
 		if (useSubGoal){
-            subGoals = new OrthogonalSubgoals(5, 5, dist, algorithm, cells);
+            subGoals = new OrthogonalSubGoals(5, 5, dist, algorithm, cells);
             subGoals.setNextGoal(agents.get(0));
 		}
 		setChanged();

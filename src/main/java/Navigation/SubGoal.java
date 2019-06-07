@@ -15,6 +15,7 @@ public class SubGoal implements Serializable {
     List<List<Element>> cells;
     String algorithm;
     public Stack<Element> path;
+    public double moveCost;
     private Agent agent;
 
     public SubGoal(List<List<Element>> cells, Element goal, String algorithm, Agent agent, boolean cutPath){
@@ -43,6 +44,7 @@ public class SubGoal implements Serializable {
         }
         pf.findPath();
         path = pf.getPath();
+        moveCost = pf.finalMoveCost;
         //printPath(path);
     }
 
@@ -109,5 +111,9 @@ public class SubGoal implements Serializable {
 
     public Stack<Element> getPath() {
         return path;
+    }
+
+    public double getMoveCost() {
+        return moveCost;
     }
 }

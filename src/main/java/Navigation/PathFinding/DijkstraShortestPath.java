@@ -11,7 +11,8 @@ public class DijkstraShortestPath extends PathFinder implements Serializable {
     public List<List<Element>> cells;
     public Agent agent;
     public Element goal;
-    public Stack<Element> path;
+    //public Stack<Element> path;
+    public double finalMoveCost;
 
     public boolean cutPath;
 
@@ -33,10 +34,7 @@ public class DijkstraShortestPath extends PathFinder implements Serializable {
     public int cost[][];
 
     public DijkstraShortestPath(List<List<Element>> cells, Agent agent, Element goal, boolean cutPath) {
-        this.cells=cells;
-        this.agent=agent;
-        this.goal=goal;
-        this.cutPath =cutPath;
+        super(cells,agent,goal,cutPath);
 
         //initialisation of cost matrix
         cost = new int[cells.size()][cells.get(0).size()];
@@ -106,6 +104,7 @@ public class DijkstraShortestPath extends PathFinder implements Serializable {
         if (!e.equals(goal)){
             System.out.println("No path found :(");
         } else {
+            finalMoveCost = cost[e.getX()][e.getY()];
             makePath(k);
         }
     }
@@ -283,5 +282,4 @@ public class DijkstraShortestPath extends PathFinder implements Serializable {
             System.out.println("|");
         }
     }
-
 }

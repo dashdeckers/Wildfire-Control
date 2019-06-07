@@ -5,7 +5,7 @@ import Learning.Fitness;
 import Learning.RLController;
 import Model.Agent;
 import Model.Simulation;
-import Navigation.OrthogonalSubgoals;
+import Navigation.OrthogonalSubGoals;
 import Navigation.SubGoal;
 import View.MainFrame;
 
@@ -24,7 +24,7 @@ public class DeepQLearner implements RLController {
     private int sizeInput = 5;
     private int sizeOutput = 2;
     private int nrHidden; //TODO: create compatibility for dynamic number of hidden layers
-    private int sizeHidden = 10;
+    private int sizeHidden = 50;
     private int batchSize = 1;
 
 
@@ -34,7 +34,7 @@ public class DeepQLearner implements RLController {
 
     private MLP mlp;
     private Random rand;
-    private OrthogonalSubgoals subGoals;
+    private OrthogonalSubGoals subGoals;
     private SubGoal subGoal;
     private Simulation model;
 
@@ -65,11 +65,14 @@ public class DeepQLearner implements RLController {
         }
 
         double fireLocation[] = f.locationCenterFireAndMinMax(model);
-        subGoals = new OrthogonalSubgoals((int)fireLocation[0],(int)fireLocation[1], dist, algorithm, model.getAllCells());
+        subGoals = new OrthogonalSubGoals((int)fireLocation[0],(int)fireLocation[1], dist, algorithm, model.getAllCells());
+        System.out.println("Distance Array: " + Arrays.toString(dist));
         System.out.println("Length of feature vector:" + Arrays.toString(f.appendArrays(f.cornerVectors(model,false))));
 
         fitt = new Fitness();
 
+
+        subGoals.selectClosestSubGoal(model.getAgents().get(0)); //Again, only works for single agent solution
         //model.start();
 
     }
@@ -83,6 +86,7 @@ public class DeepQLearner implements RLController {
             }
             String nextAction = a.subGoal.getNextAction();
             a.takeAction(nextAction);
+            model.applyUpdates();
         }
         Fitness.SPE_Measure StraightPaths = fitt.new SPE_Measure(model);
         System.out.println("current fitness: " + StraightPaths.getFitness(2));

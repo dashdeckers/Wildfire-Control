@@ -4,11 +4,12 @@ import Model.Agent;
 import Model.Elements.Element;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
-//TODO: ONLY COMPATIBLE WITH MULTIPLE AGENTS!!!
-public class OrthogonalSubgoals implements Serializable {
-    private List<SubGoal> subGoals;
+//TODO: ONLY COMPATIBLE WITH SINGLE AGENT!!!
+public class OrthogonalSubGoals implements Serializable {
+    private List<Element> subGoals;
     List<List<Element>> cells;
     int fireX, fireY;
     String algorithm;
@@ -22,12 +23,28 @@ public class OrthogonalSubgoals implements Serializable {
     int dx[]={-1,-1,0,1,1,1,0,-1};
     int dy[]={0,-1,-1,-1,0,1,1,1};
 
-    public OrthogonalSubgoals(int fireX, int fireY, double dist[], String algorithm, List<List<Element>> cells){
+    public OrthogonalSubGoals(int fireX, int fireY, double dist[], String algorithm, List<List<Element>> cells){
         this.fireX = fireX;
         this.fireY = fireY;
         this.dist = dist;
         this.algorithm = algorithm;
         this.cells = cells;
+        subGoals = new ArrayList<>();
+        for (int i = 0; i< maxNrGoals; i++){
+            this.subGoals.add(getCorrespondingCell(i));
+        }
+    }
+
+    public void selectClosestSubGoal(Agent a){ //TODO: Use deep RL for this step as well
+        double minDist= Double.MAX_VALUE;
+        for (int i = 0; i<maxNrGoals; i++){
+            SubGoal temp = new SubGoal(cells, subGoals.get(i), algorithm, a, false);
+            if(minDist>temp.getMoveCost()){
+                minDist = temp.getMoveCost();
+                nextGoal = i;
+            }
+        }
+        setNextGoal(a);
     }
 
     /**
@@ -90,4 +107,15 @@ public class OrthogonalSubgoals implements Serializable {
         return cells.get(xDist).get(yDist);
     }
 
+    public void updateDist(int i, double x){
+        dist[i]=x;
+    }
+
+    public void setNextGoal(int nextGoal) {
+        this.nextGoal = nextGoal;
+    }
+
+    public List<Element> getSubGoals() {
+        return subGoals;
+    }
 }

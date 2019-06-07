@@ -8,18 +8,8 @@ import java.util.Stack;
 
 public class BresenhamPath extends PathFinder {
 
-    Element goal;
-    Stack<Element> path;
-    Agent agent;
-    List<List<Element>> cells;
-
-    boolean cutPath;
-
     public BresenhamPath(List<List<Element>> cells, Agent agent, Element goal, boolean cutPath){
-        this.cells = cells;
-        this.agent = agent;
-        this.goal = goal;
-        this.cutPath = cutPath;
+        super(cells, agent, goal, cutPath);
     }
 
     /**
@@ -90,7 +80,7 @@ public class BresenhamPath extends PathFinder {
     }
 
     /**
-     * Bresenman implementation for path finding. Determines a straight line from point a (r0, q0) to point b (r1, q1),
+     * Bresenham implementation for path finding. Determines a straight line from point a (r0, q0) to point b (r1, q1),
      * provided that the dr>=0, dq>=0 and dr/dq>=1. In the default case (sv = false, qf=0, rf=0), r corresponds to
      * the x-axis and q to the y-axis.
      * @param q0
@@ -155,18 +145,27 @@ public class BresenhamPath extends PathFinder {
         //Final push to make sure the cell the agent is standing is also cut if needed.
         cell = cells.get(agent.getX()).get(agent.getY());
         if (cutPath && (cell.getType().equals("Grass") || cell.getType().equals("Tree"))){
-            this.path.push(cell);
+            addCostPush(cell, true);
         }
     }
 
     private void pushCell(Element cell){
-        path.push(cell);
+        addCostPush(cell, false);
         if (cutPath && (cell.getType().equals("Grass") || cell.getType().equals("Tree"))){
-            path.push(cell);
+            addCostPush(cell, true);
         }
 
     }
 
+
+    private void addCostPush(Element cell, boolean makeDirt){
+        if(makeDirt){
+            finalMoveCost+=cell.getParameters().get("Clear Cost");
+        } else {
+            finalMoveCost+=agent.determineMoveCost(cell);
+        }
+        path.push(cell);
+    }
 
     @Override
     public Stack<Element> getPath() {
