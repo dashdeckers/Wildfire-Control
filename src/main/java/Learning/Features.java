@@ -304,7 +304,7 @@ public class Features implements MutableState, Serializable {
      */
 
     //public double windRelativeToSubgoal( int windVectorX, int windVectorY, int windSpeed, String compassDirection){
-    public double windRelativeToSubgoal (int windVectorX, int windVectorY, String compassDirection) {
+    public double windRelativeToSubgoal (float windVectorX, float windVectorY, String compassDirection) {
 
         double alpha = 0;
         double A = 0;
@@ -611,6 +611,12 @@ public class Features implements MutableState, Serializable {
         }
 
         return output;
+    }
+
+    public double[] appendArrays(double[] arr, double val){
+        double[] valArr = {val};
+        return appendArrays(arr, valArr);
+
     }
 
     public double[] anglesAndDistances(Simulation model) {

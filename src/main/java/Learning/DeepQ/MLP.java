@@ -1,8 +1,9 @@
 package Learning.DeepQ;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public class MLP {
+public class MLP implements Serializable {
     private double inputHiddenWeights[][];
     private double hiddenOutputWeights[][];
     private double hiddenBias[][];

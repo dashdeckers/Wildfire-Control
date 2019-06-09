@@ -364,4 +364,9 @@ public abstract class Element implements Serializable, Observer {
 		color = Color.LIGHT_GRAY;
 	}
 
+	/**
+	 * debugging function for marking subGoals
+	 */
+	public void colorGoal() {color = Color.CYAN; }
+
 }

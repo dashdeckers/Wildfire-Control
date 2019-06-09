@@ -29,7 +29,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private boolean undo_redo;
 	private boolean running;
 	private boolean use_gui;
-	private boolean generateRandom = true;
+	private boolean generateRandom = false;
 	private Random rand;
 	private long randomizer_seed = 0;
 

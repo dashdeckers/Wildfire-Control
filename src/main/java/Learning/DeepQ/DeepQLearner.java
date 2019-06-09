@@ -9,10 +9,12 @@ import Navigation.OrthogonalSubGoals;
 import Navigation.SubGoal;
 import View.MainFrame;
 
-import java.util.Arrays;
-import java.util.Random;
+import java.io.Serializable;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class DeepQLearner implements RLController {
+public class DeepQLearner implements RLController, Serializable {
     protected int iter = 5000;
     protected float explorationRate = 1.0f;
     protected float explorDiscount = explorationRate/iter;
@@ -40,10 +42,35 @@ public class DeepQLearner implements RLController {
 
     //variables needed for debugging:
     final static boolean use_gui = true;
-    private double dist[] = {4,4,4,4,4,4,4,4};
+    private Integer dist[] = {4,4,4,4,4,4,4,4};
     private String algorithm = "Bresenham";
-    private Fitness fitt;
+    private Fitness fit;
+    private Features f;
+    //Might be usefull when linking the goal direction implementation of the features class to the implementation
+    // in this class. It simply maps NESW coordinates to an index in the dx dy arrays
+    private Map<Integer,String> indexMap = Stream.of( // TODO: Currently working to make orthogonal subgoals compatible with Maps. The idea-> key=direction value=distance
+            new AbstractMap.SimpleEntry<>(0, "WW"),
+            new AbstractMap.SimpleEntry<>(1, "SW"),
+            new AbstractMap.SimpleEntry<>(2, "SS"),
+            new AbstractMap.SimpleEntry<>(3, "SE"),
+            new AbstractMap.SimpleEntry<>(4, "EE"),
+            new AbstractMap.SimpleEntry<>(5, "NE"),
+            new AbstractMap.SimpleEntry<>(6, "NN"),
+            new AbstractMap.SimpleEntry<>(7, "NW"))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
+    private Map<String,Double> distMap = Stream.of(
+            new AbstractMap.SimpleEntry<>("WW", 0.0),
+            new AbstractMap.SimpleEntry<>("SW", 0.0),
+            new AbstractMap.SimpleEntry<>("SS", 0.0),
+            new AbstractMap.SimpleEntry<>("SE", 0.0),
+            new AbstractMap.SimpleEntry<>("EE", 0.0),
+            new AbstractMap.SimpleEntry<>("NE", 0.0),
+            new AbstractMap.SimpleEntry<>("NN", 0.0),
+            new AbstractMap.SimpleEntry<>("NW", 0.0))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+    private HashSet<String> directions = new HashSet<>(Arrays.asList("WW", "SW", "SS", "SE", "EE", "NE", "NN", "NW"));
 
     public DeepQLearner(){
         model = new Simulation(this, use_gui);
@@ -52,25 +79,23 @@ public class DeepQLearner implements RLController {
             new MainFrame(model);
         }
 
-        Features f = new Features();
-
-        sizeInput = f.appendArrays(f.cornerVectors(model, false)).length;
-        sizeOutput = Math.min(model.getAllCells().size(),model.getAllCells().get(0).size())/2;
+        f = new Features();
 
         initNN();
 
-        for (int i = 0; i<dist.length; i++){
-            dist[i]= getDistance(f.appendArrays(f.cornerVectors(model, false)));
-
+        for (String key : distMap.keySet()){
+            Double oldValue = distMap.replace(key, getDistance(getInputSet(key)));
+            if (oldValue == null){
+                System.out.println("distMap value not updated successfully!! Selected key : " + key + ", complete keySet: " + Arrays.toString(distMap.keySet().toArray()));
+            }
         }
 
         double fireLocation[] = f.locationCenterFireAndMinMax(model);
-        subGoals = new OrthogonalSubGoals((int)fireLocation[0],(int)fireLocation[1], dist, algorithm, model.getAllCells());
-        System.out.println("Distance Array: " + Arrays.toString(dist));
-        System.out.println("Length of feature vector:" + Arrays.toString(f.appendArrays(f.cornerVectors(model,false))));
+        subGoals = new OrthogonalSubGoals((int)fireLocation[0],(int)fireLocation[1], distMap, algorithm, model.getAllCells());
+        System.out.println("Distance Map: " + Collections.singletonList(distMap));
+        System.out.println("Length of feature vector:" + getInputSet("WW").length);
 
-        fitt = new Fitness();
-
+        fit = new Fitness();
 
         subGoals.selectClosestSubGoal(model.getAgents().get(0)); //Again, only works for single agent solution
         //model.start();
@@ -79,21 +104,25 @@ public class DeepQLearner implements RLController {
 
     @Override
     public void pickAction(Agent a) {
-        while(a.isAlive()&&a.getEnergyLevel()>0){
-            if (a.onGoal()){
-                subGoals.setNextGoal(a);
-                //goalsHit++;//TODO: TRIGGER REWARD FUNCTION
-            }
-            String nextAction = a.subGoal.getNextAction();
-            a.takeAction(nextAction);
-            model.applyUpdates();
+        if (a.onGoal()){
+            subGoals.setNextGoal(a);
+            //goalsHit++;//TODO: TRIGGER REWARD FUNCTION
         }
-        Fitness.SPE_Measure StraightPaths = fitt.new SPE_Measure(model);
-        System.out.println("current fitness: " + StraightPaths.getFitness(2));
+        String nextAction = a.subGoal.getNextAction();
+        a.takeAction(nextAction);
+        model.applyUpdates();
+
+        Fitness.SPE_Measure StraightPaths = fit.new SPE_Measure(model);
+        //System.out.println("current SPE_fitness: " + StraightPaths.getFitness(5));
+        System.out.println("Current fuelBurnt fitness: " + fit.totalFuelBurnt(model));
 
     }
 
     private void initNN(){
+        sizeInput = getInputSet("WW").length;
+        sizeOutput = Math.min(model.getAllCells().size(),model.getAllCells().get(0).size())/2;
+
+
         rand = new Random();
         batchNr = 0;
         inputBatch = new double[batchSize][sizeInput];
@@ -193,7 +222,7 @@ public class DeepQLearner implements RLController {
         }
     }
 
-    public int getDistance(double in[]){
+    public double getDistance(double in[]){
         float randFloat = rand.nextFloat();
         System.out.println("choosing greedy action: " + (randFloat>explorationRate) + " exploration: " + explorationRate + " randFloat: " + randFloat);
         if (randFloat> explorationRate){
@@ -205,18 +234,20 @@ public class DeepQLearner implements RLController {
 
     /**
      * transform state to array of binary inputs.
-     * @param state
+     * @param subGoal: expressed as an integer to alow for use of for loops.
      * @return
      */
-    private double[] getInputSet(int state){
-        double[] set = new double[sizeInput];
-        for (int i = 0; i<sizeInput; i++){
-            if (i==state){
-                set[i]=1;
-            } else {
-                set[i]=0;
-            }
-        }
+    private double[] getInputSet(int subGoal){
+        float windX = model.getParameters().get("Wind x");
+        float windY = model.getParameters().get("Wind y");
+        double[] set = f.appendArrays(f.cornerVectors(model, false), f.windRelativeToSubgoal(windX, windY, indexMap.get(subGoal)));
+        return set;
+    }
+
+    private double[] getInputSet(String subGoal){
+        float windX = model.getParameters().get("Wind x");
+        float windY = model.getParameters().get("Wind y");
+        double[] set = f.appendArrays(f.cornerVectors(model, false), f.windRelativeToSubgoal(windX, windY, subGoal));
         return set;
     }
 
