@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 
 public class DeepQLearner implements RLController, Serializable {
     protected int iter = 5000;
-    protected float explorationRate = 1.0f;
+    protected float explorationRate = 0.10f;
     protected float explorDiscount = explorationRate/iter;
     protected float gamma = 0.99f;
     protected float alpha = 0.1f;
@@ -37,27 +37,13 @@ public class DeepQLearner implements RLController, Serializable {
     private MLP mlp;
     private Random rand;
     private OrthogonalSubGoals subGoals;
-    private SubGoal subGoal;
     private Simulation model;
 
     //variables needed for debugging:
     final static boolean use_gui = true;
-    private Integer dist[] = {4,4,4,4,4,4,4,4};
     private String algorithm = "Bresenham";
     private Fitness fit;
     private Features f;
-    //Might be usefull when linking the goal direction implementation of the features class to the implementation
-    // in this class. It simply maps NESW coordinates to an index in the dx dy arrays
-    private Map<Integer,String> indexMap = Stream.of( // TODO: Currently working to make orthogonal subgoals compatible with Maps. The idea-> key=direction value=distance
-            new AbstractMap.SimpleEntry<>(0, "WW"),
-            new AbstractMap.SimpleEntry<>(1, "SW"),
-            new AbstractMap.SimpleEntry<>(2, "SS"),
-            new AbstractMap.SimpleEntry<>(3, "SE"),
-            new AbstractMap.SimpleEntry<>(4, "EE"),
-            new AbstractMap.SimpleEntry<>(5, "NE"),
-            new AbstractMap.SimpleEntry<>(6, "NN"),
-            new AbstractMap.SimpleEntry<>(7, "NW"))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
     private Map<String,Double> distMap = Stream.of(
             new AbstractMap.SimpleEntry<>("WW", 0.0),
@@ -75,31 +61,53 @@ public class DeepQLearner implements RLController, Serializable {
     public DeepQLearner(){
         model = new Simulation(this, use_gui);
 
+//        if(use_gui){
+//            new MainFrame(model);
+//        }
+
+        f = new Features();
+        fit = new Fitness();
+
+        initNN();
+
+        trainMLP();
+
+        //model.start();
+
+    }
+
+    private void trainMLP(){
+        model = new Simulation(this, use_gui);
         if(use_gui){
             new MainFrame(model);
         }
 
-        f = new Features();
+        double[] oldState = getInputSet("WW");
 
-        initNN();
-
-        for (String key : distMap.keySet()){
-            Double oldValue = distMap.replace(key, getDistance(getInputSet(key)));
-            if (oldValue == null){
-                System.out.println("distMap value not updated successfully!! Selected key : " + key + ", complete keySet: " + Arrays.toString(distMap.keySet().toArray()));
-            }
-        }
+        updateDistMap();
+        double action = distMap.get("WW");
 
         double fireLocation[] = f.locationCenterFireAndMinMax(model);
         subGoals = new OrthogonalSubGoals((int)fireLocation[0],(int)fireLocation[1], distMap, algorithm, model.getAllCells());
         System.out.println("Distance Map: " + Collections.singletonList(distMap));
         System.out.println("Length of feature vector:" + getInputSet("WW").length);
 
-        fit = new Fitness();
-
         subGoals.selectClosestSubGoal(model.getAgents().get(0)); //Again, only works for single agent solution
-        //model.start();
 
+        model.start();
+        double[] newState = getInputSet("WW");
+        int cost = fit.totalFuelBurnt(model);
+
+        train(oldState,newState,Math.toIntExact(Math.round(action)), cost);
+    }
+
+    private void updateDistMap(){
+        for (String key : distMap.keySet()){
+            Double oldValue = distMap.replace(key, getDistance(getInputSet(key)));
+            if (oldValue == null){
+                System.out.println("distMap value not updated successfully!! Selected key : " + key + ", complete keySet: " + Arrays.toString(distMap.keySet().toArray()));
+            }
+        }
     }
 
     @Override
@@ -172,16 +180,16 @@ public class DeepQLearner implements RLController, Serializable {
         return mlp.getOutput(input);
     }
 
-    private void train(double[] oldState, double[] newState, String action, int reward){
+    private void train(double[] oldState, double[] newState, int action, int reward){
 
         double[] oldValue = getQ(oldState);
 
         System.out.println(Arrays.toString(oldState)+" -> " +Arrays.toString(oldValue));
 
         double[] newValue = getQ(newState); //TODO: Need to predict new state?
-        int actionInt = (action.equals("FORWARD")? 0 :1);
+//        int actionInt = (action.equals("FORWARD")? 0 :1);
 
-        oldValue[actionInt] = reward + gamma*maxValue(newValue);
+        oldValue[action] = reward + gamma* minValue(newValue);
 
         double[] trainInput = oldState;
         double[] trainOutput = oldValue;
@@ -212,15 +220,15 @@ public class DeepQLearner implements RLController, Serializable {
         }
     }
 
-    public void update(int oldState, int newState, String action, int reward){
-
-        train(getInputSet(oldState),getInputSet(newState), action, reward);
-
-        if (explorationRate>0){
-            explorationRate-=explorDiscount;
-            //System.out.println("Updated exploration: " + exploration);
-        }
-    }
+//    public void update(int oldState, int newState, String action, int reward){
+//
+//        train(getInputSet(oldState),getInputSet(newState), action, reward);
+//
+//        if (explorationRate>0){
+//            explorationRate-=explorDiscount;
+//            //System.out.println("Updated exploration: " + exploration);
+//        }
+//    }
 
     public double getDistance(double in[]){
         float randFloat = rand.nextFloat();
@@ -233,34 +241,35 @@ public class DeepQLearner implements RLController, Serializable {
     }
 
     /**
-     * transform state to array of binary inputs.
-     * @param subGoal: expressed as an integer to alow for use of for loops.
+     * Transform state to input vector.
+     * @param subGoal: expressed as an integer to allow for use of for loops.
      * @return
      */
-    private double[] getInputSet(int subGoal){
-        float windX = model.getParameters().get("Wind x");
-        float windY = model.getParameters().get("Wind y");
-        double[] set = f.appendArrays(f.cornerVectors(model, false), f.windRelativeToSubgoal(windX, windY, indexMap.get(subGoal)));
-        return set;
-    }
+//    private double[] getInputSet(int subGoal){
+//        float windX = model.getParameters().get("Wind x");
+//        float windY = model.getParameters().get("Wind y");
+//        double[] set = f.appendArrays(f.cornerVectors(model, false), f.windRelativeToSubgoal(windX, windY, indexMap.get(subGoal)));
+//        return set;
+//    }
 
     private double[] getInputSet(String subGoal){
         float windX = model.getParameters().get("Wind x");
         float windY = model.getParameters().get("Wind y");
         double[] set = f.appendArrays(f.cornerVectors(model, false), f.windRelativeToSubgoal(windX, windY, subGoal));
+        //double[] set = new double[]{f.windRelativeToSubgoal(windX, windY, subGoal)};
         return set;
     }
 
 
-    public static double maxValue(double[] numbers){
-        double max = Double.MIN_VALUE;
+    public static double minValue(double[] numbers){
+        double min = Double.MAX_VALUE;
         for(int i = 1; i < numbers.length;i++)
         {
-            if(numbers[i] > max)
+            if(numbers[i] < min)
             {
-                max = numbers[i];
+                min = numbers[i];
             }
         }
-        return max;
+        return min;
     }
 }

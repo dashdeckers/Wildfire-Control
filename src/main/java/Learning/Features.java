@@ -358,7 +358,7 @@ public class Features implements MutableState, Serializable {
         if ( A == 6.123233995736766E-17){ // Needed in order to account for well known rounding error with cosine
             A = 0;
         }
-        System.out.println(A);
+        //System.out.println(A);
         return A;
 
 
