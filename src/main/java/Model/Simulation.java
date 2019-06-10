@@ -48,7 +48,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private int energyAgents;
 
 	/*
-	For now, orthogonal goals are predetermined. Al a RL controller needs to do, is determine the values for this array.
+	For now, orthogonal goals are predetermined. NOW ALSO COMPATIBLE WITH MAP CONTAINING DIRECTION OF SUBGOAL!!.
 	 */
     private boolean useSubGoal = true;
 	private double dist[] = {4,4,4,4,4,4,4,4};

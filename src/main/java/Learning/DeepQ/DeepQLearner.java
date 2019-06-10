@@ -9,13 +9,18 @@ import Navigation.OrthogonalSubGoals;
 import Navigation.SubGoal;
 import View.MainFrame;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class DeepQLearner implements RLController, Serializable {
-    protected int iter = 5000;
+    protected int iter = 100;
     protected float explorationRate = 0.10f;
     protected float explorDiscount = explorationRate/iter;
     protected float gamma = 0.99f;
@@ -39,11 +44,19 @@ public class DeepQLearner implements RLController, Serializable {
     private OrthogonalSubGoals subGoals;
     private Simulation model;
 
-    //variables needed for debugging:
+    //Variables needed for debugging:
     final static boolean use_gui = true;
+    final static boolean debugging = true;
+    private final static int timeActionShown = 10;
+    private int showActionFor;
+
+    private Agent backup;
+
+    //Fields for functionality of navigation and fitness
     private String algorithm = "Bresenham";
     private Fitness fit;
     private Features f;
+    private int lowestCost;
 
     private Map<String,Double> distMap = Stream.of(
             new AbstractMap.SimpleEntry<>("WW", 0.0),
@@ -59,7 +72,7 @@ public class DeepQLearner implements RLController, Serializable {
     private HashSet<String> directions = new HashSet<>(Arrays.asList("WW", "SW", "SS", "SE", "EE", "NE", "NN", "NW"));
 
     public DeepQLearner(){
-        model = new Simulation(this, use_gui);
+        model = new Simulation(this, false);
 
 //        if(use_gui){
 //            new MainFrame(model);
@@ -67,21 +80,35 @@ public class DeepQLearner implements RLController, Serializable {
 
         f = new Features();
         fit = new Fitness();
+        lowestCost = Integer.MAX_VALUE;
 
         initNN();
 
-        trainMLP();
+        for (int i = 0; i< iter; i++){
+            showActionFor = timeActionShown;
+            trainMLP(i);
+            if (explorationRate>0){
+                explorationRate-=explorDiscount;
+                //System.out.println("Updated exploration: " + exploration);
+            }
+        }
 
         //model.start();
 
     }
 
-    private void trainMLP(){
+    private void trainMLP(int i){
         model = new Simulation(this, use_gui);
+
+        JFrame frame;
         if(use_gui){
-            new MainFrame(model);
+            frame = createMainFrame();
+
         }
 
+        if (debugging){
+            System.out.println("number of agents: " + model.getAgents().size() + ". X of first agent: " + model.getAgents().get(0).getX());
+        }
         double[] oldState = getInputSet("WW");
 
         updateDistMap();
@@ -89,16 +116,62 @@ public class DeepQLearner implements RLController, Serializable {
 
         double fireLocation[] = f.locationCenterFireAndMinMax(model);
         subGoals = new OrthogonalSubGoals((int)fireLocation[0],(int)fireLocation[1], distMap, algorithm, model.getAllCells());
-        System.out.println("Distance Map: " + Collections.singletonList(distMap));
-        System.out.println("Length of feature vector:" + getInputSet("WW").length);
+        if (debugging) {
+            System.out.println("Distance Map: " + Collections.singletonList(distMap));
+            System.out.println("Length of feature vector:" + getInputSet("WW").length);
+        }
 
         subGoals.selectClosestSubGoal(model.getAgents().get(0)); //Again, only works for single agent solution
 
         model.start();
-        double[] newState = getInputSet("WW");
         int cost = fit.totalFuelBurnt(model);
 
+        if (model.getAgents().isEmpty()){ //TODO: Again, should really try to come up with better solution.
+            model.getAgents().add(backup);
+            if(debugging){
+                System.out.println("Nr of Agents: " + model.getAgents().size());
+            }
+        }
+        double[] newState = getInputSet("WW");
+        if (cost<lowestCost){
+            lowestCost = cost;
+            System.out.println("In iteration: " + i + " a solution was found with cost: " + lowestCost);
+            takeScreenShot();
+        }
+
         train(oldState,newState,Math.toIntExact(Math.round(action)), cost);
+        if (use_gui){
+            disposeMainFrame(frame);
+        }
+    }
+
+    private void train(double[] oldState, double[] newState, int action, int reward){
+
+        double[] oldValue = getQ(oldState);
+
+        System.out.println(Arrays.toString(oldState)+" -> " +Arrays.toString(oldValue));
+
+        double[] newValue = getQ(newState); //TODO: Need to predict new state?
+//        int actionInt = (action.equals("FORWARD")? 0 :1);
+
+        oldValue[action] = reward + gamma* minValue(newValue);
+
+        double[] trainInput = oldState;
+        double[] trainOutput = oldValue;
+
+        addToInputBatch(trainInput);
+        addToOutputBatch(trainOutput);
+
+        batchNr++;
+
+        if (batchNr%batchSize==0){
+            System.out.println("Updating MLP");
+            batchNr = 0;
+            mlp.updateMLP(inputBatch, outputBatch);
+        }
+
+        oldValue = getQ(oldState);
+        System.out.println(Arrays.toString(oldState)+" -> "+Arrays.toString(oldValue));
     }
 
     private void updateDistMap(){
@@ -118,11 +191,30 @@ public class DeepQLearner implements RLController, Serializable {
         }
         String nextAction = a.subGoal.getNextAction();
         a.takeAction(nextAction);
-        model.applyUpdates();
+
+        // TODO: This pice of code is ugly as hell, come up with better solution
+        if (model.getAllCells().get(a.getX()).get(a.getY()).isBurning()){
+            backup = a;
+            if(debugging){
+                System.out.println("Nr of Agents: " + model.getAgents().size());
+            }
+        }
 
         Fitness.SPE_Measure StraightPaths = fit.new SPE_Measure(model);
-        //System.out.println("current SPE_fitness: " + StraightPaths.getFitness(5));
-        System.out.println("Current fuelBurnt fitness: " + fit.totalFuelBurnt(model));
+        if (use_gui){
+            if (showActionFor>0) {
+                sleep(showActionFor);
+                showActionFor -=5;
+            }
+        }
+        if (debugging) {
+            //System.out.println("current SPE_fitness: " + StraightPaths.getFitness(5));
+            System.out.println("Current fuelBurnt fitness: " + fit.totalFuelBurnt(model));
+            System.out.println("Active cells: " + model.getActiveCells().size());
+            if (model.getActiveCells().size()==0){
+                model.stop("No more active cells");
+            }
+        }
 
     }
 
@@ -180,35 +272,6 @@ public class DeepQLearner implements RLController, Serializable {
         return mlp.getOutput(input);
     }
 
-    private void train(double[] oldState, double[] newState, int action, int reward){
-
-        double[] oldValue = getQ(oldState);
-
-        System.out.println(Arrays.toString(oldState)+" -> " +Arrays.toString(oldValue));
-
-        double[] newValue = getQ(newState); //TODO: Need to predict new state?
-//        int actionInt = (action.equals("FORWARD")? 0 :1);
-
-        oldValue[action] = reward + gamma* minValue(newValue);
-
-        double[] trainInput = oldState;
-        double[] trainOutput = oldValue;
-
-        addToInputBatch(trainInput);
-        addToOutputBatch(trainOutput);
-
-        batchNr++;
-
-        if (batchNr%batchSize==0){
-            System.out.println("Updating MLP");
-            mlp.updateMLP(inputBatch, outputBatch);
-            batchNr = 0;
-        }
-
-        oldValue = getQ(oldState);
-        System.out.println(Arrays.toString(oldState)+" -> "+Arrays.toString(oldValue));
-    }
-
     private void addToInputBatch(double in[]){
         for (int i = 0; i<in.length; i++){
             inputBatch[batchNr][i] = in[i];
@@ -232,8 +295,9 @@ public class DeepQLearner implements RLController, Serializable {
 
     public double getDistance(double in[]){
         float randFloat = rand.nextFloat();
-        System.out.println("choosing greedy action: " + (randFloat>explorationRate) + " exploration: " + explorationRate + " randFloat: " + randFloat);
-        if (randFloat> explorationRate){
+        if(debugging) {
+            System.out.println("choosing greedy action: " + (randFloat > explorationRate) + " exploration: " + explorationRate + " randFloat: " + randFloat);
+        }if (randFloat> explorationRate){
             return greedyLocation(in);
         } else {
             return randomLocation();
@@ -271,5 +335,41 @@ public class DeepQLearner implements RLController, Serializable {
             }
         }
         return min;
+    }
+
+    protected void takeScreenShot(){
+        JFrame f = createMainFrame();
+        screenshot(0, lowestCost);
+        f.dispose();
+    }
+
+    protected JFrame createMainFrame(){
+        JFrame f = new MainFrame(model);
+        sleep(1000);
+        return f;
+    }
+
+    protected void disposeMainFrame(JFrame f){
+        sleep(500);
+        f.dispose();
+    }
+
+    protected void sleep(int t){
+        try {
+            Thread.sleep(Math.abs(t));
+        } catch (java.lang.InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    protected void screenshot(int generation, int i){
+        Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
+        try {
+            BufferedImage capture = new Robot().createScreenCapture(screenRect);
+            ImageIO.write(capture, "bmp", new File("./screenshot_g"+ generation+"_i_"+i+".bmp"));
+
+        }catch (Exception ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 }
