@@ -6,7 +6,6 @@ import Learning.RLController;
 import Model.Agent;
 import Model.Simulation;
 import Navigation.OrthogonalSubGoals;
-import Navigation.SubGoal;
 import View.MainFrame;
 
 import javax.imageio.ImageIO;
@@ -16,20 +15,23 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.Serializable;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.Arrays.stream;
 
 public class DeepQLearner implements RLController, Serializable {
     protected int iter = 100;
     protected float explorationRate = 0.10f;
-    protected float explorDiscount = explorationRate/iter;
+    protected float exploreDiscount = explorationRate/iter;
     protected float gamma = 0.99f;
     protected float alpha = 0.1f;
 
 
     //parameters for neural network construction.
-    private int sizeInput = 5;
-    private int sizeOutput = 2;
+    private int sizeInput;
+    private int sizeOutput;
     private int nrHidden; //TODO: create compatibility for dynamic number of hidden layers
     private int sizeHidden = 50;
     private int batchSize = 1;
@@ -53,7 +55,7 @@ public class DeepQLearner implements RLController, Serializable {
     private Agent backup;
 
     //Fields for functionality of navigation and fitness
-    private String algorithm = "Bresenham";
+    private String algorithm = "Dijkstra";
     private Fitness fit;
     private Features f;
     private int lowestCost;
@@ -72,12 +74,6 @@ public class DeepQLearner implements RLController, Serializable {
     private HashSet<String> directions = new HashSet<>(Arrays.asList("WW", "SW", "SS", "SE", "EE", "NE", "NN", "NW"));
 
     public DeepQLearner(){
-        model = new Simulation(this, false);
-
-//        if(use_gui){
-//            new MainFrame(model);
-//        }
-
         f = new Features();
         fit = new Fitness();
         lowestCost = Integer.MAX_VALUE;
@@ -88,7 +84,7 @@ public class DeepQLearner implements RLController, Serializable {
             showActionFor = timeActionShown;
             trainMLP(i);
             if (explorationRate>0){
-                explorationRate-=explorDiscount;
+                explorationRate-= exploreDiscount;
                 //System.out.println("Updated exploration: " + exploration);
             }
         }
@@ -107,24 +103,33 @@ public class DeepQLearner implements RLController, Serializable {
         }
 
         if (debugging){
-            System.out.println("number of agents: " + model.getAgents().size() + ". X of first agent: " + model.getAgents().get(0).getX());
+            System.out.println("number of agents: " + model.getAgents().size() + ". XY of first agent: " + model.getAgents().get(0).getX() + model.getAgents().get(0).getY());
         }
-        double[] oldState = getInputSet("WW");
-
-        updateDistMap();
-        double action = distMap.get("WW");
 
         double fireLocation[] = f.locationCenterFireAndMinMax(model);
         subGoals = new OrthogonalSubGoals((int)fireLocation[0],(int)fireLocation[1], distMap, algorithm, model.getAllCells());
+        updateDistMap();
+        if (debugging&&use_gui){
+            model.applyUpdates();
+            sleep(500);
+        }
+        double[] oldState = getInputSet("WW");
+        double action = distMap.get("WW");
         if (debugging) {
             System.out.println("Distance Map: " + Collections.singletonList(distMap));
             System.out.println("Length of feature vector:" + getInputSet("WW").length);
         }
 
-        subGoals.selectClosestSubGoal(model.getAgents().get(0)); //Again, only works for single agent solution
+        for (Agent a:model.getAgents()){
+            if (debugging){
+                System.out.println("assigning goal to agent: " + a.getId());
+            }
+            subGoals.selectClosestSubGoal(a);
+        }
+        //subGoals.selectClosestSubGoal(model.getAgents().get(0)); //TODO: Again, only works for single agent solution
 
         model.start();
-        int cost = fit.totalFuelBurnt(model);
+        int cost = getCost();
 
         if (model.getAgents().isEmpty()){ //TODO: Again, should really try to come up with better solution.
             model.getAgents().add(backup);
@@ -176,10 +181,7 @@ public class DeepQLearner implements RLController, Serializable {
 
     private void updateDistMap(){
         for (String key : distMap.keySet()){
-            Double oldValue = distMap.replace(key, getDistance(getInputSet(key)));
-            if (oldValue == null){
-                System.out.println("distMap value not updated successfully!! Selected key : " + key + ", complete keySet: " + Arrays.toString(distMap.keySet().toArray()));
-            }
+            setDistance(getInputSet(key), key);
         }
     }
 
@@ -192,7 +194,7 @@ public class DeepQLearner implements RLController, Serializable {
         String nextAction = a.subGoal.getNextAction();
         a.takeAction(nextAction);
 
-        // TODO: This pice of code is ugly as hell, come up with better solution
+        // TODO: This piece of code is ugly as hell, come up with better solution
         if (model.getAllCells().get(a.getX()).get(a.getY()).isBurning()){
             backup = a;
             if(debugging){
@@ -200,27 +202,28 @@ public class DeepQLearner implements RLController, Serializable {
             }
         }
 
-        Fitness.SPE_Measure StraightPaths = fit.new SPE_Measure(model);
         if (use_gui){
             if (showActionFor>0) {
                 sleep(showActionFor);
-                showActionFor -=5;
+                showActionFor -=0;
             }
         }
-        if (debugging) {
-            //System.out.println("current SPE_fitness: " + StraightPaths.getFitness(5));
-            System.out.println("Current fuelBurnt fitness: " + fit.totalFuelBurnt(model));
-            System.out.println("Active cells: " + model.getActiveCells().size());
-            if (model.getActiveCells().size()==0){
-                model.stop("No more active cells");
-            }
+
+        // TODO: Check if other RL techniques have similar kill command
+        if (model.getActiveCells().size()==0){
+            model.stop("No more active cells");
         }
 
     }
 
     private void initNN(){
+        model = new Simulation(this);
+
+        double[] fire=f.locationCenterFireAndMinMax(model);
+        int minY=(int)Math.min(fire[1], (model.getAllCells().get(0).size()-fire[1]));
+        int minX=(int)Math.min(fire[0], (model.getAllCells().size()-fire[0]));
+        sizeOutput = Math.min(minX,minY);
         sizeInput = getInputSet("WW").length;
-        sizeOutput = Math.min(model.getAllCells().size(),model.getAllCells().get(0).size())/2;
 
 
         rand = new Random();
@@ -233,26 +236,33 @@ public class DeepQLearner implements RLController, Serializable {
 
 
 
-    protected int greedyLocation(double[] state){
+    protected List<IndexActLink> greedyLocation(double[] state){
         double[] outputSet = getQ(state);
         double minOut = Double.MAX_VALUE;
         int actionIndex = -1;
+        List<IndexActLink> outputList = new LinkedList<>();
 
         for (int i = 0; i<outputSet.length; i++){
-            // if the current action has the same activation as the highest value, choose randomly between them
-            if (outputSet[i]==minOut){
-                actionIndex = (new Random().nextBoolean()?i:actionIndex);
-            }
-            else if (outputSet[i]<minOut){
-                minOut=outputSet[i];
-                actionIndex = i;
-            }
+            outputList.add(new IndexActLink(i, outputSet[i]));
         }
-        return actionIndex;
+
+        outputList.sort(Comparator.comparing(IndexActLink::getActivation, Comparator.nullsLast(Comparator.naturalOrder())));
+
+//        for (int i = 0; i<outputSet.length; i++){
+//            // if the current action has the same activation as the highest value, choose randomly between them
+//            if (outputSet[i]==minOut){
+//                actionIndex = (new Random().nextBoolean()?i:actionIndex);
+//            }
+//            else if (outputSet[i]<minOut){
+//                minOut=outputSet[i];
+//                actionIndex = i;
+//            }
+//        }
+        return outputList;
     }
 
     protected int randomLocation(){
-        return (int) rand.nextInt(sizeOutput);
+        return rand.nextInt(sizeOutput);
     }
 
     private double[] getQ(double[] in){
@@ -288,21 +298,46 @@ public class DeepQLearner implements RLController, Serializable {
 //        train(getInputSet(oldState),getInputSet(newState), action, reward);
 //
 //        if (explorationRate>0){
-//            explorationRate-=explorDiscount;
+//            explorationRate-=exploreDiscount;
 //            //System.out.println("Updated exploration: " + exploration);
 //        }
 //    }
 
-    public double getDistance(double in[]){
+    public void setDistance(double in[], String key) {
         float randFloat = rand.nextFloat();
-        if(debugging) {
-            System.out.println("choosing greedy action: " + (randFloat > explorationRate) + " exploration: " + explorationRate + " randFloat: " + randFloat);
-        }if (randFloat> explorationRate){
-            return greedyLocation(in);
+        int i = 0;
+//        if(debugging) {
+//            System.out.println("choosing greedy action: " + (randFloat > explorationRate) + " exploration: " + explorationRate + " randFloat: " + randFloat);
+//        }
+        if (randFloat > explorationRate) {
+            List<IndexActLink> activationList = greedyLocation(in);
+            do {
+//                if (debugging){
+//                    System.out.println("Currently looking at goal #" + i + ", with activation: " + activationList.get(i).activation+ " and index: " + activationList.get(i).index);
+//                }
+                subGoals.updateSubGoal(key, activationList.get(i).index);
+                i++;
+            } while (!subGoals.checkSubGoal(key, model.getAgents().get(0))); //TODO: Again, only possible in single agent environment.
         } else {
-            return randomLocation();
+            do {
+                subGoals.updateSubGoal(key, randomLocation());
+            } while (!subGoals.checkSubGoal(key, model.getAgents().get(0))); //TODO: Again, only possible in single agent environment.
+        }
+        if (use_gui && debugging) {
+            subGoals.paintGoal(key);
         }
     }
+
+    private int getCost(){
+        int cost=0;
+        cost+=fit.totalFuelBurnt(model);
+        cost+=fit.totalMoveCost(model);
+        if (debugging){
+            System.out.println("Total fuel burnt: " + fit.totalFuelBurnt(model) + ", Total moveCost: " + fit.totalMoveCost(model) + ", Total cost: " + cost);
+        }
+        return cost;
+    }
+
 
     /**
      * Transform state to input vector.
@@ -370,6 +405,27 @@ public class DeepQLearner implements RLController, Serializable {
 
         }catch (Exception ex) {
             System.out.println(ex.getMessage());
+        }
+    }
+
+    /**
+     * Class needed to order a list containing the index of the distance and the activation of that distance.
+     */
+    private class IndexActLink{
+        private int index;
+        private double activation;
+
+        public IndexActLink(int i, double a){
+            index=i;
+            activation=a;
+        }
+
+        public double getActivation() {
+            return activation;
+        }
+
+        public int getIndex() {
+            return index;
         }
     }
 }

@@ -229,7 +229,7 @@ public class Agent implements Serializable{
     public void makeDirt() {
         Element cell = simulation.getAllCells().get(x).get(y);
         if(tryDirt()) {
-            energyLevel -= cell.getParameters().get("Clear Cost");
+            updateActionCost(Math.round(cell.getParameters().get("Clear Cost")), true);
             Element dirt = new Dirt(x, y, simulation.getParameter_manager());
             simulation.getAllCells().get(x).set(y, dirt);
             simulation.addToBarriers(dirt);
@@ -255,7 +255,7 @@ public class Agent implements Serializable{
 
     public void moveRight() {
         if(tryRight()) {
-            energyLevel -= determineMoveCost(simulation.getAllCells().get(x + 1).get(y));
+            updateActionCost(determineMoveCost(simulation.getAllCells().get(x + 1).get(y)), simulation.countMoveCost);
             x++;
             return;
         }
@@ -277,7 +277,7 @@ public class Agent implements Serializable{
 
     public void moveLeft() {
         if(tryLeft()) {
-            energyLevel -= determineMoveCost(simulation.getAllCells().get(x - 1).get(y));
+            updateActionCost(determineMoveCost(simulation.getAllCells().get(x - 1).get(y)), simulation.countMoveCost);
             x--;
             return;
         }
@@ -299,7 +299,7 @@ public class Agent implements Serializable{
 
     public void moveDown() {
         if(tryDown()) {
-            energyLevel -= determineMoveCost(simulation.getAllCells().get(x).get(y - 1));
+            updateActionCost(determineMoveCost(simulation.getAllCells().get(x).get(y - 1)), simulation.countMoveCost);
             y--;
             return;
         }
@@ -321,11 +321,18 @@ public class Agent implements Serializable{
 
     public void moveUp() {
         if(tryUp()) {
-            energyLevel -= determineMoveCost(simulation.getAllCells().get(x).get(y + 1));
+            updateActionCost(determineMoveCost(simulation.getAllCells().get(x).get(y + 1)), simulation.countMoveCost);
             y++;
             return;
         }
         doNothing();
+    }
+
+    private void updateActionCost(int cost, boolean addToActionCost){
+        energyLevel -= cost;
+        if (addToActionCost) {
+            simulation.addToActionCost(cost);
+        }
     }
 
     /**

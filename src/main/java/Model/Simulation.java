@@ -29,13 +29,15 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private boolean undo_redo;
 	private boolean running;
 	private boolean use_gui;
-	private boolean generateRandom = false;
+	private boolean generateRandom = true;
 	private Random rand;
 	private long randomizer_seed = 0;
 
 	// parameters related to fitness
 	int totalFuel = 0;
 	int totalFuelBurnt = 0;
+	int actionCosts = 0;
+	final static boolean countMoveCost = false; //If disabled, the cost of moving around is not added to the actionCost.
 	public int goalsHit = 0;
 
 	// parameters related to wind
@@ -130,16 +132,9 @@ public class Simulation extends Observable implements Serializable, Observer {
 	 * @param controller
 	 */
 	public Simulation(RLController controller) {
-		this(false);
-		if(generateRandom){
-			System.out.println("WARNING! GENERATING RANDOM MIGHT CAUSE NPE");
-		}
-		this.rlController = controller;
-		for (Agent a: agents) {
-			a.setController(rlController);
-		}
-		parameter_manager.changeParameter("Model", "Step Time", 0f);
+		this(controller, false);
 	}
+
 	public Simulation(RLController controller, boolean use_gui) {
 		this(use_gui);
 		if(generateRandom){
@@ -161,7 +156,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private void create_parameters() {
 		width = 50;
 		height = 50;
-		nr_agents = 1;
+		nr_agents = 5;
 		energyAgents = 100;
 		if (use_gui) {
 			step_time = 100;
@@ -553,5 +548,13 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public void applyUpdates(){
 		setChanged();
 		notifyObservers(cells);
+	}
+
+	public void addToActionCost(int cost){
+		actionCosts +=cost;
+	}
+
+	public int getActionCosts(){
+		return actionCosts;
 	}
 }

@@ -159,4 +159,13 @@ public class Fitness implements Serializable {
 		}
 		*/
 	}
+
+	/**
+	 * Added an additional fitness feature that returns the cost of the actions of the agent
+	 * @param model: the model in which the costs are made
+	 * @return
+	 */
+	public int totalMoveCost(Simulation model){
+		return model.getActionCosts();
+	}
 }

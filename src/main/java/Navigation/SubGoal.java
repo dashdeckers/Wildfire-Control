@@ -89,7 +89,7 @@ public class SubGoal implements Serializable {
         }
     }
 
-    private boolean checkPath() {
+    public boolean pathOnFire(){
         for (Element e : path) {
             if (e.isBurning()) {
                 return false;
@@ -97,6 +97,8 @@ public class SubGoal implements Serializable {
         }
         return true;
     }
+
+    public boolean pathExists() { return !(path==null||path.empty()); }
 
     /**
      * debugging function for checking the optimal path

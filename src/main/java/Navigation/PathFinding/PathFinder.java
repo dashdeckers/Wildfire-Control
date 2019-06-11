@@ -17,7 +17,7 @@ public abstract class PathFinder {
     public PathFinder(List<List<Element>> cells, Agent agent, Element goal, boolean cutPath) {
         this.cells = cells;
         this.agent = agent;
-        this.goal = goal;
+        this.goal = cells.get(goal.getX()).get(goal.getY());
         this.cutPath = cutPath;
     }
 

@@ -2,7 +2,6 @@ package Navigation;
 
 import Model.Agent;
 import Model.Elements.Element;
-import Model.Elements.Grass;
 
 import java.io.Serializable;
 import java.util.*;
@@ -14,12 +13,14 @@ public class OrthogonalSubGoals implements Serializable {
     List<List<Element>> cells;
     int fireX, fireY;
     String algorithm;
-    String nextGoal = "WW"; // not suitable when having multiple agents, temporarily used as ad hoc solution.
-    final int maxNrGoals = 8;
-
     Map<String,Double> distMap;
 
+    private Map<Agent, String> agentGoals; //semi-solution for multi agent problem
+    private String defaultKey = "WW"; //If no other goal can be selected resort to the default goal
+    final int maxNrGoals = 8;
+
     private HashMap<String, Element> subGoals;
+
 
     //used for directions of subgoals
     int dx[]={-1,-1,0,1,1,1,0,-1};
@@ -49,20 +50,22 @@ public class OrthogonalSubGoals implements Serializable {
      * @param cells
      */
     public OrthogonalSubGoals(int fireX, int fireY, double dist[], String algorithm, List<List<Element>> cells){
+
         this.fireX = fireX;
         this.fireY = fireY;
+        this.algorithm = algorithm;
+        this.cells = cells;
+
+        agentGoals = new HashMap<>();
+
         distMap = new HashMap<>();
         for (String key:compassMap.keySet()){
             distMap.put(key, dist[compassMap.get(key)]);
         }
-        this.algorithm = algorithm;
-        this.cells = cells;
+
         subGoals = new HashMap<>();
         for (String key: distMap.keySet()){
             subGoals.put(key, getCorrespondingCell(key));
-        }
-        for(String key : subGoals.keySet()){ //TODO: Remove when done debugging
-            subGoals.get(key).colorGoal();
         }
     }
 
@@ -79,37 +82,43 @@ public class OrthogonalSubGoals implements Serializable {
     public OrthogonalSubGoals(int fireX, int fireY, Map<String,Double> distMap, String algorithm, List<List<Element>> cells){
         this.fireX = fireX;
         this.fireY = fireY;
-        this.distMap = distMap;
-//        this.dist = new int[8];
-//        for (String key : this.distMap.keySet()){
-//            int index = compassMap.get(key);
-//            if (index>=0 && index<=7) {
-//                dist[index] = this.distMap.get(key);
-//            } else {
-//                System.out.println("Invalid key in distMap for dist[] initialisation");
-//            }
-//        }
         this.algorithm = algorithm;
         this.cells = cells;
+
+        agentGoals = new HashMap<>();
+
+        this.distMap = distMap;
+
         subGoals = new HashMap<>();
         for (String key: distMap.keySet()){
             subGoals.put(key, getCorrespondingCell(key));
-        }
-        for(String key : subGoals.keySet()){ //TODO: Remove when done debugging
-            subGoals.get(key).colorGoal();
         }
     }
 
     public void selectClosestSubGoal(Agent a){ //TODO: Use deep RL for this step as well
         double minDist= Double.MAX_VALUE;
+        String keyNearestGoal = null;
+        SubGoal nearestGoal = null;
         for (String key: distMap.keySet()){
             SubGoal temp = new SubGoal(cells, subGoals.get(key), algorithm, a, false);
             if(minDist>temp.getMoveCost()){
-                minDist = temp.getMoveCost();
-                nextGoal = key;
+                if(!agentGoals.containsValue(key)) {
+                    minDist = temp.getMoveCost();
+                    keyNearestGoal = key;
+                    nearestGoal = temp;
+                }
             }
         }
-        setNextGoal(a);
+        if (keyNearestGoal==null && nearestGoal == null){
+            keyNearestGoal = defaultKey;
+            nearestGoal = new SubGoal(cells, subGoals.get(keyNearestGoal), algorithm, a, false);
+        }
+        if (!agentGoals.keySet().contains(a)){
+            agentGoals.put(a, keyNearestGoal);
+        } else {
+            agentGoals.replace(a, keyNearestGoal);
+        }
+        updateSubGoal(a, keyNearestGoal, nearestGoal);
     }
 
     /**
@@ -118,26 +127,33 @@ public class OrthogonalSubGoals implements Serializable {
      * @param agent the agent for which the goals need to be updated.
      */
     public void setNextGoal(Agent agent){
+        if (!agentGoals.keySet().contains(agent)){
+            agentGoals.put(agent, "WW");
+        }
         if (!agentOnGoal(agent)){
-            Element goalCell = getCorrespondingCell(nextGoal);
+            Element goalCell = getCorrespondingCell(agentGoals.get(agent));
             agent.setSubGoal(new SubGoal(cells, goalCell, algorithm, agent, false));
         } else {
-            String bufferGoal = compassMap
+            String nextGoal = compassMap
                     .entrySet()
                     .stream()
-                    .filter(e -> e.getValue() == (compassMap.get(nextGoal)+1)%maxNrGoals)
+                    .filter(e -> e.getValue() == ((compassMap.get(agentGoals.get(agent)) + 1) % maxNrGoals))
                     .findAny()
                     .get()
                     .getKey();
-            nextGoal=bufferGoal;
             Element goalCell = getCorrespondingCell(nextGoal);
-            agent.setSubGoal(new SubGoal(cells, goalCell, algorithm, agent, true));
+            updateSubGoal(agent, nextGoal, new SubGoal(cells, goalCell, algorithm, agent, true));
         }
+    }
+
+    public void updateSubGoal(Agent agent, String key, SubGoal goal){
+        agentGoals.replace(agent,key);
+        agent.setSubGoal(goal);
     }
 
 
     private boolean agentOnGoal(Agent agent){
-        return (agent.getX() == xOfGoal(nextGoal) && agent.getY() == yOfGoal(nextGoal));
+        return (agent.getX() == xOfGoal(agentGoals.get(agent)) && agent.getY() == yOfGoal(agentGoals.get(agent)));
     }
 
 
@@ -181,14 +197,33 @@ public class OrthogonalSubGoals implements Serializable {
         return cells.get(xDist).get(yDist);
     }
 
-    public void updateDist(String key, double x) {
-        Double oldValue = distMap.replace(key, x);
+    public void updateSubGoal(String key, double dist) {
+        Double oldValue = distMap.replace(key, dist);
         if (oldValue == null){
             System.out.println("distMap value not updated successfully!! Selected key : " + key + ", complete keySet: " + Arrays.toString(distMap.keySet().toArray()));
+            return;
+
         }
+        subGoals.put(key, getCorrespondingCell(key));
     }
 
-    public void setNextGoal(String nextGoal) {
-        this.nextGoal = nextGoal;
+    /**
+     * function used to check whether a agent is able to reach the subGoal
+     * @param key: The goal which needs to be checked
+     * @param a: The agent that is supposed to reach the goal.
+     * @return
+     */
+    public boolean checkSubGoal(String key, Agent a){
+        SubGoal goal = new SubGoal(cells, subGoals.get(key), algorithm, a, false);
+        System.out.println("Currently looking at subGoal: " + subGoals.get(key).toCoordinates());
+        return goal.pathExists();
+    }
+
+    /**
+     * Debugging function. Removes the goal associated with the key
+     * @param key: the to goal to be colored.
+     */
+    public void paintGoal(String key){
+        subGoals.get(key).colorGoal();
     }
 }

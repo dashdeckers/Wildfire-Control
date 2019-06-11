@@ -8,14 +8,6 @@ import java.util.*;
 
 public class DijkstraShortestPath extends PathFinder implements Serializable {
 
-    public List<List<Element>> cells;
-    public Agent agent;
-    public Element goal;
-    //public Stack<Element> path;
-    public double finalMoveCost;
-
-    public boolean cutPath;
-
     /*
     For debugging: If set to true, the generated path will be painted gray
      */
@@ -63,10 +55,8 @@ public class DijkstraShortestPath extends PathFinder implements Serializable {
 
         Node k = st.remove();
         Element e = k.getElement();
-
         //Continue until subGoal is reached, or if there are no states nodes to visit.
         do {
-
             for (int i = 0; i<4; i++){
 
                 int x = e.getX() + dx[i];
