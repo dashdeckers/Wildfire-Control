@@ -23,8 +23,8 @@ public class OrthogonalSubGoals implements Serializable {
 
 
     //used for directions of subgoals
-    int dx[]={-1,-1,0,1,1,1,0,-1};
-    int dy[]={0,-1,-1,-1,0,1,1,1};
+    final int dx[]={-1,-1,0,1,1,1,0,-1};
+    final int dy[]={0,-1,-1,-1,0,1,1,1};
 
     //Might be usefull when linking the goal direction implementation of the features class to the implementation
     // in this class. It simply maps NESW coordinates to an index in the dx dy arrays
@@ -95,7 +95,13 @@ public class OrthogonalSubGoals implements Serializable {
         }
     }
 
-    public void selectClosestSubGoal(Agent a){ //TODO: Use deep RL for this step as well
+    /**
+     * This function will assign the subGoal currently closest to the agent, if that goal has not been assigned to a
+     * different agent. If it has already been assigned to another agent, look at the second closest goal. Continue
+     * this until an unassigned goal has been reached.
+     * @param a: The agent which needs a new subGoal.
+     */
+    public void selectClosestSubGoal(Agent a){ //TODO: Use RL for this step as well
         double minDist= Double.MAX_VALUE;
         String keyNearestGoal = null;
         SubGoal nearestGoal = null;
@@ -122,7 +128,7 @@ public class OrthogonalSubGoals implements Serializable {
     }
 
     /**
-     * give an agent a new subGoal. If it already is on a subgoal, start cutting towards another subgoal. If not on
+     * Give an agent a new subGoal. If it already is on a subgoal, start cutting towards another subgoal. If not on
      * the current subGoal, move towards it.
      * @param agent the agent for which the goals need to be updated.
      */
@@ -146,12 +152,23 @@ public class OrthogonalSubGoals implements Serializable {
         }
     }
 
-    public void updateSubGoal(Agent agent, String key, SubGoal goal){
-        agentGoals.replace(agent,key);
+    /**
+     * Update the goal of an agent and update the goal assigned to the agent in the agentGoals HashMap
+     * @param agent: agent which goal needs to be updated.
+     * @param subGoalKey: The key representing the subGoal.
+     * @param goal: The actual subGoal.
+     */
+    public void updateSubGoal(Agent agent, String subGoalKey, SubGoal goal){
+        agentGoals.replace(agent,subGoalKey);
         agent.setSubGoal(goal);
     }
 
 
+    /**
+     * Simple check to see if the agent is standing on its current subGoal
+     * @param agent The agents that needs to be checked.
+     * @return
+     */
     private boolean agentOnGoal(Agent agent){
         return (agent.getX() == xOfGoal(agentGoals.get(agent)) && agent.getY() == yOfGoal(agentGoals.get(agent)));
     }
@@ -176,7 +193,11 @@ public class OrthogonalSubGoals implements Serializable {
     }
 
 
-
+    /**
+     * Determine which cell belongs to the desired subGoal
+     * @param key: the key which indicates the selected subgoal, i.e "WW", "SE" ect.
+     * @return
+     */
     private Element getCorrespondingCell(String key){
 
         int xDist = xOfGoal(key);
@@ -197,6 +218,12 @@ public class OrthogonalSubGoals implements Serializable {
         return cells.get(xDist).get(yDist);
     }
 
+    /**
+     * Update the distance of a subGoal in the distMap. If the to be updated goal is present in the keySet of distMap,
+     * print an error and abort.
+     * @param key: The key which represents the goal to be updated
+     * @param dist: The new distance of the subGoal.
+     */
     public void updateSubGoal(String key, double dist) {
         Double oldValue = distMap.replace(key, dist);
         if (oldValue == null){
@@ -215,13 +242,12 @@ public class OrthogonalSubGoals implements Serializable {
      */
     public boolean checkSubGoal(String key, Agent a){
         SubGoal goal = new SubGoal(cells, subGoals.get(key), algorithm, a, false);
-        System.out.println("Currently looking at subGoal: " + subGoals.get(key).toCoordinates());
         return goal.pathExists();
     }
 
     /**
      * Debugging function. Removes the goal associated with the key
-     * @param key: the to goal to be colored.
+     * @param key: the key to goal to be colored.
      */
     public void paintGoal(String key){
         subGoals.get(key).colorGoal();
