@@ -69,7 +69,7 @@ public class DijkstraShortestPath extends PathFinder implements Serializable {
                 /*
                 Check is the current action will provide an improvement to the cost matrix
                  */
-                if (cost[x][y]>cost[e.getX()][e.getY()]+getMoveCost(x,y)){
+                if (cost[x][y]>(cost[e.getX()][e.getY()]+getMoveCost(x,y))){
 
                     /*
                     If the cell had been visited before, remove the node corresponding to the cell from the queue
@@ -93,6 +93,8 @@ public class DijkstraShortestPath extends PathFinder implements Serializable {
 
         if (!e.equals(goal)){
             System.out.println("No path found :(");
+            System.out.println("Trying to move agent #" + agent.getId() + " to " + goal.toCoordinates());
+            throw new ArithmeticException("Path does not exists");
         } else {
             finalMoveCost = cost[e.getX()][e.getY()];
             makePath(k);
@@ -100,13 +102,15 @@ public class DijkstraShortestPath extends PathFinder implements Serializable {
     }
 
     /**
-     * Not absolutely necessary, but makes the overall script more readable
+     * In order to prevent the agent from moving back on the path, the cost of moving over an already reached goal or
+     * burning element is significantly raised
      * @param x
      * @param y
      * @return
      */
     private int getMoveCost(int x, int y){
-        return agent.determineMoveCost(cells.get(x).get(y));
+        Element e = cells.get(x).get(y);
+        return ((e.isReachedAsGoal()||e.isBurning()) ? 9999 : agent.determineMoveCost(cells.get(x).get(y)));
     }
 
 

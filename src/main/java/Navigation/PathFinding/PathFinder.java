@@ -22,7 +22,7 @@ public abstract class PathFinder {
     }
 
     abstract public Stack<Element> getPath();
-    abstract public void findPath();
+    abstract public void findPath() throws ArithmeticException;
     public double getFinalMoveCost(){
         if (!path.empty()) {
             return finalMoveCost;

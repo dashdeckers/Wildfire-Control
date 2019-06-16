@@ -42,10 +42,13 @@ public class SubGoal implements Serializable {
             default :
                 pf = new BresenhamPath(cells, agent, goal, cutPath);
         }
-        pf.findPath();
-        path = pf.getPath();
-        moveCost = pf.getFinalMoveCost();
-        //printPath(path);
+        try {
+            pf.findPath();
+            path = pf.getPath();
+            moveCost = pf.getFinalMoveCost();
+        } catch (Exception e){
+            moveCost = Double.MAX_VALUE;
+        }
     }
 
     /**

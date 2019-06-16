@@ -15,7 +15,9 @@ public class MLP implements Serializable {
 
     private Random random;
 
-    public MLP(int inputNr, int hiddenNr, int outputNr, double alpha, int batchSize) {
+    public MLP(int inputNr, int hiddenNr, int outputNr, double alpha, int batchSize, long randSeed) {
+        random = new Random(randSeed);
+        np.setSeed(randSeed);
         inputHiddenWeights = np.random(hiddenNr, inputNr);
         hiddenOutputWeights = np.random(outputNr,hiddenNr);
         hiddenBias = new double[hiddenNr][batchSize];
@@ -23,8 +25,6 @@ public class MLP implements Serializable {
 
         this.alpha = alpha;
         this.batchSize = batchSize;
-
-        random = new Random();
     }
 
     public void updateMLP(double in[][], double out[][]){

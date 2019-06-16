@@ -751,22 +751,27 @@ public class Features implements Serializable {
      * Currently only a rectangle is fitted, but an implementation which supports octagons can be implemnted.
      * @param model
      * @param use_octagon
+     * @param a
      * @return
      */
-    public double[] cornerVectors(Simulation model, boolean use_octagon){
+    public double[] cornerVectors(Simulation model, Agent a, boolean use_octagon){
         //Retrieve two corners of a rectangle to fit the fire
         double[] square_c = fit_square(model);
         //Turn those two corners into four corners (appears to improve performance but maybe it shouldn't)
         double[] square_expanded = {square_c[0], square_c[1], square_c[0], square_c[3], square_c[2], square_c[1], square_c[2], square_c[3]};
         for(int i = 0; i< square_expanded.length; i+=2){
             //Turn the locations into vectors relative to agent
-            square_expanded[i] = square_expanded[i] - model.getAgents().get(0).getX();
-            square_expanded[i+1] = square_expanded[i+1] - model.getAgents().get(0).getY();
+            square_expanded[i] = square_expanded[i] - a.getX();
+            square_expanded[i+1] = square_expanded[i+1] - a.getY();
         }
 
 
         //Normalize the vectors and register the distances in different nodes
         return extractNormalize(square_expanded);
+    }
+
+    public double[] cornerVectors(Simulation model, boolean use_octagon){
+        return cornerVectors(model, model.getAgents().get(0), use_octagon);
     }
 
 }

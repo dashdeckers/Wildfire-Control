@@ -33,6 +33,8 @@ public class BresenhamPath extends PathFinder {
         x = x0;
         y = y0;
 
+        //if ()
+
         this.path = new Stack<>();
 
         if (dy>=0) {

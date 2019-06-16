@@ -22,7 +22,7 @@ public class House extends Element
         this.type = "House";
         this.r = 1;
         this.isBurnable = true;
-        this.color = color.WHITE;
+        this.color = Color.WHITE;
         this.burnIntensity = 5;
         this.ignitionThreshold = 1;
         this.fuel = starting_fuel = 25;

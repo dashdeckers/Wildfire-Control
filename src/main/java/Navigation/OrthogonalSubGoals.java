@@ -15,11 +15,12 @@ public class OrthogonalSubGoals implements Serializable {
     String algorithm;
     Map<String,Double> distMap;
 
-    private Map<Agent, String> agentGoals; //semi-solution for multi agent problem
+    private static Map<Agent, String> agentGoals; //semi-solution for multi agent problem
     private String defaultKey = "WW"; //If no other goal can be selected resort to the default goal
     final int maxNrGoals = 8;
 
     private HashMap<String, Element> subGoals;
+    private HashSet<String> goalsReached;
 
 
     //used for directions of subgoals
@@ -57,6 +58,7 @@ public class OrthogonalSubGoals implements Serializable {
         this.cells = cells;
 
         agentGoals = new HashMap<>();
+        goalsReached= new HashSet<>();
 
         distMap = new HashMap<>();
         for (String key:compassMap.keySet()){
@@ -86,6 +88,7 @@ public class OrthogonalSubGoals implements Serializable {
         this.cells = cells;
 
         agentGoals = new HashMap<>();
+        goalsReached= new HashSet<>();
 
         this.distMap = distMap;
 
@@ -104,31 +107,36 @@ public class OrthogonalSubGoals implements Serializable {
     public void selectClosestSubGoal(Agent a){ //TODO: Use RL for this step as well
         double minDist= Double.MAX_VALUE;
         String keyNearestGoal = null;
-        SubGoal nearestGoal = null;
-        for (String key: distMap.keySet()){
-            SubGoal temp = new SubGoal(cells, subGoals.get(key), algorithm, a, false);
-            if(minDist>temp.getMoveCost()){
-                if(!agentGoals.containsValue(key)) {
-                    minDist = temp.getMoveCost();
-                    keyNearestGoal = key;
-                    nearestGoal = temp;
+        System.out.println("Current goals in goalsReached:");
+        for (String s:goalsReached){
+            System.out.print(s + "+");
+        }
+        for (String key: distMap.keySet()){ //TODO: find out why the if statements below returns true for WW in current setting
+            if (!(goalsReached.contains(getNextGoal(key))||agentDiggingTowardGoal(getNextGoal(key)))) { //Make sure only goals are assigned that have not been reached jet.
+                SubGoal temp = new SubGoal(cells, subGoals.get(key), algorithm, a, false);
+                if (minDist > temp.getMoveCost()) {
+                    if (!agentGoals.containsValue(key)||(Collections.frequency(new ArrayList<String>(agentGoals.values()), key)==1 && agentDiggingTowardGoal(key))) { //TODO: make sure that at most one agent is moving towards this goal, and that this agent is not cutting.
+                        minDist = temp.getMoveCost();
+                        keyNearestGoal = key;
+                    }
                 }
+                System.out.println("Tested key: " + key);
             }
         }
-        if (keyNearestGoal==null && nearestGoal == null){
+        if (keyNearestGoal==null){
+            System.out.println("Going to default goal");
             keyNearestGoal = defaultKey;
-            nearestGoal = new SubGoal(cells, subGoals.get(keyNearestGoal), algorithm, a, false);
         }
         if (!agentGoals.keySet().contains(a)){
             agentGoals.put(a, keyNearestGoal);
         } else {
             agentGoals.replace(a, keyNearestGoal);
         }
-        updateSubGoal(a, keyNearestGoal, nearestGoal);
+        updateAgentGoal(a, keyNearestGoal, subGoals.get(keyNearestGoal), false);
     }
 
     /**
-     * Give an agent a new subGoal. If it already is on a subgoal, start cutting towards another subgoal. If not on
+     * Give an agent a new subGoal. If it reached its current subgoal, start cutting towards another subgoal. If not on
      * the current subGoal, move towards it.
      * @param agent the agent for which the goals need to be updated.
      */
@@ -137,35 +145,78 @@ public class OrthogonalSubGoals implements Serializable {
             agentGoals.put(agent, "WW");
             System.out.println("NO GOAL INITIALISED FOR AGENT #" + agent.getId());
         }
+        Element goalCell = getCorrespondingCell(agentGoals.get(agent));
         if (!agentOnGoal(agent)){
-            Element goalCell = getCorrespondingCell(agentGoals.get(agent));
-            agent.setSubGoal(new SubGoal(cells, goalCell, algorithm, agent, false));
+            updateAgentGoal(agent, agentGoals.get(agent), goalCell, false);
         } else {
-            String nextGoal = getNextGoal(agent);
-            Element goalCell = getCorrespondingCell(nextGoal);
-            updateSubGoal(agent, nextGoal, new SubGoal(cells, goalCell, algorithm, agent, true));
+            if (agent.isCutting()) { // Only add the goal to the reached goal, it the goal was reached by a cutting agent.
+                goalsReached.add(agentGoals.get(agent));
+            }
+            System.out.println("goalsReached.length: " + goalsReached.size());
+            String nextGoal = getNextGoal(agentGoals.get(agent));
+            if (goalsReached.contains(nextGoal)||agentDiggingTowardGoal(nextGoal)){ //If the goal has already been reached or another agent is cutting towards it, go to another goal.
+                selectClosestSubGoal(agent);
+            } else { //Otherwise, start cutting towards next goal.
+                goalCell = getCorrespondingCell(nextGoal);
+                updateAgentGoal(agent, nextGoal, goalCell, true);
+            }
         }
     }
 
     public String getNextGoal(Agent a){
+        return getNextGoal(agentGoals.get(a));
+    }
+
+    public String getNextGoal(String k){
+        return getGoalKey((compassMap.get(k) + 1) % maxNrGoals);
+    }
+
+
+    public String getGoalKey(int i){
         return compassMap
                 .entrySet()
                 .stream()
-                .filter(e -> e.getValue() == ((compassMap.get(agentGoals.get(a)) + 1) % maxNrGoals))
+                .filter(e -> e.getValue() == i)
                 .findAny()
                 .get()
                 .getKey();
+    }
+
+
+    private boolean agentDiggingTowardGoal(String key){
+        List<Map.Entry<Agent, String>>  entries=  agentGoals //Getting all agents which have the goal "key" assigned to it
+                .entrySet()
+                .stream()
+                .filter(e -> e.getValue().equals(key))
+                .collect(Collectors.toList());
+
+        for (Map.Entry<Agent, String> e : entries){
+            if (e.getKey().isCutting()){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
      * Update the goal of an agent and update the goal assigned to the agent in the agentGoals HashMap
      * @param agent: agent which goal needs to be updated.
      * @param subGoalKey: The key representing the subGoal.
-     * @param goal: The actual subGoal.
+     * @param goalCell: The actual subGoal.
+     * @param cuttingToGoal: Whether or not the agent should cut towards the goal.
      */
-    public void updateSubGoal(Agent agent, String subGoalKey, SubGoal goal){
-        agentGoals.replace(agent,subGoalKey);
-        agent.setSubGoal(goal);
+    public void updateAgentGoal(Agent agent, String subGoalKey, Element goalCell, boolean cuttingToGoal){
+        if (agentGoals.keySet().contains(agent)) {
+            agentGoals.replace(agent, subGoalKey);
+        } else {
+            agentGoals.put(agent, subGoalKey);
+        }
+        System.out.println("Agent #" + agent.getId() + " now going to subGoal " + subGoalKey + " at coordinates " + subGoals.get(subGoalKey).toCoordinates());
+        agent.setSubGoal(new SubGoal(cells, goalCell, algorithm, agent, cuttingToGoal));
+        agent.setCutting(cuttingToGoal); //In oder to keep track if an agent reached its goal by cutting, the agent is either cutting or not
+//        if (cuttingToGoal){ //If agent needs to start cutting, the current cell on which the agent is standing is a sub goal as the agent will only start cutting from a subGoal
+//            cells.get(agent.getX()).get(agent.getX()).setReachedAsGoal(true);
+//        }
     }
 
 
@@ -203,7 +254,7 @@ public class OrthogonalSubGoals implements Serializable {
      * @param key: the key which indicates the selected subgoal, i.e "WW", "SE" ect.
      * @return
      */
-    private Element getCorrespondingCell(String key){
+    public Element getCorrespondingCell(String key){
 
         int xDist = xOfGoal(key);
         int yDist = yOfGoal(key);
@@ -234,9 +285,11 @@ public class OrthogonalSubGoals implements Serializable {
         if (oldValue == null){
             System.out.println("distMap value not updated successfully!! Selected key : " + key + ", complete keySet: " + Arrays.toString(distMap.keySet().toArray()));
             return;
-
         }
-        subGoals.put(key, getCorrespondingCell(key));
+        if (subGoals.keySet().contains(key)){
+            subGoals.replace(key, getCorrespondingCell(key));} else {
+            subGoals.put(key, getCorrespondingCell(key));
+        }
     }
 
     /**
@@ -256,5 +309,21 @@ public class OrthogonalSubGoals implements Serializable {
      */
     public void paintGoal(String key){
         subGoals.get(key).colorGoal();
+    }
+
+    public Map<Agent, String> getAgentGoals() {
+        return agentGoals;
+    }
+
+    public boolean isGoalReached(String key) {
+        return goalsReached.contains(key);
+    }
+
+    public boolean isGoalOfAgent(String key) {
+        return  agentGoals.values().contains(key);
+    }
+
+    public void removeGoalReached(String key){
+        goalsReached.remove(key);
     }
 }

@@ -23,6 +23,7 @@ public class Agent implements Serializable{
     private int id;
     protected String type;
     private boolean isAlive;
+    private boolean isCutting;
     private int energyLevel;
     private Color color;
 
@@ -48,6 +49,7 @@ public class Agent implements Serializable{
 
     private void initializeParameters(){
         this.isAlive=true;
+        this.isCutting=false;
         this.color=Color.YELLOW;
     }
 
@@ -64,6 +66,8 @@ public class Agent implements Serializable{
             //TODO! Can't we use the Element.moveSpeed == 0 as defined around Element ~68
             switch(element.getType()) {
                 case "Water":
+                    return false;
+                case "House":
                     return false;
                 default:
                     return true;
@@ -389,5 +393,13 @@ public class Agent implements Serializable{
 
     public int getEnergyLevel() {
         return energyLevel;
+    }
+
+    public boolean isCutting() {
+        return isCutting;
+    }
+
+    public void setCutting(boolean cutting) {
+        isCutting = cutting;
     }
 }

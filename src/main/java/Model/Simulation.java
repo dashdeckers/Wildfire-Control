@@ -34,6 +34,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private long randomizer_seed = 0;
 
 	// parameters related to fitness
+	int agentDeathPenalty = 0;
 	int totalFuel = 0;
 	int totalFuelBurnt = 0;
 	int actionCosts = 0;
@@ -87,11 +88,6 @@ public class Simulation extends Observable implements Serializable, Observer {
 			parameter_manager.changeParameter("Model", "Height", 10f);
 			generator.plainMap();
 		}
-
-		// Generate plan for agent(s)
-//		if (useSubGoal){
-//			applySubgoals();
-//		}
 
 		findActiveCells();
 		setChanged();
@@ -154,10 +150,10 @@ public class Simulation extends Observable implements Serializable, Observer {
 	 * If you want to access the value of a parameter do parameters.get("Parameter name").floatValue()
 	 */
 	private void create_parameters() {
-		width = 50;
-		height = 50;
-		nr_agents = 5;
-		energyAgents = 100;
+		width = 20; //50
+		height = 20; //50
+		nr_agents = 2;
+		energyAgents = 20;
 		if (use_gui) {
 			step_time = 100;
 		} else {
@@ -168,6 +164,8 @@ public class Simulation extends Observable implements Serializable, Observer {
 		wVecX = -1;
 		wVecY = 0;
 		windSpeed = 0;
+
+		agentDeathPenalty = 1000000; //might be a bit to extreme for smaller maps
 	}
 
 
@@ -337,7 +335,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 		for (Agent a : agents){
 			String status = a.timeStep();
 			if (status.equals("Dead")){
-
+				totalFuelBurnt += agentDeathPenalty;
 				agentsToRemove.add(a);
 			}
 		}

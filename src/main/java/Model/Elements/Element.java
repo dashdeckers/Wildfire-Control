@@ -58,6 +58,7 @@ public abstract class Element implements Serializable, Observer {
 
 	boolean isBurnable = false;
 	private boolean isBurning = false;
+	private boolean reachedAsGoal = false;
 
 	ParameterManager parameterManager;
 
@@ -369,4 +370,11 @@ public abstract class Element implements Serializable, Observer {
 	 */
 	public void colorGoal() {color = Color.CYAN; }
 
+	public boolean isReachedAsGoal() {
+		return reachedAsGoal;
+	}
+
+	public void setReachedAsGoal(boolean reachedAsGoal) {
+		this.reachedAsGoal = reachedAsGoal;
+	}
 }
