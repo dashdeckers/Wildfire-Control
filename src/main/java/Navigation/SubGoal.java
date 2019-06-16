@@ -44,7 +44,7 @@ public class SubGoal implements Serializable {
         }
         pf.findPath();
         path = pf.getPath();
-        moveCost = pf.finalMoveCost;
+        moveCost = pf.getFinalMoveCost();
         //printPath(path);
     }
 

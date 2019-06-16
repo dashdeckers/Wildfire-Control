@@ -337,6 +337,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 		for (Agent a : agents){
 			String status = a.timeStep();
 			if (status.equals("Dead")){
+
 				agentsToRemove.add(a);
 			}
 		}

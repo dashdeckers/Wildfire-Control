@@ -20,7 +20,7 @@ public class Tree extends Element
 	public void initializeParameters()
 	{
 		this.type = "Tree";
-		this.r = 3;
+		this.r = 1;
 		this.isBurnable = true;
 		this.color = DARK_GREEN;
 		this.burnIntensity = 8;

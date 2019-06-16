@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 
 
 public class DeepQLearner implements RLController, Serializable {
-    protected int iter = 50;
+    protected int iter = 1;
     protected float explorationRate = 0.10f;
     protected float exploreDiscount = explorationRate/iter;
     protected float gamma = 0.99f;
@@ -34,6 +34,8 @@ public class DeepQLearner implements RLController, Serializable {
     private int nrHidden; //TODO: create compatibility for dynamic number of hidden layers
     private int sizeHidden = 50;
     private int batchSize = 1;
+    private HashMap<String, double[]> goalToInputMap;
+    private int inputListSize = 8;
 
 
     private int batchNr;
@@ -47,7 +49,7 @@ public class DeepQLearner implements RLController, Serializable {
 
     //Variables needed for debugging:
     final static boolean use_gui = false;
-    final static boolean debugging = false;
+    final static boolean debugging = true;
     private final static int timeActionShown = 100;
     private int showActionFor;
 
@@ -74,6 +76,8 @@ public class DeepQLearner implements RLController, Serializable {
         f = new Features();
         fit = new Fitness();
         lowestCost = Integer.MAX_VALUE;
+
+        goalToInputMap = new HashMap<>();
 
         initNN();
 
@@ -122,6 +126,9 @@ public class DeepQLearner implements RLController, Serializable {
         }
 
         model.start();
+        if (debugging){
+            System.out.println("Final number of sub goals assigned: " + goalToInputMap.keySet().size());
+        }
         int cost = getCost();
 
         if (model.getAgents().isEmpty()){ //TODO: Again, should really try to come up with better solution.
@@ -172,15 +179,25 @@ public class DeepQLearner implements RLController, Serializable {
         System.out.println(Arrays.toString(oldState)+" -> "+Arrays.toString(oldValue));
     }
 
+    private void updateDistMap(String key){
+        if (!goalToInputMap.keySet().contains(key)){
+            goalToInputMap.put(key, getInputSet(key));
+        } else {
+            goalToInputMap.replace(key,getInputSet(key));
+        }
+        setDistance(getInputSet(key), key);
+    }
+
     private void updateDistMap(){
         for (String key : distMap.keySet()){
-            setDistance(getInputSet(key), key);
+            updateDistMap(key);
         }
     }
 
     @Override
     public void pickAction(Agent a) {
         if (a.onGoal()){
+            updateDistMap(subGoals.getNextGoal(a));
             subGoals.setNextGoal(a);
             //goalsHit++;//TODO: TRIGGER REWARD FUNCTION
         }

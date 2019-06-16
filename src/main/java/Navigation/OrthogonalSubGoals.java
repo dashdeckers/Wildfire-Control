@@ -135,21 +135,26 @@ public class OrthogonalSubGoals implements Serializable {
     public void setNextGoal(Agent agent){
         if (!agentGoals.keySet().contains(agent)){
             agentGoals.put(agent, "WW");
+            System.out.println("NO GOAL INITIALISED FOR AGENT #" + agent.getId());
         }
         if (!agentOnGoal(agent)){
             Element goalCell = getCorrespondingCell(agentGoals.get(agent));
             agent.setSubGoal(new SubGoal(cells, goalCell, algorithm, agent, false));
         } else {
-            String nextGoal = compassMap
-                    .entrySet()
-                    .stream()
-                    .filter(e -> e.getValue() == ((compassMap.get(agentGoals.get(agent)) + 1) % maxNrGoals))
-                    .findAny()
-                    .get()
-                    .getKey();
+            String nextGoal = getNextGoal(agent);
             Element goalCell = getCorrespondingCell(nextGoal);
             updateSubGoal(agent, nextGoal, new SubGoal(cells, goalCell, algorithm, agent, true));
         }
+    }
+
+    public String getNextGoal(Agent a){
+        return compassMap
+                .entrySet()
+                .stream()
+                .filter(e -> e.getValue() == ((compassMap.get(agentGoals.get(a)) + 1) % maxNrGoals))
+                .findAny()
+                .get()
+                .getKey();
     }
 
     /**

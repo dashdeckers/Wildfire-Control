@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 import java.lang.Math;
 
 @DeepCopyState
-public class Features implements MutableState, Serializable {
+public class Features implements Serializable {
 
     public double previousAction = -1;
 
@@ -769,95 +769,4 @@ public class Features implements MutableState, Serializable {
         return extractNormalize(square_expanded);
     }
 
-
-    /**
-     *  Methods and fields related to BURLAP
-     */
-
-    public double A_N, A_S, A_E, A_W, D_N, D_S, D_E, D_W, X, Y;
-    private static String AN_K = "AN", AS_K = "AS", AE_K = "AE", AW_K = "AW", DN_K = "DN", DS_K = "DS", DE_K = "DE", DW_K = "DW", X_K = "X", Y_K = "Y";
-    private final static List<Object> keys = Arrays.asList(AN_K, AS_K, AE_K, AW_K, DN_K, DS_K, DE_K, DW_K, X_K, Y_K);
-
-    // somewhere here, we need to call a function to get all these values from the simulation
-    public Features(double A_N, double A_S, double A_E, double A_W, double D_N, double D_S, double D_E, double D_W, double X, double Y) {
-        this.A_N = A_N;
-        this.A_S = A_S;
-        this.A_E = A_E;
-        this.A_W = A_W;
-        this.D_N = D_N;
-        this.D_S = D_S;
-        this.D_E = D_E;
-        this.D_W = D_W;
-        this.X = X;
-        this.Y = Y;
-    }
-
-    @Override
-    public MutableState set(Object variableKey, Object value) {
-        if (variableKey.equals(A_N)) {
-            this.A_N = StateUtilities.stringOrNumber(value).doubleValue();
-        } else if (variableKey.equals(A_S)) {
-            this.A_S = StateUtilities.stringOrNumber(value).doubleValue();
-        } else if (variableKey.equals(A_E)) {
-            this.A_E = StateUtilities.stringOrNumber(value).doubleValue();
-        } else if (variableKey.equals(A_W)) {
-            this.A_W = StateUtilities.stringOrNumber(value).doubleValue();
-        } else if (variableKey.equals(D_N)) {
-            this.D_N = StateUtilities.stringOrNumber(value).doubleValue();
-        } else if (variableKey.equals(D_S)) {
-            this.D_S = StateUtilities.stringOrNumber(value).doubleValue();
-        } else if (variableKey.equals(D_E)) {
-            this.D_E = StateUtilities.stringOrNumber(value).doubleValue();
-        } else if (variableKey.equals(D_W)) {
-            this.D_W = StateUtilities.stringOrNumber(value).doubleValue();
-        } else if (variableKey.equals(X)) {
-            this.X = StateUtilities.stringOrNumber(value).doubleValue();
-        } else if (variableKey.equals(Y)) {
-            this.Y = StateUtilities.stringOrNumber(value).doubleValue();
-        } else {
-            throw new UnknownKeyException(variableKey);
-        }
-        return this;
-    }
-
-    @Override
-    public List<Object> variableKeys() {
-        return keys;
-    }
-
-    @Override
-    public Object get(Object variableKey) {
-        if (variableKey.equals(A_N)) {
-            return A_N;
-        } else if (variableKey.equals(A_S)) {
-            return A_S;
-        } else if (variableKey.equals(A_E)) {
-            return A_E;
-        } else if (variableKey.equals(A_W)) {
-            return A_W;
-        } else if (variableKey.equals(D_N)) {
-            return D_N;
-        } else if (variableKey.equals(D_S)) {
-            return D_S;
-        } else if (variableKey.equals(D_E)) {
-            return D_E;
-        } else if (variableKey.equals(D_W)) {
-            return D_W;
-        } else if (variableKey.equals(X)) {
-            return X;
-        } else if (variableKey.equals(Y)) {
-            return Y;
-        }
-        throw new UnknownKeyException(variableKey);
-    }
-
-    @Override
-    public Features copy() {
-        return new Features(A_N, A_S, A_E, A_W, D_N, D_S, D_E, D_W, X, Y);
-    }
-
-    @Override
-    public String toString() {
-        return StateUtilities.stateToString(this);
-    }
 }
