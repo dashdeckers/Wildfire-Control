@@ -21,11 +21,11 @@ import java.util.stream.Stream;
 
 
 public class DeepQLearner implements RLController, Serializable {
-    protected int iter = 1;
+    protected int iter = 10;
     protected float explorationRate = 0.00f;
     protected float exploreDiscount = explorationRate/iter;
     protected float gamma = 0.99f;
-    protected float alpha = 0.1f;
+    protected float alpha = 0.001f;
 
 
     //parameters for neural network construction.
@@ -34,7 +34,6 @@ public class DeepQLearner implements RLController, Serializable {
     private int nrHidden; //TODO: create compatibility for dynamic number of hidden layers
     private int sizeHidden = 50;
     private int batchSize = 1;
-    private HashMap<String, InputCost> goalToCostMap;
 
     private int batchNr;
     private double inputBatch[][];
@@ -47,11 +46,10 @@ public class DeepQLearner implements RLController, Serializable {
 
     //Variables needed for debugging:
     final static boolean use_gui = true;
-    final static boolean debugging = false;
-    final static boolean debugging2 = true;
-    private final static int timeActionShown = 150;
+    final static boolean debugging = true;
+    private final static int timeActionShown = 0;
     private int showActionFor;
-    private long randSeed = 5;
+    private long randSeed = 7;
     /* IF RANDOM SEED IN SIMULATION CLASS == 0
      0 -> d=0
      1 -> d=5
@@ -60,6 +58,7 @@ public class DeepQLearner implements RLController, Serializable {
      4 -> d=8
      5 -> d=2 (if the fire is sufficiently far away)
      6 -> d=5
+     6 -> d=6
      */
 
     private Agent backup; //If the final agent has died, the MLP still needs an agent to determine the inputVector of the MLP
@@ -83,13 +82,21 @@ public class DeepQLearner implements RLController, Serializable {
             new AbstractMap.SimpleEntry<>("NW", 0.0))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
+    private Map<String, InputCost> goalToCostMap= Stream.of(
+            new AbstractMap.SimpleEntry<>("WW", new InputCost()),
+            new AbstractMap.SimpleEntry<>("SW", new InputCost()),
+            new AbstractMap.SimpleEntry<>("SS", new InputCost()),
+            new AbstractMap.SimpleEntry<>("SE", new InputCost()),
+            new AbstractMap.SimpleEntry<>("EE", new InputCost()),
+            new AbstractMap.SimpleEntry<>("NE", new InputCost()),
+            new AbstractMap.SimpleEntry<>("NN", new InputCost()),
+            new AbstractMap.SimpleEntry<>("NW", new InputCost()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
     public DeepQLearner(){
         f = new Features();
         fit = new Fitness();
         lowestCost = Integer.MAX_VALUE;
-
-        goalToCostMap = new HashMap<>();
-        assignedGoals = new HashSet<>();
 
         initNN();
 
@@ -106,6 +113,8 @@ public class DeepQLearner implements RLController, Serializable {
     private void trainMLP(int i){
         model = new Simulation(this, use_gui);
 
+        assignedGoals = new HashSet<>();
+
         JFrame frame;
         if(use_gui){
             frame = createMainFrame();
@@ -120,18 +129,17 @@ public class DeepQLearner implements RLController, Serializable {
         subGoals = new OrthogonalSubGoals((int)fireLocation[0],(int)fireLocation[1], distMap, algorithm, model.getAllCells());
 
         for (Agent a:model.getAgents()){
-            if (debugging || debugging2){
+            if (debugging){
                 System.out.println("assigning goal to agent: " + a.getId());
             }
             updateDistMap(a);
             subGoals.selectClosestSubGoal(a);
         }
 
-        if ((debugging||debugging2)&&use_gui){
+        if ((debugging)&&use_gui){
             model.applyUpdates();
             sleep(500);
         }
-        //double[] oldState = getInputSet("WW", model.getAgents().get(0));
 
         if (debugging) {
             System.out.println("Distance Map: " + Collections.singletonList(distMap));
@@ -139,7 +147,7 @@ public class DeepQLearner implements RLController, Serializable {
         }
 
         model.start();
-        if (debugging||debugging2){
+        if (debugging){
             System.out.println("Final number of sub goals assigned: " + goalToCostMap.keySet().size());
             for (Map.Entry<String, InputCost> entry : goalToCostMap.entrySet()) {
                 System.out.println(entry.getKey()+" : "+Arrays.toString(entry.getValue().input));
@@ -169,9 +177,10 @@ public class DeepQLearner implements RLController, Serializable {
             double action = distMap.get(key);
             double[] newState = getInputSet(key, model.getAgents().get(0));
             train(ic.input, newState, Math.toIntExact(Math.round(action)), ic.cost);
+
         }
 
-        if (use_gui && !(debugging||debugging2)){
+        if (use_gui && !(debugging)){
             disposeMainFrame(frame);
         }
     }
@@ -197,6 +206,9 @@ public class DeepQLearner implements RLController, Serializable {
 
         if (batchNr%batchSize==0){
             System.out.println("Updating MLP");
+            if (debugging){
+                System.out.println("For action: " + action);
+            }
             batchNr = 0;
             mlp.updateMLP(inputBatch, outputBatch);
         }
@@ -215,14 +227,13 @@ public class DeepQLearner implements RLController, Serializable {
 
             setDistance(input, key);
 
-            if (!goalToCostMap.keySet().contains(key)) {
-                goalToCostMap.put(key, new InputCost(input));
-            } else {
-//                double[] in = goalToCostMap.replace(key, new InputCost(input)).input;
+            System.out.println(key + " " + goalToCostMap.keySet().contains(key) + " size map: " + goalToCostMap.keySet().size());
+            goalToCostMap.get(key).setInput(input);
+                double[] in = goalToCostMap.get(key).input;
 //                if (debugging) {
 //                    System.out.println("Input changed to " + Arrays.toString(goalToCostMap.get(key).input) + " from " + Arrays.toString(in));
 //                }
-            }
+
         } else {
             if (debugging) {
                 System.out.println("Not updating goal already assigned to/reached by other agent");
@@ -259,7 +270,7 @@ public class DeepQLearner implements RLController, Serializable {
         if (use_gui){
             if (showActionFor>0) {
                 sleep(showActionFor);
-                showActionFor -=0;
+                showActionFor -=1;
             }
         }
 
@@ -346,13 +357,15 @@ public class DeepQLearner implements RLController, Serializable {
             do {
                 subGoals.updateSubGoal(key, activationList.get(i).index);
                 i++;
+
             } while (!subGoals.checkSubGoal(key, model.getAgents().get(0))); //TODO: Again, only possible in single agent environment.
         } else {
             do {
                 subGoals.updateSubGoal(key, randomLocation());
             } while (!subGoals.checkSubGoal(key, model.getAgents().get(0))); //TODO: Again, only possible in single agent environment.
         }
-        if (use_gui && (debugging||debugging2)) {
+        //TODO: goalToCostMap
+        if (use_gui && (debugging)) {
             subGoals.paintGoal(key);
         }
     }
@@ -458,11 +471,13 @@ public class DeepQLearner implements RLController, Serializable {
         }
     }
 
-    private class InputCost{
-        private double[] input;
-        private int cost;
+    class InputCost{
+        double[] input;
+        int cost;
 
-        private InputCost(double[] input){
+        private InputCost(){}
+
+        public void setInput(double[] input){
             this.input = input;
         }
 

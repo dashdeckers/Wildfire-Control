@@ -31,10 +31,10 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private boolean use_gui;
 	private boolean generateRandom = true;
 	private Random rand;
-	private long randomizer_seed = 0;
+	private long randomizer_seed = 3;
 
 	// parameters related to fitness
-	int agentDeathPenalty = 0;
+	int agentDeathPenalty;
 	int totalFuel = 0;
 	int totalFuelBurnt = 0;
 	int actionCosts = 0;
@@ -165,7 +165,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 		wVecY = 0;
 		windSpeed = 0;
 
-		agentDeathPenalty = 1000000; //might be a bit to extreme for smaller maps
+		agentDeathPenalty = 1000; //might be a bit to extreme for smaller maps
 	}
 
 

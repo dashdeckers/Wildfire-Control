@@ -111,7 +111,7 @@ public class OrthogonalSubGoals implements Serializable {
         for (String s:goalsReached){
             System.out.print(s + "+");
         }
-        for (String key: distMap.keySet()){ //TODO: find out why the if statements below returns true for WW in current setting
+        for (String key: distMap.keySet()){
             if (!(goalsReached.contains(getNextGoal(key))||agentDiggingTowardGoal(getNextGoal(key)))) { //Make sure only goals are assigned that have not been reached jet.
                 SubGoal temp = new SubGoal(cells, subGoals.get(key), algorithm, a, false);
                 if (minDist > temp.getMoveCost()) {
