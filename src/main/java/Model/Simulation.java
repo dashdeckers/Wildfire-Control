@@ -1,19 +1,25 @@
 package Model;
 
+import Learning.OffsetFeatures;
 import Learning.RLController;
 import Model.Elements.*;
 import Navigation.OrthogonalSubgoals;
 import Navigation.SubGoal;
 //import com.sun.xml.internal.bind.v2.TODO;
 
+import Learning.OffsetFeatures;
+
 import java.io.*;
 import java.util.*;
 
 public class Simulation extends Observable implements Serializable, Observer {
 
+
 	// object containers
 	private List<List<Element>> cells;
-	private List<Agent> agents;
+
+	// Roel: private -> public
+	public List<Agent> agents;
 	// This holds all cells which are on fire or near fire (these are the only ones that need to be updated)
 	private Set<Element> activeCells = new HashSet<>();
 	// This holds all cells which can contain the fire, such as dirt and river cells
@@ -47,14 +53,21 @@ public class Simulation extends Observable implements Serializable, Observer {
 	// parameters related to agents
 	private int nr_agents;
 	private int energyAgents;
+	private double [][] distAgentToSubgoal;
+	public double[][] closestSubgoalToAgent;
+	private int start = 1;
 
 	/*
 	For now, orthogonal goals are predetermined. Al a RL controller needs to do, is determine the values for this array.
 	 */
-    private boolean useSubGoal = true;
+	// Roel: public
+    public boolean useSubGoal = true;
 	private double dist[] = {4,4,4,4,4,4,4,4};
-	private OrthogonalSubgoals subGoals;
+
 	private String algorithm = "Bresenham";
+	public OrthogonalSubgoals subGoals;
+
+	private OffsetFeatures features;
 
 
 	// other classes
@@ -62,7 +75,10 @@ public class Simulation extends Observable implements Serializable, Observer {
 	private Generator generator;
 	private RLController rlController;
 
+
+
 	public Simulation(boolean use_gui) {
+
 		this.use_gui = use_gui;
 
 		// Randomization initialization
@@ -82,9 +98,17 @@ public class Simulation extends Observable implements Serializable, Observer {
 		if (generateRandom) {
 			generator.randomMap();
 		} else {
-			parameter_manager.changeParameter("Model", "Width", 10f);
-			parameter_manager.changeParameter("Model", "Height", 10f);
+
+			// Change size map
+			parameter_manager.changeParameter("Model", "Width", 40f);
+			parameter_manager.changeParameter("Model", "Height", 40f);
 			generator.plainMap();
+		}
+
+		// Roel
+		if( start == 1){
+			createArrays();
+			start = 0;
 		}
 
 		// Generate plan for agent(s)
@@ -101,9 +125,28 @@ public class Simulation extends Observable implements Serializable, Observer {
 		states.add((Simulation) deepCopy(this));
 	}
 
+	public void createArrays(){
+		distAgentToSubgoal = new double[nr_agents][8];
+
+		closestSubgoalToAgent = new double[2][nr_agents];
+		// Fill each row with -1.0
+		for (double[] row: closestSubgoalToAgent)
+			Arrays.fill(row, (double)-1);
+
+	}
+
 	public void applySubgoals(){
-		subGoals = new OrthogonalSubgoals(5, 5, dist, algorithm, cells);
-		subGoals.setNextGoal(agents.get(0));
+
+		//TODO: FIXED static fireX & FireY
+		features = new OffsetFeatures(this);
+		int fireX = (int)features.locationCenterFireAndMinMax(this)[0];
+		int fireY = (int)features.locationCenterFireAndMinMax(this)[1];
+
+		subGoals = new OrthogonalSubgoals(fireX, fireY, dist, algorithm, cells, this);
+
+		//TODO: Implement multiple agents -> changed setNextgoal
+		//subGoals.setNextGoal(agents.get(0));
+		subGoals.setNextGoal();
 		useSubGoal = true;
 	}
 
@@ -118,7 +161,8 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public void checkSubGoals(){
         if (useSubGoal){
             if (agents.size() != 0 && !agents.get(0).onGoal()){
-                subGoals.setNextGoal(agents.get(0));
+            	//TODO: changes setNextGoal
+                subGoals.setNextGoal();
                 goalsHit++;
             }
         }
@@ -240,8 +284,12 @@ public class Simulation extends Observable implements Serializable, Observer {
 			a.setController(rlController);
 		}
 		if (useSubGoal){
-            subGoals = new OrthogonalSubgoals(5, 5, dist, algorithm, cells);
-            subGoals.setNextGoal(agents.get(0));
+			//features = new OffsetFeatures(this);
+			int fireX = (int)features.locationCenterFireAndMinMax(this)[0];
+			int fireY = (int)features.locationCenterFireAndMinMax(this)[1];
+            subGoals = new OrthogonalSubgoals(fireX, fireY, dist, algorithm, cells, this);
+            //TODO: changed setNextGoal
+            subGoals.setNextGoal();
 		}
 		setChanged();
 		notifyObservers(cells);
@@ -318,14 +366,15 @@ public class Simulation extends Observable implements Serializable, Observer {
 			stop("empty sets");
 		}
 
+		//ToDo: commented this out
 		//Can be removed once Orthogonal Subgoals are assigned by a controller
-		if (useSubGoal){
-		    //System.out.println("Wtf");
-		    if (agents.size() != 0 && !agents.get(0).onGoal()){
-		        subGoals.setNextGoal(agents.get(0));
-		        goalsHit++;
-            }
-        }
+//		if (useSubGoal){
+//		    //System.out.println("Wtf");
+//		    if (agents.size() != 0 && !agents.get(0).onGoal()){
+//		        subGoals.setNextGoal(agents.get(0));
+//		        goalsHit++;
+//            }
+//        }
 
 
 
@@ -518,6 +567,16 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public int getTotalFuel() { return totalFuel; }
 
 	public int getTotalFuelBurnt() { return totalFuelBurnt; }
+
+	public void setDistAgentToSubgoal(double[][] distAgentToSubgoalFromOffSetFeatures){ this.distAgentToSubgoal = distAgentToSubgoalFromOffSetFeatures; }
+
+	public double[][] getDistAgentToSubgoal(){ return distAgentToSubgoal; }
+
+	public void setClosestSubgoalToAgent(double[][] closestSubgoalToAgent){ this.closestSubgoalToAgent = closestSubgoalToAgent; }
+
+	public double[][] getClosestSubgoalToAgent(){ return closestSubgoalToAgent; }
+
+
 
 	public boolean isInBounds(int x, int y) {
 		return (   x >= 0 && x < width

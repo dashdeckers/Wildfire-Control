@@ -36,7 +36,8 @@ public class SubGoalLearning extends CoSyNe  {
      * @return
      */
     protected double determineOffset(int iterator, int max){
-        double deg = (double)iterator / (double)max;    //Not actually degree, but normalized to 0-1
+        //double deg = (double)iterator / (double)max;    //Not actually degree, but normalized to 0-1
+        double deg = (double)iterator;    //Not actually degree, but numbers 1-8
         if(deg == NaN){
             System.out.println("NaN degrees!");
         }
@@ -55,7 +56,9 @@ public class SubGoalLearning extends CoSyNe  {
     @Override
     protected void testMLP(){
         double[] dist = model.getSubGoals();
+        //TODO: fix weird 0-7, 1-8 problem
         for(int i = 0; i < dist.length; i++){
+            //System.out.println("In testMLP/Sub, i = " + i);
             dist[i] = determineOffset(i, dist.length);
         }
         model.setSubGoals(dist);
@@ -154,7 +157,9 @@ public class SubGoalLearning extends CoSyNe  {
     protected double[] getInput() {
         if(features == null){
             features = new OffsetFeatures(model);
+            //System.out.println("features = 0");
         }
+        //System.out.println(features.getResult().length);
         return features.getResult();
     }
 

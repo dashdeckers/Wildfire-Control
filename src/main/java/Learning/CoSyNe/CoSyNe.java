@@ -121,14 +121,14 @@ public abstract class CoSyNe implements RLController {
 
     /**
      * Takes a screenshot. Generation and i are only used to define the name of the file.
-     * @param generation
+     * @param //generation
      * @param i
      */
-    protected void screenshot(int generation, int i){
+    protected void screenshot(int whythis, int i){
         Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
         try {
             BufferedImage capture = new Robot().createScreenCapture(screenRect);
-            ImageIO.write(capture, "bmp", new File("./screenshot_g"+ generation+"_i_"+i+".bmp"));
+            ImageIO.write(capture, "bmp", new File("./screenshot_g"+ generation +"_i_"+i+".bmp"));
 
         }catch (Exception ex) {
             System.out.println(ex.getMessage());

@@ -61,19 +61,30 @@ class Generator implements Serializable {
         initializeMap();
         //Place StaticFire in the middle
 
-        model.getAllCells().get(width/2).set(height/2, new Grass(width/2, height/2, model.getParameter_manager()));
-        model.getAllCells().get(width/2 +1).set(height/2, new Grass(width/2 +1, height/2, model.getParameter_manager()));
-        model.getAllCells().get(width/2 -1).set(height/2, new Grass(width/2 -1, height/2, model.getParameter_manager()));
-        model.getAllCells().get(width/2).set(height/2 + 1, new Grass(width/2, height/2 + 1, model.getParameter_manager()));
-        model.getAllCells().get(width/2).set(height/2 -1, new Grass(width/2, height/2 -1 , model.getParameter_manager()));
+//        model.getAllCells().get(width/2).set(height/2, new Grass(width/2, height/2, model.getParameter_manager()));
+//        model.getAllCells().get(width/2 +1).set(height/2, new Grass(width/2 +1, height/2, model.getParameter_manager()));
+//        model.getAllCells().get(width/2 -1).set(height/2, new Grass(width/2 -1, height/2, model.getParameter_manager()));
+//        model.getAllCells().get(width/2).set(height/2 + 1, new Grass(width/2, height/2 + 1, model.getParameter_manager()));
+//        model.getAllCells().get(width/2).set(height/2 -1, new Grass(width/2, height/2 -1 , model.getParameter_manager()));
 
 
         model.getAllCells().get(width/2).get(height/2).setBurning();
+        model.getAllCells().get(width/2+1).get(height/2).setBurning();
+        model.getAllCells().get(width/2-1).get(height/2).setBurning();
+        model.getAllCells().get(width/2).get(height/2+1).setBurning();
+        model.getAllCells().get(width/2).get(height/2-1).setBurning();
 
         //Place Agent to the left of the static fire
-        agents.add(new Agent(width/4,height/2,model, parameter_manager,0));
+        agents.add(new Agent(width-1 ,height-1,model, parameter_manager,0));
+        agents.add(new Agent(width-1,0,model, parameter_manager,1));
+
+        //agents.add(new Agent(width/5,height/2,model, parameter_manager,2));
+        //agents.add(new Agent(20,10,model, parameter_manager,3));
+        //agents.add(new Agent(width/2,height/4,model, parameter_manager,0));
+
         //Update model
-        model.setNr_agents(1);
+        //TODO: CHANGE NRAGENTS
+        model.setNr_agents(2);
         model.setCells(cells);
         model.setAgents(agents);
         //model.printCells();
@@ -90,21 +101,21 @@ class Generator implements Serializable {
         int urban = 1; // Variable (1-10) that influences bushes/grass (rural) and houses/roads (urban)
 
         // (added zero before everything to test parameters wetlands/urban)
-        int numberDirt = rand.nextInt((int) (0.01 * area)) * (10-wetlands);
-        int numberBushes = rand.nextInt((int) (0.01 * area)) * (10-urban);
-        int numberHouses = rand.nextInt((int) (0.02 * area)) * urban;
-        int numberLakes = rand.nextInt((int) (0.02 * area)) * (wetlands / 2);
-        int numberBridges = rand.nextInt(3);
-        int numberRivers = wetlands / 2;
-        int numberRoads = urban / 2;
-        /* OLD SETTINGS :
+//        int numberDirt = rand.nextInt((int) (0.01 * area)) * (10-wetlands);
+//        int numberBushes = rand.nextInt((int) (0.01 * area)) * (10-urban);
+//        int numberHouses = rand.nextInt((int) (0.02 * area)) * urban;
+//        int numberLakes = rand.nextInt((int) (0.02 * area)) * (wetlands / 2);
+//        int numberBridges = rand.nextInt(3);
+//        int numberRivers = wetlands / 2;
+//        int numberRoads = urban / 2;
+        // OLD SETTINGS :
         int numberDirt = rand.nextInt((int) (0.01 * area));
         int numberBushes = rand.nextInt((int) (0.1 * area));
         int numberHouses = rand.nextInt((int) (0.05 * area));
         int numberRivers = 1;
         int numberBridges = rand.nextInt(3);
         int numberLakes = rand.nextInt((int) (0.002 * area));
-        int numberRoads = 1; */
+        int numberRoads = 1;
 
         // DIRT
         // Add dirt blobs at random points
