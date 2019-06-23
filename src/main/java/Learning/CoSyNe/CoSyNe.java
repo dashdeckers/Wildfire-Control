@@ -12,6 +12,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,6 +31,7 @@ public abstract class CoSyNe implements RLController {
     protected Double mean_confidence = null;
     protected Integer conf_counter = null;
     protected int generation;
+    protected int startPrinting = 1;
 
     public CoSyNe(){
         MLP_shape = new ArrayList<>();
@@ -48,13 +51,15 @@ public abstract class CoSyNe implements RLController {
      * The overall generation loop including creating MLPs, testing them, and breeding them
      */
     protected void performLearning(){
+        //System.out.println("defN_generaionts = " + defN_generations());
         for(generation = 0; generation < defN_generations(); generation++){
             mean_perfomance = 0;
             for(int test = 0; test < defGenerationSize(); test++){
                 createMLP();
-
                 testMLP();
             }
+            //System.out.println("UltPerfCos = " + ultimate_performance);
+            //System.out.println("Generation = " + generation);
             mean_perfomance /= defGenerationSize();
             printPerformance();
             best_performance = null;
@@ -66,9 +71,28 @@ public abstract class CoSyNe implements RLController {
     /**
      * Print performance. Can be nice to override if you want extra information
      */
-    protected void printPerformance(){
+    protected void printPerformance() {
         System.out.println("Best performance: " + best_performance);
         System.out.println("Mean perforamcne: " + mean_perfomance);
+        System.out.println("--------------------------------------");
+    }
+
+    /**
+     * Print performance. Overwritten to print to text file
+     */
+    protected void printPerformanceToFile() {
+        if (startPrinting == 1){
+            try {
+                PrintStream fileOut = new PrintStream("./out.txt");
+                System.setOut(fileOut);
+                startPrinting = 0;
+            }catch(FileNotFoundException ex)  {
+                ex.printStackTrace();
+            }
+        }
+        System.out.println(best_performance + "\t" + mean_perfomance);
+//        System.out.println("Best performance: " + best_performance);
+//        System.out.println("Mean perforamcne: " + mean_perfomance);
     }
 
     /**
@@ -113,6 +137,8 @@ public abstract class CoSyNe implements RLController {
                 System.out.println(e.getMessage());
             }
             screenshot(0, (int) getFitness());
+            System.out.println("SCREENSHOT Cosyne");
+
             ultimate_performance = getFitness();
             f.dispose();
         }

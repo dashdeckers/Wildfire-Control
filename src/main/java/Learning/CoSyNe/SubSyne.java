@@ -8,6 +8,8 @@ import View.MainFrame;
 import org.neuroph.util.TransferFunctionType;
 
 import javax.swing.*;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
 
 /**
  * SubSyne class navigates between subgoals. This class is used by the ActionLearner, so changes made here may result in changes in the HRL approach.
@@ -59,6 +61,8 @@ public class SubSyne extends CoSyNe{
         }
         model = new Simulation(this);
     }
+
+
 
     @Override
     protected void performAction(int action, Agent a) {

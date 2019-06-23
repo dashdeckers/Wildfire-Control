@@ -115,7 +115,7 @@ public class Agent implements Serializable{
             }
             //Make it so that the agents dies when it lands on a burning cell
             Element currentCell = simulation.getAllCells().get(x).get(y);
-            if (currentCell.isBurning()) {isAlive = false; System.out.println("-----------DEAD------------");}
+            //if (currentCell.isBurning()) {isAlive = false; System.out.println("-----------DEAD------------");}
             simulation.applyUpdates();
             simulation.checkSubGoals();
 
@@ -341,6 +341,8 @@ public class Agent implements Serializable{
     public int getX() {
         return x;
     }
+
+    public boolean checkIfAlive() { return isAlive; }
 
     public void setX(int x) {
         this.x = x;

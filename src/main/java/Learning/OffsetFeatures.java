@@ -6,6 +6,7 @@ import Model.Simulation;
 import Navigation.OrthogonalSubgoals;
 
 import java.io.Serializable;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -62,11 +63,12 @@ public class OffsetFeatures implements Serializable {
 
     public double[] getResult() {
 
-        System.out.println("in GETRESULT");
+        //System.out.println("in GETRESULT");
 
         //TODO: fix weird 0-7, 1-8 problem
         xGoal = (double)model.subGoals.xOfGoal((int)degree);
-        yGoal = (double)model.subGoals.xOfGoal((int)degree);
+        yGoal = (double)model.subGoals.yOfGoal((int)degree);
+
         //System.out.println("xGoal = " + xGoal);
         //System.out.println("yGoal = " + yGoal);
 
@@ -108,6 +110,16 @@ public class OffsetFeatures implements Serializable {
                 out = inputCosyne("NW", model,  (int)xGoal , (int)yGoal);
                 break;
         }
+        //System.out.println("degree = " + degree);
+        //System.out.println("out = " + Arrays.toString(out));
+
+//        DecimalFormat df = new DecimalFormat("##.##");
+//        for (int i = 0; i < 3+model.getNr_agents(); i++){
+//                System.out.print(df.format(out[i]) + " ");
+//        }
+//        System.out.print("\n");
+
+
         return out;
 
     }
@@ -116,9 +128,10 @@ public class OffsetFeatures implements Serializable {
 
     /**
      * Overarching function that combines the output of the functions
-     * -windRelativeToSubgoal (normalized)
-     * -distanceToCenterFire
-     * -distanceFromCenterToFireline
+     * -windRelativeToSubgoal (normalized) :    CHECK
+     * -distanceToCenterFire :                  CHECK : subgoal sometimes in center fire for 2 & 6?
+     * -distanceFromCenterToFireline            CHECK
+     * -distancesAgentsToSubs
      * into one array
      * <p>
      * Input: vectors, compassDirection of current subgoal and current coordinates subgoal
@@ -131,14 +144,23 @@ public class OffsetFeatures implements Serializable {
         //distanceToCenterFire(Simulation model, int x, int y)
         //distanceFromCenterToFireline(Simulation model, String compassDirection)
 
-        double[] input = new double[3 + nrAgents];
+        int lengthArray = 3 + nrAgents;
+
+        double[] input = new double[lengthArray];
+
+
         // TODO: Extract windvectors automatically
         input[0] = windRelativeToSubgoal(-1, 0, compassDirection);
         input[1] = distanceToCenterFire(model, x, y);
         input[2] = distanceFromCenterToFireline(model, compassDirection);
+
+        //System.out.println("input = " + Arrays.toString(input));
+
         for (int i = 0; i < nrAgents; i++){
             input[i+3] = distanceFromAgentToSubgoal(agents.get(i), x, y, compassDirection);
         }
+
+
 
         //System.out.println("Nragents = " + nrAgents);
 //        System.out.print(compassDirection + " ");
@@ -146,6 +168,8 @@ public class OffsetFeatures implements Serializable {
 //            System.out.print(input[i] + " ");
 //        }
 //        System.out.println();
+
+        //System.out.println("Compass = " + compassDirection);
 
         return input;
     }
@@ -157,6 +181,9 @@ public class OffsetFeatures implements Serializable {
         double distance = 0;
         double deltaX = Math.abs( (double)agent.getX()  - ((double)xGoal));
         double deltaY = Math.abs( (double)agent.getY() - ((double)yGoal));
+
+        //System.out.println("Coordinates subgoal  = " + xGoal + ", " + yGoal);
+        //System.out.println("Coordinates agent    = " + (double)agent.getX() + ", " + (double)agent.getY());
 
 
         // Given that deltaX or deltaY is always positive
@@ -173,6 +200,8 @@ public class OffsetFeatures implements Serializable {
             distance = Math.sqrt(c);
             //System.out.println("Distance = sqrt");
         }
+        //System.out.println("distance          ==== " + distance);
+
         // Normalize: max distance (if fire in center = Math.sqrt( (width/2)*(width/2) + (height/2)*(height/2) )
         double width = (double)model.getParameter_manager().getWidth();
         double height = (double)model.getParameter_manager().getHeight();
@@ -203,7 +232,7 @@ public class OffsetFeatures implements Serializable {
         model.setDistAgentToSubgoal(distanceAgenttoSubgoal);
 
 
-
+        //System.out.println("distance = " + distance);
         return distance;
 
     }
@@ -272,6 +301,8 @@ public class OffsetFeatures implements Serializable {
         A = Math.sqrt(windVector[0] * windVector[0] + windVector[1] * windVector[1]) * Math.cos(alpha);
 
         //System.out.print(A + "%n");
+        // Normalize:
+        A = (A + 1)/2;
         return A;
 
 
@@ -299,6 +330,9 @@ public class OffsetFeatures implements Serializable {
 
         deltaX = Math.abs( (double) x - centerFireAndMinMax[0]);
         deltaY = Math.abs((double) y - centerFireAndMinMax[1]);
+
+//        System.out.println("Coordinates subgoal = " + x + ", " + y);
+//        System.out.println("Coordinates fire    = " + centerFireAndMinMax[0] + ", " + centerFireAndMinMax[1]);
 
 
 

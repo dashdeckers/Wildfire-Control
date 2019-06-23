@@ -1,5 +1,6 @@
 package Model;
 
+import Learning.CoSyNe.SubGoalLearning;
 import Learning.OffsetFeatures;
 import Learning.RLController;
 import Model.Elements.*;
@@ -53,14 +54,17 @@ public class Simulation extends Observable implements Serializable, Observer {
 	// parameters related to agents
 	private int nr_agents;
 	private int energyAgents;
-	private double [][] distAgentToSubgoal;
-	public double[][] closestSubgoalToAgent;
+
+
+
 	private int start = 1;
 
 	/*
 	For now, orthogonal goals are predetermined. Al a RL controller needs to do, is determine the values for this array.
 	 */
 	// Roel: public
+	private double [][] distAgentToSubgoal;
+	public double[][] closestSubgoalToAgent;
     public boolean useSubGoal = true;
 	private double dist[] = {4,4,4,4,4,4,4,4};
 

@@ -10,6 +10,8 @@ import View.MainFrame;
 import org.neuroph.util.TransferFunctionType;
 
 import javax.swing.*;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -22,6 +24,7 @@ import static java.lang.Double.NaN;
 public class SubGoalLearning extends CoSyNe  {
 
     OffsetFeatures features;
+    int startPrinting = 1;
 
     public SubGoalLearning(){
         super();
@@ -58,7 +61,7 @@ public class SubGoalLearning extends CoSyNe  {
         double[] dist = model.getSubGoals();
         //TODO: fix weird 0-7, 1-8 problem
         for(int i = 0; i < dist.length; i++){
-            //System.out.println("In testMLP/Sub, i = " + i);
+
             dist[i] = determineOffset(i, dist.length);
         }
         model.setSubGoals(dist);
@@ -78,13 +81,21 @@ public class SubGoalLearning extends CoSyNe  {
         if(best_performance == null || getFitness() < best_performance){
             best_performance = getFitness();
         }
+        //System.out.println("ultPerf = " + ultimate_performance);
         if(ultimate_performance == null || getFitness() < ultimate_performance){    //take screenshot
+//            System.out.println("SCREENSHOT SUBGOALLEARNING");
+//            System.out.println("ultPerf = " + ultimate_performance);
+//            System.out.println("getFit  = " + getFitness());
+//            System.out.println("------");
+
             model = new Simulation(false);
             model.getParameter_manager().changeParameter("Model", "Step Time", 1000f);
             JFrame f = new MainFrame(model);
             dist = model.getSubGoals();
             for(int i = 0; i < dist.length; i++){
                 dist[i] = determineOffset(i, dist.length);
+//                System.out.println("dist[ " + i + " ] = " + dist[i]);
+//                System.out.println("--------------------------");
             }
             model.setSubGoals(dist);
             model.start();
@@ -94,10 +105,29 @@ public class SubGoalLearning extends CoSyNe  {
                 System.out.println(e.getMessage());
             }
             screenshot(0, (int) getFitness());
+
             ultimate_performance = getFitness();
             f.dispose();
         }
         model = new Simulation(false);
+    }
+
+    /**
+     * Print performance. Overwritten to print to text file
+     */
+    protected void printPerformanceToFile() {
+        if (startPrinting == 1){
+            try {
+                PrintStream fileOut = new PrintStream("./out.txt");
+                System.setOut(fileOut);
+                startPrinting = 0;
+            }catch(FileNotFoundException ex)  {
+                ex.printStackTrace();
+            }
+        }
+        System.out.println(best_performance + "\t" + mean_perfomance);
+//        System.out.println("Best performance: " + best_performance);
+//        System.out.println("Mean perforamcne: " + mean_perfomance);
     }
 
     /**

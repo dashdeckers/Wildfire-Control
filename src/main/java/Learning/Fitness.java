@@ -150,7 +150,9 @@ public class Fitness implements Serializable {
 
 	public int totalFuelBurnt(Simulation model) {
 		int value = model.getTotalFuel() - model.getTotalFuelBurnt();
+		//System.out.println("Totalfuelburnt = " + value);
 		return -value;
+
 		/*
 		if (value > 0) {
 			return value;

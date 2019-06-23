@@ -63,6 +63,7 @@ public class ActionLearner extends SubSyne {
                 System.out.println(e.getMessage());
             }
             screenshot(0, (int) getFitness());
+            System.out.println("SCREENSHOT ACTIONLEARNER");
             f.dispose();
         }
         model = new Simulation(this);
