@@ -2,19 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a6b5d3d3-bcdd-488c-8bd4-03c658ac8e21" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/out_20runs_8ag_regGoalAss.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out_2000runs_8ag_regularGoalAss.txt" beforeDir="false" afterPath="$PROJECT_DIR$/out_2000runs_8ag_SpreadGoalAss.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_subSyne.sh" beforeDir="false" afterPath="$PROJECT_DIR$/run_subGUI.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Learning/CoSyNe/CoSyNe.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Learning/CoSyNe/CoSyNe.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Learning/CoSyNe/HRL/ActionLearner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Learning/CoSyNe/HRL/ActionLearner.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Learning/CoSyNe/HRL/GoalLearner.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Learning/CoSyNe/HRL/GoalLearner.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Learning/CoSyNe/SubGoalLearning.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Learning/CoSyNe/SubGoalLearning.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Model/Agent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Model/Agent.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Learning/OffsetFeatures.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Learning/OffsetFeatures.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Model/Elements/Grass.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Model/Elements/Grass.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/Model/Generator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Model/Generator.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Model/Simulation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Model/Simulation.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Navigation/OrthogonalSubgoals.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Navigation/OrthogonalSubgoals.java" afterDir="false" />
     </list>
@@ -60,12 +51,12 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/Model/Simulation.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="324">
-              <caret line="182" column="18" selection-start-line="182" selection-start-column="18" selection-end-line="182" selection-end-column="18" />
+            <state relative-caret-position="231">
+              <caret line="597" column="49" selection-start-line="597" selection-start-column="49" selection-end-line="597" selection-end-column="49" />
               <folding>
-                <element signature="e#10039#10040#0" expanded="true" />
-                <element signature="e#16690#16691#0" expanded="true" />
-                <element signature="e#17425#17426#0" expanded="true" />
+                <element signature="e#10080#10081#0" expanded="true" />
+                <element signature="e#16731#16732#0" expanded="true" />
+                <element signature="e#17526#17527#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -80,11 +71,23 @@
           </provider>
         </entry>
       </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/Learning/OffsetFeatures.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="140">
+              <caret line="113" column="12" lean-forward="true" selection-start-line="112" selection-start-column="11" selection-end-line="113" selection-end-column="12" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/Learning/CoSyNe/CoSyNe.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="131">
-              <caret line="65" column="37" selection-start-line="65" selection-start-column="37" selection-end-line="65" selection-end-column="37" />
+              <caret line="65" column="28" selection-start-line="65" selection-start-column="28" selection-end-line="65" selection-end-column="28" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -104,8 +107,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/Model/Elements/Grass.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="327">
+            <state relative-caret-position="338">
               <caret line="28" column="26" selection-start-line="28" selection-start-column="26" selection-end-line="28" selection-end-column="26" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/Model/Generator.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="253">
+              <caret line="85" column="8" lean-forward="true" selection-start-line="85" selection-start-column="8" selection-end-line="85" selection-end-column="8" />
             </state>
           </provider>
         </entry>
@@ -124,25 +136,15 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/Model/Elements/Element.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2970">
-              <caret line="209" column="15" selection-start-line="209" selection-start-column="15" selection-end-line="209" selection-end-column="15" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/Navigation/OrthogonalSubgoals.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="162">
-              <caret line="23" column="39" selection-start-line="23" selection-start-column="39" selection-end-line="23" selection-end-column="39" />
+            <state relative-caret-position="385">
+              <caret line="217" lean-forward="true" selection-start-line="217" selection-end-line="217" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#1974#2035#0" />
                 <element signature="e#3499#3547#0" />
                 <element signature="e#3889#3969#0" />
-                <element signature="e#6954#7039#0" />
                 <element signature="e#7377#7457#0" />
                 <element signature="e#7653#7740#0" />
                 <element signature="e#8609#8668#0" />
@@ -152,24 +154,10 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/Navigation/SubGoal.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="75">
-              <caret line="13" column="21" selection-start-line="13" selection-start-column="21" selection-end-line="13" selection-end-column="21" />
-              <folding>
-                <element signature="e#3356#3357#0" expanded="true" />
-                <element signature="e#3383#3384#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
     </leaf>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>totalFuel</find>
       <find>totalFuelburnt</find>
       <find>performance</find>
       <find>totalfuelburnt =</find>
@@ -199,6 +187,7 @@
       <find>printPerformanceToFile</find>
       <find>screensho</find>
       <find>coord</find>
+      <find>windSpeed</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -210,19 +199,19 @@
         <option value="$PROJECT_DIR$/src/main/java/Learning/Fitness.java" />
         <option value="$PROJECT_DIR$/src/main/java/Learning/CoSyNe/SubSyne.java" />
         <option value="$PROJECT_DIR$/out.txt" />
-        <option value="$PROJECT_DIR$/src/main/java/Learning/OffsetFeatures.java" />
         <option value="$PROJECT_DIR$/src/main/java/Main.java" />
         <option value="$PROJECT_DIR$/src/main/java/Learning/CoSyNe/HRL/ActionLearner.java" />
         <option value="$PROJECT_DIR$/src/main/java/Learning/CoSyNe/HRL/GoalLearner.java" />
         <option value="$PROJECT_DIR$/run_subSyne.sh" />
         <option value="$PROJECT_DIR$/run_human.sh" />
-        <option value="$PROJECT_DIR$/src/main/java/Model/Generator.java" />
-        <option value="$PROJECT_DIR$/src/main/java/Model/Elements/Grass.java" />
         <option value="$PROJECT_DIR$/src/main/java/Learning/CoSyNe/SubGoalLearning.java" />
-        <option value="$PROJECT_DIR$/src/main/java/Model/Simulation.java" />
         <option value="$PROJECT_DIR$/src/main/java/Model/Agent.java" />
         <option value="$PROJECT_DIR$/src/main/java/Learning/CoSyNe/CoSyNe.java" />
         <option value="$PROJECT_DIR$/src/main/java/Navigation/OrthogonalSubgoals.java" />
+        <option value="$PROJECT_DIR$/src/main/java/Model/Generator.java" />
+        <option value="$PROJECT_DIR$/src/main/java/Model/Elements/Grass.java" />
+        <option value="$PROJECT_DIR$/src/main/java/Model/Simulation.java" />
+        <option value="$PROJECT_DIR$/src/main/java/Learning/OffsetFeatures.java" />
       </list>
     </option>
   </component>
@@ -296,25 +285,6 @@
               <item name="main" type="462c0819:PsiDirectoryNode" />
               <item name="java" type="462c0819:PsiDirectoryNode" />
               <item name="Learning" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Wildfire-Control" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Wildfire-Control" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="Learning" type="462c0819:PsiDirectoryNode" />
-              <item name="CoSyNe" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="Wildfire-Control" type="b2602c69:ProjectViewProjectNode" />
-              <item name="Wildfire-Control" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="Learning" type="462c0819:PsiDirectoryNode" />
-              <item name="CoSyNe" type="462c0819:PsiDirectoryNode" />
-              <item name="HRL" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Wildfire-Control" type="b2602c69:ProjectViewProjectNode" />
@@ -397,13 +367,13 @@
     <frame x="0" y="23" width="1440" height="877" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.8072626" weight="0.17310444" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.84598213" weight="0.17310444" />
       <window_info id="Structure" order="1" sideWeight="0.14230019" side_tool="true" weight="0.18097281" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
       <window_info id="UI Designer" order="4" />
       <window_info id="Capture Tool" order="5" />
-      <window_info id="Favorites" order="6" sideWeight="0.19273743" side_tool="true" visible="true" weight="0.17310444" />
+      <window_info id="Favorites" order="6" sideWeight="0.15401785" side_tool="true" visible="true" weight="0.17310444" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32421342" />
       <window_info anchor="bottom" id="Run" order="2" />
@@ -411,7 +381,7 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.26626506" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="7" sideWeight="0.49785408" visible="true" weight="0.54394907" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="7" sideWeight="0.49785408" visible="true" weight="0.42929935" />
       <window_info anchor="bottom" id="Event Log" order="8" sideWeight="0.50214595" side_tool="true" weight="0.42675158" />
       <window_info anchor="bottom" id="Version Control" order="9" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -652,16 +622,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/Learning/OffsetFeatures.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-397">
-          <caret line="37" column="23" selection-start-line="37" selection-start-column="23" selection-end-line="37" selection-end-column="23" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/out_20runs_8ag_regGoalAss.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="15">
@@ -671,13 +631,6 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/out_2000runs_8ag_SpreadGoalAss.txt">
       <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/Model/Generator.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="161">
-          <caret line="79" column="33" lean-forward="true" selection-start-line="79" selection-start-column="33" selection-end-line="79" selection-end-column="33" />
-        </state>
-      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/Model/Elements/Element.java">
       <provider selected="true" editor-type-id="text-editor">
@@ -704,18 +657,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/Model/Simulation.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="324">
-          <caret line="182" column="18" selection-start-line="182" selection-start-column="18" selection-end-line="182" selection-end-column="18" />
-          <folding>
-            <element signature="e#10039#10040#0" expanded="true" />
-            <element signature="e#16690#16691#0" expanded="true" />
-            <element signature="e#17425#17426#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/Model/Agent.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="341">
@@ -724,23 +665,6 @@
             <element signature="e#10441#10442#0" expanded="true" />
             <element signature="e#10465#10466#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/Learning/CoSyNe/CoSyNe.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="131">
-          <caret line="65" column="37" selection-start-line="65" selection-start-column="37" selection-end-line="65" selection-end-column="37" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/Model/Elements/Grass.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="327">
-          <caret line="28" column="26" selection-start-line="28" selection-start-column="26" selection-end-line="28" selection-end-column="26" />
         </state>
       </provider>
     </entry>
@@ -765,6 +689,16 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/Learning/CoSyNe/CoSyNe.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="131">
+          <caret line="65" column="28" selection-start-line="65" selection-start-column="28" selection-end-line="65" selection-end-column="28" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/out.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="285">
@@ -774,18 +708,53 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/Navigation/OrthogonalSubgoals.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="162">
-          <caret line="23" column="39" selection-start-line="23" selection-start-column="39" selection-end-line="23" selection-end-column="39" />
+        <state relative-caret-position="385">
+          <caret line="217" lean-forward="true" selection-start-line="217" selection-end-line="217" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#1974#2035#0" />
             <element signature="e#3499#3547#0" />
             <element signature="e#3889#3969#0" />
-            <element signature="e#6954#7039#0" />
             <element signature="e#7377#7457#0" />
             <element signature="e#7653#7740#0" />
             <element signature="e#8609#8668#0" />
             <element signature="e#9976#10037#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/Model/Generator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="253">
+          <caret line="85" column="8" lean-forward="true" selection-start-line="85" selection-start-column="8" selection-end-line="85" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/Model/Elements/Grass.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="338">
+          <caret line="28" column="26" selection-start-line="28" selection-start-column="26" selection-end-line="28" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/Model/Simulation.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="231">
+          <caret line="597" column="49" selection-start-line="597" selection-start-column="49" selection-end-line="597" selection-end-column="49" />
+          <folding>
+            <element signature="e#10080#10081#0" expanded="true" />
+            <element signature="e#16731#16732#0" expanded="true" />
+            <element signature="e#17526#17527#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/Learning/OffsetFeatures.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="140">
+          <caret line="113" column="12" lean-forward="true" selection-start-line="112" selection-start-column="11" selection-end-line="113" selection-end-column="12" />
+          <folding>
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>

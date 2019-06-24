@@ -63,7 +63,7 @@ public abstract class CoSyNe implements RLController {
             //System.out.println("UltPerfCos = " + ultimate_performance);
             //System.out.println("Generation = " + generation);
             mean_perfomance /= defGenerationSize();
-            printPerformanceToFile();
+            printPerformance();
             best_performance = null;
             breed();
         }

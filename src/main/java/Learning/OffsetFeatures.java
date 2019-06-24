@@ -110,8 +110,8 @@ public class OffsetFeatures implements Serializable {
                 out = inputCosyne("NW", model,  (int)xGoal , (int)yGoal);
                 break;
         }
-        //System.out.println("degree = " + degree);
-        //System.out.println("out = " + Arrays.toString(out));
+//        System.out.println("degree = " + degree);
+//        System.out.println("out = " + Arrays.toString(out));
 
 //        DecimalFormat df = new DecimalFormat("##.##");
 //        for (int i = 0; i < 3+model.getNr_agents(); i++){
@@ -303,6 +303,9 @@ public class OffsetFeatures implements Serializable {
         //System.out.print(A + "%n");
         // Normalize:
         A = (A + 1)/2;
+
+        // Normalize including windspeed
+        A = A*model.getWindSpeed();
         return A;
 
 

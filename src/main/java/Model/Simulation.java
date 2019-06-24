@@ -223,7 +223,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 		undo_redo = false;
 		wVecX = -1;
 		wVecY = 0;
-		windSpeed = 0;
+		windSpeed = (float)0.9; // Should be scaled between 0-1
 	}
 
 
@@ -594,6 +594,8 @@ public class Simulation extends Observable implements Serializable, Observer {
 	public void setClosestSubgoalToAgent(double[][] closestSubgoalToAgent){ this.closestSubgoalToAgent = closestSubgoalToAgent; }
 
 	public double[][] getClosestSubgoalToAgent(){ return closestSubgoalToAgent; }
+
+	public double getWindSpeed() {return (double)windSpeed; }
 
 
 

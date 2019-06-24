@@ -167,9 +167,57 @@ public class OrthogonalSubgoals implements Serializable {
 
                     ////////////////////////////////// Spread agents over circle //////////////////////////////////
 
-//                    System.out.println("Change closest goals -> optimal goals = ");
+//                    System.out.println("Before Spreading = ");
 //                    System.out.println(Arrays.deepToString(nextGoal).replace("], ", "]\n"));
 //                    System.out.println("--------------------------");
+//
+//                    int middle = model.getNr_agents()/2;
+//
+//                    int nrOfGaps = maxNrGoals - model.getNr_agents();
+//                    int diffBetweenAgents = maxNrGoals / model.getNr_agents();
+//                    int distancesDifference[] = new int[model.getNr_agents()-1];
+//
+//                    //Even or Odd
+//                    if (model.getNr_agents()%2 == 0 || model.getNr_agents()%2 == 1){
+//                        for(int k = 0; k< model.getNr_agents()-1; k++){
+//                            distancesDifference[k] = Math.abs(nextGoal[0][k]  - nextGoal[0][k+1]);
+//                        }
+//                    }
+//                    if (model.getNr_agents()%2 == 0){
+//                        int middleDist = ( (model.getNr_agents()-1)/2 ) + 1;
+//
+//                        for (int l = 0; l < distancesDifference.length - middleDist; l++){
+//                            // If difference is zero we have doubles so we need twice the space between points
+//                            if (distancesDifference[middleDist + l] != 0 && distancesDifference[middleDist+1 + l] != 0){
+//                                // Now the distance must be diffBetweenAgents
+//                                // If distance is bigger:
+//                                while (nextGoal[0][middleDist + 1 + l] - nextGoal[0][middleDist + l] > diffBetweenAgents){
+//                                    nextGoal[0][middleDist + 1 + l] = nextGoal[0][middleDist + 1 + l] - 1;
+//                                }
+//                            }
+//                            else if (distancesDifference[middleDist + l] == 0 && distancesDifference[middleDist+1 + l] != 0){
+//                                // If this one is 0, distance to next must be 2* diffBetweenAgents
+//                                while (nextGoal[0][middleDist + 1 + l] - nextGoal[0][middleDist + l] > 2*diffBetweenAgents){
+//                                    nextGoal[0][middleDist + 1 + l] = nextGoal[0][middleDist + 1 + l] - 1;
+//                                }
+//                            } else if (distancesDifference[middleDist + l] != 0 && distancesDifference[middleDist+1 + l] == 0){
+//                                while (nextGoal[0][middleDist + 1 + l] - nextGoal[0][middleDist + l] > 2*diffBetweenAgents){
+//                                    nextGoal[0][middleDist + 1 + l] = nextGoal[0][middleDist + 1 + l] - 1;
+//                                    nextGoal[0][middleDist + 2 + l] = nextGoal[0][middleDist + 2 + l] - 1;
+//                                }
+//                            } else if (distancesDifference[middleDist + l] == 0 && distancesDifference[middleDist+1 + l] == 0){
+//                                while (nextGoal[0][middleDist + 1 + l] - nextGoal[0][middleDist + l] < 2*diffBetweenAgents){
+//                                    nextGoal[0][middleDist + 1 + l] = nextGoal[0][middleDist + 1 + l] + 1;
+//                                    nextGoal[0][middleDist + 2 + l] = nextGoal[0][middleDist + 2 + l] + 1;
+//                                }
+//                            }
+//                        }
+
+
+//                    System.out.println(Arrays.toString(distancesDifference));
+
+
+
                 }
 
 
