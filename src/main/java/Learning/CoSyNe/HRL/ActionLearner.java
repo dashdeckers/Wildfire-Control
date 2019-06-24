@@ -26,7 +26,7 @@ public class ActionLearner extends SubSyne {
     protected void testMLP(){
         //Goal learner does not run its own generation, so testMLP asks for inputs, and grants fitness
         if(goalLearner == null){
-            goalLearner = new GoalLearner();
+            goalLearner = new GoalLearner(true);
         }
         double[] dist = goalLearner.generateGoals(model);
         model.setSubGoals(dist);

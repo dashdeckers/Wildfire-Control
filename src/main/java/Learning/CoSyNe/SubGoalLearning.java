@@ -17,6 +17,8 @@ import java.util.Arrays;
 
 import static java.lang.Double.NaN;
 
+
+
 /**
  * SubGoalLearning is the class which learns at what distances the subgoals should be placed.
  * While it is a RLcontroller, we will not be using it as such, since we're not picking actions but defining subgoals
@@ -25,10 +27,16 @@ public class SubGoalLearning extends CoSyNe  {
 
     OffsetFeatures features;
     int startPrinting = 1;
+    boolean gui;
 
-    public SubGoalLearning(){
+    public SubGoalLearning(boolean gui){
         super();
-        model = new Simulation(false);  //Not Simulation(this), since we don't pick the individual moves
+        this.gui = gui;
+        model = new Simulation(gui);  //Not Simulation(this), since we don't pick the individual moves
+        if (gui){
+            new MainFrame(model);
+        }
+
         performLearning();
     }
 
@@ -88,28 +96,31 @@ public class SubGoalLearning extends CoSyNe  {
 //            System.out.println("getFit  = " + getFitness());
 //            System.out.println("------");
 
-            model = new Simulation(false);
-            model.getParameter_manager().changeParameter("Model", "Step Time", 1000f);
-            JFrame f = new MainFrame(model);
-            dist = model.getSubGoals();
-            for(int i = 0; i < dist.length; i++){
-                dist[i] = determineOffset(i, dist.length);
-//                System.out.println("dist[ " + i + " ] = " + dist[i]);
-//                System.out.println("--------------------------");
-            }
-            model.setSubGoals(dist);
-            model.start();
-            try {
-                Thread.sleep(Math.abs(1000));
-            } catch (java.lang.InterruptedException e) {
-                System.out.println(e.getMessage());
-            }
-            screenshot(0, (int) getFitness());
-
-            ultimate_performance = getFitness();
-            f.dispose();
+//            model = new Simulation(false);
+//            model.getParameter_manager().changeParameter("Model", "Step Time", 1000f);
+//            JFrame f = new MainFrame(model);
+//            dist = model.getSubGoals();
+//            for(int i = 0; i < dist.length; i++){
+//                dist[i] = determineOffset(i, dist.length);
+////                System.out.println("dist[ " + i + " ] = " + dist[i]);
+////                System.out.println("--------------------------");
+//            }
+//            model.setSubGoals(dist);
+//            model.start();
+//            try {
+//                Thread.sleep(Math.abs(1000));
+//            } catch (java.lang.InterruptedException e) {
+//                System.out.println(e.getMessage());
+//            }
+//            screenshot(0, (int) getFitness());
+//
+//            ultimate_performance = getFitness();
+//            f.dispose();
         }
-        model = new Simulation(false);
+        model = new Simulation(gui);  //Not Simulation(this), since we don't pick the individual moves
+        if (gui){
+            new MainFrame(model);
+        }
     }
 
     /**

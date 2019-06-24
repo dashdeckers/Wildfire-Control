@@ -28,6 +28,8 @@ public class Agent implements Serializable{
 
     //Optimal path, i.e. elements that should be visited, found by A* will be stored here.
     public SubGoal goal;
+    public int direction = 1;
+    public int nextGoal = 0;
 
     /**
      * Create an agent at X,Y with a certain id.
@@ -115,9 +117,10 @@ public class Agent implements Serializable{
             }
             //Make it so that the agents dies when it lands on a burning cell
             Element currentCell = simulation.getAllCells().get(x).get(y);
-            //if (currentCell.isBurning()) {isAlive = false; System.out.println("-----------DEAD------------");}
+            if (currentCell.isBurning()) {isAlive = false;}
+            //System.out.println("-----------DEAD------------");
             simulation.applyUpdates();
-            simulation.checkSubGoals();
+            simulation.checkSubGoals(this);
 
         }
     }
@@ -366,14 +369,25 @@ public class Agent implements Serializable{
         return color;
     }
 
-    public boolean onGoal(){
-        if (goal == null || goal.getPath() == null || goal.getPath().empty()
-                ||( goal.goal.getX() == getX() && goal.goal.getY() == getY())
-                ){
-            return false;
-        }
-        return true;
-    }
+//    public boolean onGoal(){
+//
+//        if (goal != null){
+//            System.out.println("in onGoal/Agent");
+//            System.out.println("xGoal, yGoal = " + (goal.goal.getX()) + ", " + (goal.goal.getY()) );
+//            System.out.println("xAgent, yAge = " + (getX()) + ", " + (getY()) );
+//            System.out.println(( goal.goal.getX() == getX() && goal.goal.getY() == getY()));
+//        }
+//
+//
+//        if (goal == null || goal.getPath() == null || goal.getPath().empty()
+//                ||( goal.goal.getX() == getX() && goal.goal.getY() == getY())
+//                ){
+//            System.out.println("------FALSE");
+//            return false;
+//        }
+//        System.out.println("------TRUE");
+//        return true;
+//    }
 
     public void setGoal(SubGoal goal) {this.goal = goal; }
 }

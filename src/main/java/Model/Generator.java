@@ -75,15 +75,15 @@ class Generator implements Serializable {
         model.getAllCells().get(width/2).get(height/2-1).setBurning();
 
         //Place Agent to the left of the static fire : CIRCLE
-//        agents.add(new Agent(0 ,height/2,model, parameter_manager,0));
-//        agents.add(new Agent(width/4,height/4,model, parameter_manager,1));
-//        agents.add(new Agent(width/2 ,0, model, parameter_manager,2));
-//        agents.add(new Agent(width*3/4,height/4,model, parameter_manager,3));
-//
-//        agents.add(new Agent(width-1 ,height/2,model, parameter_manager,4));
-//        agents.add(new Agent(width*3/4,height*3/4,model, parameter_manager,5));
-//        agents.add(new Agent(width/2 ,height-1, model, parameter_manager,6));
-//        agents.add(new Agent(width/4,height*3/4,model, parameter_manager,7));
+        agents.add(new Agent(0 ,height/2,model, parameter_manager,0));
+        agents.add(new Agent(width/4,height/4,model, parameter_manager,1));
+        agents.add(new Agent(width/2 ,0, model, parameter_manager,2));
+        agents.add(new Agent(width*3/4,height/4,model, parameter_manager,3));
+
+        agents.add(new Agent(width-1 ,height/2,model, parameter_manager,4));
+        agents.add(new Agent(width*3/4,height*3/4,model, parameter_manager,5));
+        agents.add(new Agent(width/2 ,height-1, model, parameter_manager,6));
+        agents.add(new Agent(width/4,height*3/4,model, parameter_manager,7));
 
         // Circle: shifted
 //        agents.add(new Agent(0 ,height/2,model, parameter_manager,2));
@@ -106,14 +106,14 @@ class Generator implements Serializable {
 //        agents.add(new Agent(7 ,height/2,model, parameter_manager,7));
 
         //// Random:
-        agents.add(new Agent(5 ,29,model, parameter_manager,0));
-        agents.add(new Agent(13 ,31,model, parameter_manager,1));
-        agents.add(new Agent(width-1,height/2,model, parameter_manager,2));
-        agents.add(new Agent(7 ,11,model, parameter_manager,3));
-        agents.add(new Agent(39 ,29,model, parameter_manager,4));
-        agents.add(new Agent(28 ,35,model, parameter_manager,5));
-        agents.add(new Agent(1 ,10,model, parameter_manager,6));
-        agents.add(new Agent(12 ,6,model, parameter_manager,7));
+//        agents.add(new Agent(5 ,29,model, parameter_manager,0));
+//        agents.add(new Agent(13 ,31,model, parameter_manager,1));
+//        agents.add(new Agent(width-1,height/2,model, parameter_manager,2));
+//        agents.add(new Agent(7 ,11,model, parameter_manager,3));
+//        agents.add(new Agent(39 ,29,model, parameter_manager,4));
+//        agents.add(new Agent(28 ,35,model, parameter_manager,5));
+//        agents.add(new Agent(1 ,10,model, parameter_manager,6));
+//        agents.add(new Agent(12 ,6,model, parameter_manager,7));
 
 
 

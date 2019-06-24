@@ -13,8 +13,8 @@ import java.util.Arrays;
  */
 public class GoalLearner extends SubGoalLearning {
 
-    public GoalLearner(){
-        super();
+    public GoalLearner(boolean gui){
+        super(gui);
     }
 
     /**

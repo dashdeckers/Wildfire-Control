@@ -151,6 +151,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 		//TODO: Implement multiple agents -> changed setNextgoal
 		//subGoals.setNextGoal(agents.get(0));
 		subGoals.setNextGoal();
+		//System.out.println("setNextGoalNEW, SIM 154------------");
 		useSubGoal = true;
 	}
 
@@ -162,13 +163,26 @@ public class Simulation extends Observable implements Serializable, Observer {
 		dist = d;
 	}
 
-	public void checkSubGoals(){
+	public void checkSubGoals(Agent agent){
         if (useSubGoal){
-            if (agents.size() != 0 && !agents.get(0).onGoal()){
+        	//System.out.println("Above if statement");
+			//System.out.println("agents.size() = " + agents.size());
+
+//			// List of agents changes, but agentsID stays the same
+//			int ID = agent.getId();
+//			int numberAgentInListAgent = 0;
+//			for(int i = 0; i < agents.size(); i ++){
+//				if(agents.get(i).getId() == ID){
+//					numberAgentInListAgent = i;
+//				}
+//			}
+        	// TODO: ENTER IF STATEMENT
+            //if (agents.size() != 0 && !agents.get(0).onGoal()){
             	//TODO: changes setNextGoal
                 subGoals.setNextGoal();
+				//System.out.println("setNextGoal, SIM 171");
                 goalsHit++;
-            }
+            //}
         }
     }
 
@@ -293,7 +307,9 @@ public class Simulation extends Observable implements Serializable, Observer {
 			int fireY = (int)features.locationCenterFireAndMinMax(this)[1];
             subGoals = new OrthogonalSubgoals(fireX, fireY, dist, algorithm, cells, this);
             //TODO: changed setNextGoal
+			System.out.println("setNextGoal, SIM 298");
             subGoals.setNextGoal();
+			System.out.println("setNextGoal, SIM 299");
 		}
 		setChanged();
 		notifyObservers(cells);
@@ -371,7 +387,7 @@ public class Simulation extends Observable implements Serializable, Observer {
 		}
 
 		//ToDo: commented this out
-		//Can be removed once Orthogonal Subgoals are assigned by a controller
+//		//Can be removed once Orthogonal Subgoals are assigned by a controller
 //		if (useSubGoal){
 //		    //System.out.println("Wtf");
 //		    if (agents.size() != 0 && !agents.get(0).onGoal()){
@@ -379,7 +395,6 @@ public class Simulation extends Observable implements Serializable, Observer {
 //		        goalsHit++;
 //            }
 //        }
-
 
 
 		for (Agent a : agents){

@@ -41,7 +41,9 @@ public class Main {
 			f.simulationPanel.addKeyListener(hc);
 			hc.simulationPanel = f.simulationPanel;
 		} else if (args.length > 0 && args[0].equals("sub")){
-			new SubGoalLearning();
+			new SubGoalLearning(false);
+		}  else if (args.length > 0 && args[0].equals("subGUI")){
+			new SubGoalLearning(true);
 		} else if (args.length > 0 && args[0].equals("subSyne")){
 			new SubSyne();
 		}

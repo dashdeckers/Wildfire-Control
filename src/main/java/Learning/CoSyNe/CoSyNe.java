@@ -55,13 +55,15 @@ public abstract class CoSyNe implements RLController {
         for(generation = 0; generation < defN_generations(); generation++){
             mean_perfomance = 0;
             for(int test = 0; test < defGenerationSize(); test++){
+                //System.out.println("testInGeneration = " + test);
                 createMLP();
                 testMLP();
+                //System.out.println("------ " + test);
             }
             //System.out.println("UltPerfCos = " + ultimate_performance);
             //System.out.println("Generation = " + generation);
             mean_perfomance /= defGenerationSize();
-            printPerformance();
+            printPerformanceToFile();
             best_performance = null;
             breed();
         }
@@ -74,7 +76,7 @@ public abstract class CoSyNe implements RLController {
     protected void printPerformance() {
         System.out.println("Best performance: " + best_performance);
         System.out.println("Mean perforamcne: " + mean_perfomance);
-        System.out.println("--------------------------------------");
+        //System.out.println("--------------------------------------");
     }
 
     /**
